@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-light.min.css">
+    <link rel="stylesheet" href="/main.css">
+    <title>Autodesk Forge: Hubs Browser</title>
+</head>
+
+<body>
+    <div id="header">
+        <img class="logo" src="/logo.png" alt="Autodesk Forge">
+        <span class="title">Hubs Browser</span>
+        <button id="login" style="visibility: hidden;">Login</button>
+    </div>
+    <div id="sidebar">
+        <div id="tree"></div>
+    </div>
+    <div id="preview">
+      <div id="info">
+        <img id="thumbnail" src="/box-200x200.png" />
+        <span id="title"></span>
+      </div>
+      <div id="properties"></div> 
+      <div id="controls">
+        <input id="propertyName" type="text" placeholder="name" />
+        <input id="propertyValue" type="text" placeholder="value" />
+        <select id="propertyType">
+          <option value="Boolean">Boolean</option>
+          <option value="Cost">Cost</option>
+          <option value="Integer">Integer</option>
+          <option value="Length">Length</option>
+          <option value="String">String</option>
+        </select>
+        <br />
+        <button id="createGroup">Create Property Group</button>
+        <button id="createProperty">Create Property</button>
+        <button id="updateProperty">Update Property</button>
+        <button id="deleteProperty">Delete Property</button>
+      </div>
+    </div>
+    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://unpkg.com/inspire-tree@4.3.1/dist/inspire-tree.js"></script>
+    <script src="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-dom.min.js"></script>
+    <script src="/main.js" type="module"></script>
+</body>
+
+</html>
