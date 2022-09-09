@@ -207,6 +207,7 @@ async getModelOccurrences(componentVersionId) {
         createPropertyGroup(input: {extendableId: $extendableId, name: $propertyGroupName}) {
           propertyGroup {
             id
+            name
             __typename
           }
         }
