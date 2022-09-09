@@ -34,7 +34,7 @@ router.post('/:version_id/propertygroups', async function (req, res, next) {
       
     res.json(propertyGroup);
   } catch (err) {
-    res.status(400).end();
+    res.status(400).json(err);
   }
 });
 
@@ -45,34 +45,35 @@ router.post('/:propertygroup_id/properties', async function (req, res, next) {
       
     res.json(property);
   } catch (err) {
-    res.status(400).end();
+    res.status(400).json(err);
   }
 });
 
-router.put('/:propertygroup_id/properties/property_name', async function (req, res, next) {
+router.put('/:propertygroup_id/properties/:property_name', async function (req, res, next) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
     const property = await fd.updateProperty(req.params.propertygroup_id, 
       { 
         name: req.params.property_name,
-        value: req.body.value
+        value: req.body.value,
+        type: req.body.type
       }
     );
       
     res.json(property);
   } catch (err) {
-    res.status(400).end();
+    res.status(400).json(err);
   }
 });
 
-router.delete('/:propertygroup_id/property_name', async function (req, res, next) {
+router.delete('/:propertygroup_id/properties/:property_name', async function (req, res, next) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const property = await fd.deleteProperty(req.params.propertygroup_id, { name: req.params.propertygroup_name });
+    const property = await fd.deleteProperty(req.params.propertygroup_id, { name: req.params.property_name });
       
     res.json(property);
   } catch (err) {
-    res.status(400).end();
+    res.status(400).json(err);
   }
 });
 

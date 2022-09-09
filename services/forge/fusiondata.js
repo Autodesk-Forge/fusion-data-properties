@@ -29,6 +29,7 @@ class App {
     if (response.data.errors) {
       let formatted = JSON.stringify(response.data.errors, null, 2);
       console.log(`API error:\n${formatted}`);
+      throw response.data.errors;
     }
 
     return response;
@@ -47,6 +48,14 @@ class App {
               }
             }
           }
+          ... on DrawingFileVersion {
+            drawingVersion {
+              thumbnail {
+                status
+                mediumImageUrl
+              }
+            }
+          }
         }
       }`,
       {
@@ -55,7 +64,8 @@ class App {
       }
     )
 
-    let thumbnail = response.data.data.fileVersion.rootComponentVersion.thumbnail;
+    let fileVersion = response.data.data.fileVersion;
+    let thumbnail = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.thumbnail : fileVersion.drawingVersion.thumbnail;
 
     let resp = await axios({
       method: 'GET',
@@ -91,6 +101,23 @@ async getProperties(projectId, fileVersionId) {
             }
           }
         }
+        ... on DrawingFileVersion {
+          drawingVersion {
+            id
+            propertyGroups {
+              results {
+                __typename
+                id
+                name
+                properties {
+                  name
+                  displayValue
+                  __typename
+                }
+              }
+            }
+          }
+        }
       }
     }`,
     {
@@ -99,7 +126,8 @@ async getProperties(projectId, fileVersionId) {
     }
   )
 
-  let properties = response.data.data.fileVersion.rootComponentVersion;
+  let fileVersion = response.data.data.fileVersion;
+  let properties = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion : fileVersion.drawingVersion;
 
   return properties;
 }
@@ -143,11 +171,23 @@ async getProperties(projectId, fileVersionId) {
 
 // <createProperty>
   async createProperty(propertyGroupId, property) {  
-    await this.sendQuery(
-      `mutation CreateProperty($propertyGroupId: ID!, $name: String!, $value: ${property.type}!) {
+    const valueTypes = {
+      'Integer': 'Int',
+      'Cost': 'Float',
+      'Length': 'Float',
+      'String': 'String',
+      'Boolean': 'Boolean'
+    }
+    if (['Integer', 'Cost', 'Length'].includes(property.type)) {
+      property.value = parseFloat(property.value);
+    }
+
+    let response = await this.sendQuery(
+      `mutation CreateProperty($propertyGroupId: ID!, $name: String!, $value: ${valueTypes[property.type]}!) {
         create${property.type}Property(input: {propertyGroupId: $propertyGroupId, name: $name, value: $value}) {
           property {
             name
+            displayValue
             __typename
           }
         }
@@ -158,16 +198,31 @@ async getProperties(projectId, fileVersionId) {
         value: property.value
       }
     )
+
+    return response.data.data[`create${property.type}Property`].property;
   }
 // </createProperty>
 
 // <updateProperty>
   async updateProperty(propertyGroupId, property) {  
-    await this.sendQuery(
-      `mutation UpdateProperty($propertyGroupId: ID!, $name: String!, $value: ${property.type}!) {
+    const valueTypes = {
+      'Integer': 'Int',
+      'Cost': 'Float',
+      'Length': 'Float',
+      'String': 'String',
+      'Boolean': 'Boolean'
+    }
+    if (['Integer', 'Cost', 'Length'].includes(property.type)) {
+      property.value = parseFloat(property.value);
+    }
+
+    let response = await this.sendQuery(
+      `mutation UpdateProperty($propertyGroupId: ID!, $name: String!, $value: ${valueTypes[property.type]}!) {
         update${property.type}Property(input: {propertyGroupId: $propertyGroupId, name: $name, value: $value}) {
           property {
             name
+            value
+            displayValue
           }
         }
       }`,
@@ -177,12 +232,14 @@ async getProperties(projectId, fileVersionId) {
         value: property.value
       }
     )
+
+    return response.data.data[`update${property.type}Property`].property;
   }
 // </updateProperty>
 
 // <deleteProperty>
   async deleteProperty(propertyGroupId, property) {  
-    await this.sendQuery(
+    let response = await this.sendQuery(
       `mutation DeleteProperty($propertyGroupId: ID!, $name: String!) {
         deleteProperty(input: {propertyGroupId: $propertyGroupId, name: $name}) {
           name
@@ -193,6 +250,8 @@ async getProperties(projectId, fileVersionId) {
         name: property.name
       }
     )
+
+    return response.data.data.deleteProperty;
   }
 // </deleteProperty>
 }
