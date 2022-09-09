@@ -10,7 +10,7 @@ async function getJSON(url, verb = 'GET', body) {
   });
   if (!resp.ok) {
       const err = await resp.json();
-      alert(err[0].message);
+      //alert(err[0].message);
       console.error(err);
       throw err;
   }
@@ -21,6 +21,7 @@ export async function showOccurrences(componentVersionId) {
   // See http://inspire-tree.com
   const tree = new InspireTree({
       data: async function (node) {
+        try {
           if (node && node.id) 
             componentVersionId = node.id;
 
@@ -32,11 +33,11 @@ export async function showOccurrences(componentVersionId) {
             text: item.componentVersion.name,
             children: true
           }})
-          
-          //document.getElementById('properties').attributes['extendableId'] = propertyGroups.id;
           document.getElementById('occurrences').classList.remove("loading");
-
           return results;
+        } catch {
+          document.getElementById('occurrences').classList.remove("loading");
+        }
       }
   });
   
