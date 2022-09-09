@@ -20,7 +20,7 @@
               "FORGE_CLIENT_ID": "",
               "FORGE_CLIENT_SECRET": "",
               "FORGE_CALLBACK_URL": "http://localhost:3000/api/auth/callback",
-              "SERVER_SESSION_SECRET": "mysecret"
+              "SERVER_SESSION_SECRET": "mysecret2"
             }
         }
     ]
