@@ -19,5 +19,9 @@
   },
   "devDependencies": {
     "@types/forge-viewer": "^7.48.0"
+  },
+  "engines": {
+    "npm": "8.5.1",
+    "node": "17.6.0"
   }
 }
