@@ -1,3 +1,5 @@
+import { showOccurrences } from './occurrences.js';
+
 async function getJSON(url, verb = 'GET', body) {
   const resp = await fetch(url, {
     method: verb,
@@ -50,9 +52,11 @@ function selectNode(node) {
   document.getElementById('propertyType').value = getPropertyType(node.__typename);
 }
 
-export async function showProperties(projectId, fileVersionId, fileName) {
-  showThumbnail(projectId, fileVersionId);
-  showName(fileVersionId, fileName);
+export async function showProperties(projectId, fileVersionId, fileName, extendableId) {
+  if (projectId && fileVersionId) {
+    showThumbnail(projectId, fileVersionId);
+    showName(fileVersionId, fileName);
+  }
 
   document.getElementById('createGroup').onclick = async () => {
     try {
@@ -144,7 +148,10 @@ export async function showProperties(projectId, fileVersionId, fileName) {
   const tree = new InspireTree({
       data: async function (node) {
           if (!node || !node.id) {
-            const propertyGroups = await getJSON(`/api/fusiondata/${projectId}/${encodeURIComponent(fileVersionId)}/properties`);
+            const propertyGroups = extendableId ?
+              await getJSON(`/api/fusiondata/${extendableId}/properties`)
+              :
+              await getJSON(`/api/fusiondata/${projectId}/${encodeURIComponent(fileVersionId)}/properties`);
             console.log(propertyGroups);
             for (let group of propertyGroups.propertyGroups.results) {
               for (let property of group.properties) {
@@ -163,6 +170,9 @@ export async function showProperties(projectId, fileVersionId, fileName) {
 
             document.getElementById('properties').attributes['extendableId'] = propertyGroups.id;
             document.getElementById('properties').classList.remove("loading");
+
+            if (!extendableId)
+              showOccurrences(propertyGroups.id);
 
             return propertyGroups.propertyGroups.results;
           } 

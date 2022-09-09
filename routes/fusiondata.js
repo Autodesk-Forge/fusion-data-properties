@@ -6,13 +6,33 @@ let router = express.Router();
 
 router.use(authRefreshMiddleware);
 
+router.get('/:version_id/occurrences', async function (req, res, next) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const occurrences = await fd.getModelOccurrences(req.params.version_id);
+    res.json(occurrences);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/:extendable_id/properties', async function (req, res, next) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const occurrences = await fd.getPropertiesForExtandable(req.params.extendable_id);
+    res.json(occurrences);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
 router.get('/:project_id/:version_id/properties', async function (req, res, next) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
     const properties = await fd.getProperties(req.params.project_id, req.params.version_id);
     res.json(properties);
   } catch (err) {
-    next(err);
+    res.status(400).json(err);
   }
 });
 

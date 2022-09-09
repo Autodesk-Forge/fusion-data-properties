@@ -133,6 +133,73 @@ async getProperties(projectId, fileVersionId) {
 }
 // </getProperties>
 
+// <getPropertiesForExtandable>
+async getPropertiesForExtandable(extendableId) {  
+  let response = await this.sendQuery(
+    `query GetProperties($extendableId: ID!) {
+      propertyGroups(extendableId: $extendableId) {
+        results {
+          __typename
+          id
+          name
+          properties {
+            name
+            displayValue
+            __typename
+          }
+        }
+      }
+    }`,
+    {
+      extendableId
+    }
+  )
+
+  return {
+    id: extendableId,
+    propertyGroups: response.data.data.propertyGroups
+  };
+}
+// </getPropertiesForExtandable>
+
+// <getModelOccurrences>
+async getModelOccurrences(componentVersionId) {
+  let cursor = null;
+  let result = []; 
+  while (true) {
+    let response = await this.sendQuery(
+      `query GetModelOccurrences($componentVersionId: String!${cursor ? ', $cursor: String!' : ''}) {
+        componentVersion(componentVersionId: $componentVersionId) {
+          modelOccurrences${cursor ? '(pagination: {cursor: $cursor})' : ''} {
+            results {
+              componentVersion {
+                id
+                name
+              }
+            }
+            pagination {
+              cursor
+            }
+          }
+        }
+      }`,
+      {
+        componentVersionId,
+        cursor
+      }
+    )
+
+    result = result.concat(response.data.data.componentVersion.modelOccurrences.results);
+
+    cursor = response.data.data.componentVersion.modelOccurrences.pagination.cursor;
+    if (!cursor)
+      break;
+  }
+
+  return result;
+}
+// </getModelOccurrences>
+
 // <createPropertyGroup>
   async createPropertyGroup(extendableId, propertyGroupName) {  
     let response = await this.sendQuery(
