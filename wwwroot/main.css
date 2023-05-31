@@ -55,8 +55,8 @@ body, html {
   display: inline-block;
 }
 
-#occurrences {
-  height: 60%;
+#occurrences, #collections {
+  height: 30%;
   width: 50%;
   overflow: auto;
   border-color: lightgrey;
@@ -66,8 +66,8 @@ body, html {
   box-sizing: border-box;
 }
 
-#properties {
-  height: 60%;
+#properties, #definitions {
+  height: 30%;
   width: 50%;
   overflow: auto;
   border-color: lightgrey;

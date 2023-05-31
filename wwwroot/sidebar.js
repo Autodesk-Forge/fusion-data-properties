@@ -63,7 +63,9 @@ export function initTree(selector, onSelectionChanged) {
             for (var projectNode = node; !projectNode.id.startsWith('project'); projectNode = projectNode.itree.parent) {}
             const tokens2 = projectNode.id.split('|');
             const fileName = node.itree.parent.text;
-            onSelectionChanged(tokens2[2], tokens[1], fileName);
+            onSelectionChanged(tokens2[1], tokens2[2], tokens[1], fileName);
+        } else if (tokens[0] === 'hub') {
+          onSelectionChanged(tokens[1]);
         }
     });
     return new InspireTreeDOM(tree, { target: selector });

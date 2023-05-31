@@ -1,4 +1,4 @@
-import { showProperties } from './properties.js';
+import { showProperties, showCollections } from './properties.js';
 import { initTree } from './sidebar.js';
 
 const login = document.getElementById('login');
@@ -18,6 +18,7 @@ try {
                 document.body.removeChild(iframe);
             };
         }
+        showCollections();
         initTree('#tree', showProperties);
     } else {
         login.innerText = 'Login';

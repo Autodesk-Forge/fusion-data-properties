@@ -1,11 +1,20 @@
-const { AuthClientThreeLegged, UserProfileApi } = require('forge-apis');
-const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES } = require('../../config.js');
+const { AuthClientThreeLegged, UserProfileApi, ApiClient, AuthClientTwoLegged } = require('forge-apis');
+const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES, BASE_URL } = require('../../config.js');
 
 const internalAuthClient = new AuthClientThreeLegged(FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
 const publicAuthClient = new AuthClientThreeLegged(FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
+const internal2LOClient = new AuthClientTwoLegged(FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, INTERNAL_TOKEN_SCOPES)
+
+internal2LOClient.basePath = internalAuthClient.basePath = publicAuthClient.basePath = BASE_URL;
+
+async function get2LO() {
+  let str = await internal2LOClient.authenticate();
+  return str.access_token;
+}
 
 function getAuthorizationUrl() {
-    return internalAuthClient.generateAuthUrl();
+    let str = internalAuthClient.generateAuthUrl();
+    return str;
 }
 
 async function authCallbackMiddleware(req, res, next) {
@@ -45,11 +54,14 @@ async function authRefreshMiddleware(req, res, next) {
 }
 
 async function getUserProfile(token) {
-    const resp = await new UserProfileApi().getUserProfile(internalAuthClient, token);
+  const api = new UserProfileApi();
+  api.apiClient.basePath = BASE_URL;
+    const resp = await api.getUserProfile(internalAuthClient, token);
     return resp.body;
 }
 
 module.exports = {
+    get2LO,
     internalAuthClient,
     getAuthorizationUrl,
     authCallbackMiddleware,

@@ -5,23 +5,64 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Server",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": [
-                "start"
-            ],
-            "envFile": "${workspaceFolder}/.env",
-            "skipFiles": [
-                "<node_internals>/**/*.js"
-            ],
-            "env": {
-              "FORGE_CLIENT_ID": "",
-              "FORGE_CLIENT_SECRET": "",
-              "FORGE_CALLBACK_URL": "http://localhost:3000/api/auth/callback",
-              "SERVER_SESSION_SECRET": "mysecret2"
-            }
-        }
+          "type": "node",
+          "request": "launch",
+          "name": "PRD",
+          "runtimeExecutable": "npm",
+          "runtimeArgs": [
+              "start"
+          ],
+          "envFile": "${workspaceFolder}/.env",
+          "skipFiles": [
+              "<node_internals>/**/*.js"
+          ],
+          "env": {
+            "FORGE_CLIENT_ID": "",
+            "FORGE_CLIENT_SECRET": "",
+            "FORGE_CALLBACK_URL": "http://localhost:3000/api/auth/callback",
+            "SERVER_SESSION_SECRET": "mysecret",
+            "BASE_URL": "https://developer.api.autodesk.com"
+          }
+        },
+        {
+          "type": "node",
+          "request": "launch",
+          "name": "STG (me)",
+          "runtimeExecutable": "npm",
+          "runtimeArgs": [
+              "start"
+          ],
+          "envFile": "${workspaceFolder}/.env",
+          "skipFiles": [
+              "<node_internals>/**/*.js"
+          ],
+          "env": {
+            "FORGE_CLIENT_ID": "",
+            "FORGE_CLIENT_SECRET": "",
+            "FORGE_CALLBACK_URL": "http://localhost:3000/api/auth/callback",
+            "SERVER_SESSION_SECRET": "mysecret",
+            "BASE_URL": "https://developer-stg.api.autodesk.com"
+          }
+      },
+        {
+          "type": "node",
+          "request": "launch",
+          "name": "STG (3rd)",
+          "runtimeExecutable": "npm",
+          "runtimeArgs": [
+              "start"
+          ],
+          "envFile": "${workspaceFolder}/.env",
+          "skipFiles": [
+              "<node_internals>/**/*.js"
+          ],
+          "env": {
+            "FORGE_CLIENT_ID": "",
+            "FORGE_CLIENT_SECRET": "",
+            "FORGE_CALLBACK_URL": "http://localhost:3000/api/auth/callback",
+            "SERVER_SESSION_SECRET": "mysecret",
+            "BASE_URL": "https://developer-stg.api.autodesk.com"
+          }
+      }
     ]
 }

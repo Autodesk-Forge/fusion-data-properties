@@ -1,10 +1,11 @@
 // Axios is a promise-based HTTP client for the browser and node.js. 
 const axios = require("axios");
+const { BASE_URL } = require('../../config.js');
 
 // Application constructor 
 class App {
   constructor(accessToken) {
-    this.graphAPI = 'https://developer.api.autodesk.com/fusiondata/2022-04/graphql';
+    this.graphAPI = `${BASE_URL}/fusiondata/2022-04/graphql`;
     this.accessToken = accessToken;
   }
 
@@ -79,6 +80,241 @@ class App {
   }
 // </getThumbnail>
 
+
+
+async getCollections() { 
+  let res = [];
+  let cursor = null;
+  do {
+    let response = await this.sendQuery(
+      `query propertyDefinitionCollections {
+        propertyDefinitionCollections ${cursor ? `(pagination : { cursor: "${cursor}" })` : "" } {
+          pagination {
+            cursor
+            pageSize
+          }
+          results {
+            id
+            name
+            propertyDefinitions {
+              results {
+                id
+                name
+              }
+            }
+          }
+        }
+      }`,
+      {
+      }
+    )
+    //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    res = res.concat(response?.data?.data?.propertyDefinitionCollections?.results);
+  } while (cursor)
+
+  return res;
+}
+
+async getCollectionsByHubId(hubId) { 
+  let res = [];
+  let cursor = null;
+  do {
+    let response = await this.sendQuery(
+      `query propertyDefinitionCollections ($hubId: ID!) {
+        propertyDefinitionCollectionsByHubId (hubId: $hubId${cursor ? `, pagination : { cursor: "${cursor}" }` : "" }) {
+          pagination {
+            cursor
+            pageSize
+          }
+          results {
+            id
+            name
+            propertyDefinitions {
+              results {
+                id
+                name
+              }
+            }
+          }
+        }
+      }`,
+      {
+        hubId
+      }
+    )
+    //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    res = res.concat(response?.data?.data?.propertyDefinitionCollections?.results);
+  } while (cursor)
+
+  return res;
+}
+
+async createCollection(name, isPublic) { 
+
+    let response = await this.sendQuery(
+      `mutation createPropertyDefinitionCollection($propertyDefinitionCollectionName: String!, $propertyDefinitionCollectionIsPublic: Boolean!) {
+        createPropertyDefinitionCollection(
+          input: {name: $propertyDefinitionCollectionName, isPublic: $propertyDefinitionCollectionIsPublic}
+        ) {
+          propertyDefinitionCollection {
+            id
+            name
+          }
+        }
+      }`,
+      {
+        propertyDefinitionCollectionName: name,
+        propertyDefinitionCollectionIsPublic: isPublic
+      }
+    );
+    
+
+  return response;
+}
+
+async getDefinitions(collectionId) { 
+  let res = [];
+  let cursor = null;
+  do {
+    let response = await this.sendQuery(
+      `query propertyDefinitions($propertyDefinitionCollectionId: ID!) {
+        propertyDefinitions(
+          propertyDefinitionCollectionId: $propertyDefinitionCollectionId
+        ) {
+          pagination {
+            cursor
+            pageSize
+          }
+          results {
+            id
+            name
+            type
+            isArchived
+            isHidden
+            readOnly
+            description
+            propertyBehavior
+          }
+        }
+      }`,
+      {
+        propertyDefinitionCollectionId: collectionId
+      }
+    )
+    //cursor = response?.data?.data?.propertyDefinitions?.pagination?.cursor;
+    res = res.concat(response?.data?.data?.propertyDefinitions?.results);
+  } while (cursor)
+
+  return res;
+}
+
+
+async createDefinition(collectionId, name, type, description, isHidden) { 
+
+  let response = await this.sendQuery(
+    `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!) {
+      createPropertyDefinition(
+        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: "desc", propertyBehavior: DEFAULT}
+      ) {
+        propertyDefinition {
+          id
+          name
+          type
+          isHidden
+          isArchived
+          description
+          readOnly
+          propertyBehavior
+        }
+      }
+    }`,
+    {
+      propertyDefinitionCollectionId: collectionId,
+      propertyDefinitionName: name,
+      propertyType: type,
+      description: description,
+      isHidden: isHidden
+    }
+  );
+  
+  return response?.data?.data?.createPropertyDefinition?.propertyDefinition;
+}
+
+async getDefinition(definitionId) { 
+
+  let response = await this.sendQuery(
+    `query propertyDefinition($propertyDefinitionId: ID!) {
+      propertyDefinition(propertyDefinitionId: $propertyDefinitionId) {
+        id
+        name
+        type
+        isArchived
+        isHidden
+        readOnly
+        description
+        propertyBehavior
+      }
+    }`,
+    {
+      propertyDefinitionId: definitionId
+    }
+  );
+  
+  return response?.data?.data?.propertyDefinition;
+}
+
+async updateDefinition(definitionId, description, isHidden) { 
+
+  let response = await this.sendQuery(
+    `mutation updatePropertyDefinition($propertyDefinitionId: ID!, $description: String!, $isHidden: Boolean!) {
+      updatePropertyDefinition(
+        input: {propertyDefinitionId: $propertyDefinitionId, description: $description, isHidden: $isHidden}
+      ) {
+        propertyDefinitionId
+        description
+        isHidden
+      }
+    }`,
+    {
+      propertyDefinitionId: definitionId,
+      description: description,
+      isHidden: isHidden
+    }
+  );
+  
+  return response?.data?.data?.updatePropertyDefinition;
+}
+
+async deleteDefinition(collectionId, name, type) { 
+
+  let response = await this.sendQuery(
+    `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!) {
+      createPropertyDefinition(
+        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: "desc", propertyBehavior: DEFAULT}
+      ) {
+        propertyDefinition {
+          id
+          name
+          type
+          isHidden
+          isArchived
+          description
+          readOnly
+          propertyBehavior
+        }
+      }
+    }`,
+    {
+      propertyDefinitionCollectionId: collectionId,
+      propertyDefinitionName: name,
+      propertyType: type
+    }
+  );
+  
+  return response?.data?.data?.createPropertyDefinition?.propertyDefinition;
+}
+
+
 // <getProperties>
 async getProperties(projectId, fileVersionId) {  
   let response = await this.sendQuery(
@@ -87,15 +323,13 @@ async getProperties(projectId, fileVersionId) {
         ... on DesignFileVersion {
           rootComponentVersion {
             id
-            propertyGroups {
+            __typename
+            properties {
               results {
                 __typename
-                id
-                name
-                properties {
+                value
+                propertyDefinition {
                   name
-                  displayValue
-                  __typename
                 }
               }
             }
@@ -104,18 +338,8 @@ async getProperties(projectId, fileVersionId) {
         ... on DrawingFileVersion {
           drawingVersion {
             id
-            propertyGroups {
-              results {
-                __typename
-                id
-                name
-                properties {
-                  name
-                  displayValue
-                  __typename
-                }
-              }
-            }
+            __typename
+            
           }
         }
       }
@@ -136,17 +360,15 @@ async getProperties(projectId, fileVersionId) {
 // <getPropertiesForExtandable>
 async getPropertiesForExtandable(extendableId) {  
   let response = await this.sendQuery(
-    `query GetProperties($extendableId: ID!) {
-      propertyGroups(extendableId: $extendableId) {
+    `query getAllProperties($extendableId: ID!) {
+      properties(
+        extendableId: $extendableId
+      ) {
         results {
-          __typename
-          id
-          name
-          properties {
-            name
-            displayValue
-            __typename
-          }
+            value
+            propertyDefinition {
+                name
+            }
         }
       }
     }`,
@@ -157,7 +379,7 @@ async getPropertiesForExtandable(extendableId) {
 
   return {
     id: extendableId,
-    propertyGroups: response.data.data.propertyGroups
+    propertyGroups: response.data.data.properties.results
   };
 }
 // </getPropertiesForExtandable>
@@ -200,74 +422,27 @@ async getModelOccurrences(componentVersionId) {
 }
 // </getModelOccurrences>
 
-// <createPropertyGroup>
-  async createPropertyGroup(extendableId, propertyGroupName) {  
-    let response = await this.sendQuery(
-      `mutation CreatePropertyGroup($extendableId: ID!, $propertyGroupName: String!) {
-        createPropertyGroup(input: {extendableId: $extendableId, name: $propertyGroupName}) {
-          propertyGroup {
-            id
-            name
-            __typename
-          }
-        }
-      }`,
-      {
-        extendableId,
-        propertyGroupName
-      }
-    )
-
-    return response.data.data.createPropertyGroup.propertyGroup;
-  }
-// </createPropertyGroup>
-
-// <deletePropertyGroup>
-  async deletePropertyGroup(propertyGroupId) {  
-    await this.sendQuery(
-      `mutation DeletePropertyGroup($propertyGroupId: ID!) {
-        deletePropertyGroup(input: {propertyGroupId: $propertyGroupId}) {
-          id
-        }
-      }`,
-      {
-        propertyGroupId
-      }
-    )
-  }
-// </deletePropertyGroup>
-
 // <createProperty>
-  async createProperty(propertyGroupId, property) {  
-    const valueTypes = {
-      'Integer': 'Int',
-      'Cost': 'Float',
-      'Length': 'Float',
-      'String': 'String',
-      'Boolean': 'Boolean'
-    }
-    if (['Integer', 'Cost', 'Length'].includes(property.type)) {
-      property.value = parseFloat(property.value);
-    }
+  async createProperty(extendableId, definitionId, value) {  
 
     let response = await this.sendQuery(
-      `mutation CreateProperty($propertyGroupId: ID!, $name: String!, $value: ${valueTypes[property.type]}!) {
-        create${property.type}Property(input: {propertyGroupId: $propertyGroupId, name: $name, value: $value}) {
+      `mutation setProperty($extendableId: ID!, $propertyDefinitionId: ID!, $value: PropertyValue!) {
+        setProperty(
+          input: {extendableId: $extendableId, propertyDefinitionId: $propertyDefinitionId, value: $value}
+        ) {
           property {
-            name
-            displayValue
-            __typename
+            value
           }
         }
       }`,
       {
-        propertyGroupId,
-        name: property.name,
-        value: property.value
+        extendableId: extendableId,
+        propertyDefinitionId: definitionId,
+        value: value
       }
     )
 
-    return response.data.data[`create${property.type}Property`].property;
+    return response.data.data.property;
   }
 // </createProperty>
 

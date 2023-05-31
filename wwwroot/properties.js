@@ -52,24 +52,101 @@ function selectNode(node) {
   document.getElementById('propertyType').value = getPropertyType(node.__typename);
 }
 
-export async function showProperties(projectId, fileVersionId, fileName, extendableId) {
+export async function showCollections(hubId) {
+  const collectionsElem =  document.getElementById('collections');
+  const definitionsElem =  document.getElementById('definitions');
+  collectionsElem.innerHTML = definitionsElem.innerHTML = '';
+  collectionsElem.classList.add("loading");
+    const collections = await getJSON(`/api/fusiondata/collections${hubId ? `?hub_id=${encodeURIComponent(hubId)}` : ''}`, 'GET');
+  collectionsElem.classList.remove("loading");
+  for (let collection of collections) {
+    collectionsElem.innerHTML += `<option value="${collection.id}">${collection.name}</option>`
+  }
+
+  collectionsElem.onchange = (event) => {
+    showDefinitions(event.target.value);
+  }
+
+  definitionsElem.onchange = (event) => {
+    showDefinition(event.target.value);
+  }
+
+  document.getElementById('createCollection').onclick = async () => {
+    try {
+      //const extendableId = document.getElementById('properties').attributes['extendableId'];
+      const collectionName = document.getElementById('propertyName').value; 
+      const collection = await getJSON(
+        `/api/fusiondata/collections`, 'POST',
+        JSON.stringify({ collectionName }));
+      group.text = propertyGroupName;
+      selectNode(tree.addNode(collection));
+    } catch {}
+  };
+
+  document.getElementById('createDefinition').onclick = async () => {
+    try {
+      //const extendableId = document.getElementById('properties').attributes['extendableId'];
+      const collectionId = document.getElementById('collections').value
+      const definitionName = document.getElementById('propertyName').value; 
+      const definitionType = document.getElementById('propertyType').value;
+      const definitionDescription = document.getElementById('propertyDescription').value;
+      const isHidden = document.getElementById('isHidden').checked;
+      const definition = await getJSON(
+        `/api/fusiondata/collections/${collectionId}/definitions`, 'POST',
+        JSON.stringify({ definitionName, definitionType, definitionDescription, isHidden }));
+      
+    } catch {}
+  };
+
+  document.getElementById('updateDefinition').onclick = async () => {
+    try {
+      //const extendableId = document.getElementById('properties').attributes['extendableId'];
+      const definitionId = document.getElementById('definitions').value
+      const definitionDescription = document.getElementById('propertyDescription').value;
+      const isHidden = document.getElementById('isHidden').checked;
+      const definition = await getJSON(
+        `/api/fusiondata/definitions/${definitionId}`, 'PUT',
+        JSON.stringify({ definitionDescription, isHidden }));
+      
+    } catch {}
+  };
+}
+
+async function showDefinitions(collectionId) {
+  const definitionsElem =  document.getElementById('definitions');
+  definitionsElem.innerHTML = '';
+  definitionsElem.classList.add("loading");
+    const definitions = await getJSON(`/api/fusiondata/collections/${collectionId}/definitions`, 'GET');
+  definitionsElem.classList.remove("loading");
+  for (let definition of definitions) {
+    definitionsElem.innerHTML += `<option value="${definition.id}">${definition.name}</option>`
+  }
+}
+
+async function showDefinition() {
+  const definitionsElem =  document.getElementById('definitions');
+  const definition = await getJSON(`/api/fusiondata/definitions/${definitionsElem.value}`, 'GET');
+  
+  // show values
+  document.getElementById('propertyName').value = definition.name; 
+  document.getElementById('propertyType').value = definition.type;
+  document.getElementById('propertyDescription').value = definition.description;
+  document.getElementById('isHidden').checked = definition.isHidden;
+}
+
+export async function showProperties(hubId, projectId, fileVersionId, fileName, extendableId) {
+  if (!projectId) {
+    showCollections(hubId);
+    return;
+  }
+
+
   if (projectId && fileVersionId) {
     showThumbnail(projectId, fileVersionId);
     showName(fileVersionId, fileName);
   }
 
-  document.getElementById('createGroup').onclick = async () => {
-    try {
-      const extendableId = document.getElementById('properties').attributes['extendableId'];
-      const propertyGroupName = document.getElementById('propertyName').value; 
-      const group = await getJSON(
-        `/api/fusiondata/${extendableId}/propertygroups`, 'POST',
-        JSON.stringify({ propertyGroupName }));
-      group.children = [];
-      group.text = propertyGroupName;
-      selectNode(tree.addNode(group));
-    } catch {}
-  };
+  
 
   document.getElementById('createProperty').onclick = async () => {
     try {
@@ -153,6 +230,7 @@ export async function showProperties(projectId, fileVersionId, fileName, extenda
               :
               await getJSON(`/api/fusiondata/${projectId}/${encodeURIComponent(fileVersionId)}/properties`);
             console.log(propertyGroups);
+            /*
             for (let group of propertyGroups.propertyGroups.results) {
               for (let property of group.properties) {
                 property.text = getPropertyText(property);
@@ -170,6 +248,7 @@ export async function showProperties(projectId, fileVersionId, fileName, extenda
 
             document.getElementById('properties').attributes['extendableId'] = propertyGroups.id;
             document.getElementById('properties').classList.remove("loading");
+            */
 
             if (!extendableId)
               showOccurrences(propertyGroups.id);

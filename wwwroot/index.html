@@ -27,20 +27,34 @@
       <div id="occurrences"></div> 
       <div id="properties"></div> 
       <div id="controls">
-        <input id="propertyName" type="text" placeholder="name" />
-        <input id="propertyValue" type="text" placeholder="value" />
-        <select id="propertyType">
-          <option value="Boolean">Boolean</option>
-          <option value="Cost">Cost</option>
-          <option value="Integer">Integer</option>
-          <option value="Length">Length</option>
-          <option value="String">String</option>
-        </select>
-        <br />
-        <button id="createGroup">Create Property Group</button>
         <button id="createProperty">Create Property</button>
         <button id="updateProperty">Update Property</button>
         <button id="deleteProperty">Delete Property</button>
+    </div>
+      <select id="collections" size="10"></select> 
+      <select id="definitions" size="10"></select> 
+      <div id="controls">
+        <input id="propertyName" type="text" placeholder="name" />
+        <input id="propertyValue" type="text" placeholder="value" />
+        <input id="propertyDescription" type="text" placeholder="description" />
+        <select id="propertyType">
+          <option value="DISTANCE">DISTANCE</option>
+          <option value="MASS">MASS</option>
+          <option value="VOLUME">VOLUME</option>
+          <option value="AREA">AREA</option>
+          <option value="DENSITY">DENSITY</option>
+          <option value="STRING">STRING</option>
+          <option value="INTEGER">INTEGER</option>
+          <option value="BOOLEAN">BOOLEAN</option>
+          <option value="FLOAT">FLOAT</option>
+        </select>
+        <input id="isHidden" type="checkbox">Hidden</input>
+        <br />
+        <button id="createCollection">Create Collection</button>
+        <button id="createDefinition">Create Definition</button>
+        <button id="updateDefinition">Update Definition</button>
+       
+        
       </div>
     </div>
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>
