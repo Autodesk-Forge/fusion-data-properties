@@ -1,5 +1,5 @@
-import { showProperties, showCollections } from './properties.js';
-import { initTree } from './sidebar.js';
+import { initPropertiesControl, showCollections } from './properties.js';
+import { initTreeControl } from './sidebar.js';
 
 const login = document.getElementById('login');
 try {
@@ -18,8 +18,9 @@ try {
                 document.body.removeChild(iframe);
             };
         }
+
         showCollections();
-        initTree('#tree', showProperties);
+        initTreeControl('#tree', initPropertiesControl);
     } else {
         login.innerText = 'Login';
         login.onclick = () => window.location.replace('/api/auth/login');

@@ -38,7 +38,7 @@ async function getVersions(hubId, projectId, itemId) {
     return versions.map(version => createTreeNode(`version|${version.id}`, version.attributes.createTime, 'icon-version'));
 }
 
-export function initTree(selector, onSelectionChanged) {
+export function initTreeControl(selector, onSelectionChanged) {
     // See http://inspire-tree.com
     const tree = new InspireTree({
         data: function (node) {
@@ -63,9 +63,16 @@ export function initTree(selector, onSelectionChanged) {
             for (var projectNode = node; !projectNode.id.startsWith('project'); projectNode = projectNode.itree.parent) {}
             const tokens2 = projectNode.id.split('|');
             const fileName = node.itree.parent.text;
-            onSelectionChanged(tokens2[1], tokens2[2], tokens[1], fileName);
+            onSelectionChanged(tokens[0], tokens2[1], tokens2[2], tokens[1], fileName);
+        } else if (tokens[0] === 'item') {
+          for (var projectNode = node; !projectNode.id.startsWith('project'); projectNode = projectNode.itree.parent) {}
+          const tokens2 = projectNode.id.split('|');
+          const fileName = node.itree.parent.text;
+          onSelectionChanged(tokens[0], tokens2[1], tokens2[2], tokens[3], fileName);
         } else if (tokens[0] === 'hub') {
-          onSelectionChanged(tokens[1]);
+          onSelectionChanged(tokens[0], tokens[1]);
+        } else {
+          onSelectionChanged(tokens[0]);
         }
     });
     return new InspireTreeDOM(tree, { target: selector });

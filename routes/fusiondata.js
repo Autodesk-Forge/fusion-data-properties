@@ -38,7 +38,7 @@ router.get('/collections/:collection_id/definitions', async function (req, res, 
   }
 });
 
-router.post('/collections/:collection_id/definitions', async function (req, res, next) {
+router.post('/collections/:collection_id/definitions', async function (req, res) {
   try {
     let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
     const response = await fd.createDefinition(
@@ -51,7 +51,7 @@ router.post('/collections/:collection_id/definitions', async function (req, res,
   }
 });
 
-router.get('/definitions/:definition_id', async function (req, res, next) {
+router.get('/definitions/:definition_id', async function (req, res) {
   try {
     let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
     const response = await fd.getDefinition(req.params.definition_id);
@@ -62,7 +62,7 @@ router.get('/definitions/:definition_id', async function (req, res, next) {
 });
 
 
-router.put('/definitions/:definition_id', async function (req, res, next) {
+router.put('/definitions/:definition_id', async function (req, res) {
   try {
     let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
     const response = await fd.updateDefinition(req.params.definition_id, req.body.definitionDescription, req.body.isHidden);
@@ -73,7 +73,7 @@ router.put('/definitions/:definition_id', async function (req, res, next) {
 });
 
 
-router.get('/:version_id/occurrences', async function (req, res, next) {
+router.get('/:version_id/occurrences', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
     const occurrences = await fd.getModelOccurrences(req.params.version_id);
@@ -83,7 +83,7 @@ router.get('/:version_id/occurrences', async function (req, res, next) {
   }
 });
 
-router.get('/:extendable_id/properties', async function (req, res, next) {
+router.get('/:extendable_id/properties', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
     const occurrences = await fd.getPropertiesForExtandable(req.params.extendable_id);
@@ -93,17 +93,40 @@ router.get('/:extendable_id/properties', async function (req, res, next) {
   }
 });
 
-router.get('/:project_id/:version_id/properties', async function (req, res, next) {
+router.post('/:extendable_id/properties', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const properties = await fd.getProperties(req.params.project_id, req.params.version_id);
-    res.json(properties);
+    const property = await fd.createProperty(req.params.extendable_id, req.body.definitionId, req.body.value);
+      
+    res.json(property);
   } catch (err) {
     res.status(400).json(err);
   }
 });
 
-router.get('/:project_id/:version_id/thumbnail', async function (req, res, next) {
+router.put('/:extendable_id/properties/:definition_id', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const property = await fd.updateProperty(req.params.extendable_id, req.body.value);
+      
+    res.json(property);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.delete('/:extendable_id/properties/:definition_id', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const property = await fd.deleteProperty(req.params.extendable_id, req.params.definition_id);
+      
+    res.json(property);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/:project_id/:version_id/thumbnail', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
     const thumbnail = await fd.getThumbnail(req.params.project_id, req.params.version_id);
@@ -114,51 +137,23 @@ router.get('/:project_id/:version_id/thumbnail', async function (req, res, next)
   }
 });
 
-router.post('/:version_id/propertygroups', async function (req, res, next) {
+router.get('/:project_id/:version_id/versionid', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const propertyGroup = await fd.createPropertyGroup(req.params.version_id, req.body.propertyGroupName);
+    const id = await fd.getVersionId(req.params.project_id, req.params.version_id);
       
-    res.json(propertyGroup);
+    res.json(id);
   } catch (err) {
     res.status(400).json(err);
   }
 });
 
-router.post('/:propertygroup_id/properties', async function (req, res, next) {
+router.get('/:project_id/:item_id/itemid', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const property = await fd.createProperty(req.params.propertygroup_id, req.body);
+    const id = await fd.getItemId(req.params.project_id, req.params.item_id);
       
-    res.json(property);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-});
-
-router.put('/:propertygroup_id/properties/:property_name', async function (req, res, next) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const property = await fd.updateProperty(req.params.propertygroup_id, 
-      { 
-        name: req.params.property_name,
-        value: req.body.value,
-        type: req.body.type
-      }
-    );
-      
-    res.json(property);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-});
-
-router.delete('/:propertygroup_id/properties/:property_name', async function (req, res, next) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const property = await fd.deleteProperty(req.params.propertygroup_id, { name: req.params.property_name });
-      
-    res.json(property);
+    res.json(id);
   } catch (err) {
     res.status(400).json(err);
   }

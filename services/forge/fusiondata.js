@@ -43,6 +43,7 @@ class App {
         fileVersion(projectId: $projectId, versionId: $fileVersionId) {
           ... on DesignFileVersion {
             rootComponentVersion {
+              id
               thumbnail {
                 status
                 mediumImageUrl
@@ -51,6 +52,7 @@ class App {
           }
           ... on DrawingFileVersion {
             drawingVersion {
+              id
               thumbnail {
                 status
                 mediumImageUrl
@@ -67,6 +69,7 @@ class App {
 
     let fileVersion = response.data.data.fileVersion;
     let thumbnail = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.thumbnail : fileVersion.drawingVersion.thumbnail;
+    let id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
 
     let resp = await axios({
       method: 'GET',
@@ -80,7 +83,56 @@ class App {
   }
 // </getThumbnail>
 
+async getVersionId(projectId, fileVersionId) {  
+  let response = await this.sendQuery(
+    `query GetVersionId($projectId: String!, $fileVersionId: String!) {
+      fileVersion(projectId: $projectId, versionId: $fileVersionId) {
+        ... on DesignFileVersion {
+          rootComponentVersion {
+            id
+          }
+        }
+        ... on DrawingFileVersion {
+          drawingVersion {
+            id
+          }
+        }
+      }
+    }`,
+    {
+      projectId,
+      fileVersionId
+    }
+  )
 
+  let fileVersion = response.data.data.fileVersion;
+  let id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+
+  return { id };
+}
+
+async getItemId(projectId, fileItemId) {  
+  let response = await this.sendQuery(
+    `query GetVersionId($projectId: String!, $fileItemId: String!) {
+      item(projectId: $projectId, itemId: $fileItemId) {
+        ... on DesignFile {
+          rootComponent {
+            id
+          }
+        }
+      }
+    }`,
+    {
+      projectId,
+      fileItemId
+    }
+  )
+
+  let item = response.data.data.item;
+  let id = item.rootComponent.id;
+
+  return { id };
+}
 
 async getCollections() { 
   let res = [];
@@ -143,7 +195,7 @@ async getCollectionsByHubId(hubId) {
       }
     )
     //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
-    res = res.concat(response?.data?.data?.propertyDefinitionCollections?.results);
+    res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
   } while (cursor)
 
   return res;
@@ -214,7 +266,7 @@ async createDefinition(collectionId, name, type, description, isHidden) {
   let response = await this.sendQuery(
     `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!) {
       createPropertyDefinition(
-        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: "desc", propertyBehavior: DEFAULT}
+        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, propertyBehavior: DEFAULT}
       ) {
         propertyDefinition {
           id
@@ -367,7 +419,11 @@ async getPropertiesForExtandable(extendableId) {
         results {
             value
             propertyDefinition {
+                id
                 name
+                type
+                isHidden
+                description
             }
         }
       }
@@ -377,10 +433,7 @@ async getPropertiesForExtandable(extendableId) {
     }
   )
 
-  return {
-    id: extendableId,
-    propertyGroups: response.data.data.properties.results
-  };
+  return response.data.data.properties.results;
 }
 // </getPropertiesForExtandable>
 
@@ -442,7 +495,7 @@ async getModelOccurrences(componentVersionId) {
       }
     )
 
-    return response.data.data.property;
+    return response.data.data.setProperty.property;
   }
 // </createProperty>
 

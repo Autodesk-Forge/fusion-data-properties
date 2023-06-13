@@ -1,4 +1,4 @@
-import { showProperties } from './properties.js';
+import { initPropertiesControl } from './properties.js';
 
 async function getJSON(url, verb = 'GET', body) {
   const resp = await fetch(url, {
@@ -44,7 +44,7 @@ export async function showOccurrences(componentVersionId) {
   tree.on('node.click', function (event, node) {
     event.preventTreeDefault();
     //selectNode(node);
-    showProperties(null, null, null, node.id);
+    initPropertiesControl(null, null, null, node.id);
   });
 
   document.getElementById('occurrences').classList.add("loading");

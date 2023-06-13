@@ -17,6 +17,16 @@ async function getJSON(url, verb = 'GET', body) {
   return resp.json();
 }
 
+async function useLoadingSymbol(func, elementId) {
+  const element = document.getElementById(elementId);
+  element.classList.add("loading");
+  try {
+    return await func();
+  } finally {
+    element.classList.remove("loading");
+  }
+}
+
 const NodeType = {
   PropertyGroup: 'PropertyGroup',
   Property: 'Property'
@@ -38,27 +48,30 @@ async function showThumbnail(projectId, fileVersionId) {
     `/api/fusiondata/${projectId}/${encodeURIComponent(fileVersionId)}/thumbnail`;
 }
 
+async function storeId(type, projectId, fileItemOrVersionId) {
+  const response = await getJSON(
+    `/api/fusiondata/${projectId}/${encodeURIComponent(fileItemOrVersionId)}/${type}id`, 'GET');
+
+  document.getElementById('properties').attributes['extendableId'] = response.id;
+  console.log(`Selected item's ID: ${response.id}`);
+}
+
+async function clearId() {
+  document.getElementById('properties').attributes['extendableId'] = undefined;
+}
+
 async function showName(fileVersionId, fileName) {
   const versionNumber = fileVersionId.split('?version=');
   document.getElementById('title').innerHTML = `${fileName} (v${versionNumber[1]})`
-}
-
-function selectNode(node) {
-  const tree = node.tree();
-  tree.selectedNode = node;
-  tree.selectedNode.focus();
-  document.getElementById('propertyName').value = node.name ? node.name : "";
-  document.getElementById('propertyValue').value = node.displayValue ? node.displayValue : "";
-  document.getElementById('propertyType').value = getPropertyType(node.__typename);
 }
 
 export async function showCollections(hubId) {
   const collectionsElem =  document.getElementById('collections');
   const definitionsElem =  document.getElementById('definitions');
   collectionsElem.innerHTML = definitionsElem.innerHTML = '';
-  collectionsElem.classList.add("loading");
-    const collections = await getJSON(`/api/fusiondata/collections${hubId ? `?hub_id=${encodeURIComponent(hubId)}` : ''}`, 'GET');
-  collectionsElem.classList.remove("loading");
+  const collections = await useLoadingSymbol(async () => {
+    return await getJSON(`/api/fusiondata/collections${hubId ? `?hub_id=${encodeURIComponent(hubId)}` : ''}`, 'GET')
+  }, 'collections'); 
   for (let collection of collections) {
     collectionsElem.innerHTML += `<option value="${collection.id}">${collection.name}</option>`
   }
@@ -73,19 +86,17 @@ export async function showCollections(hubId) {
 
   document.getElementById('createCollection').onclick = async () => {
     try {
-      //const extendableId = document.getElementById('properties').attributes['extendableId'];
       const collectionName = document.getElementById('propertyName').value; 
       const collection = await getJSON(
         `/api/fusiondata/collections`, 'POST',
         JSON.stringify({ collectionName }));
-      group.text = propertyGroupName;
-      selectNode(tree.addNode(collection));
+
+      showCollections(hubId);
     } catch {}
   };
 
   document.getElementById('createDefinition').onclick = async () => {
     try {
-      //const extendableId = document.getElementById('properties').attributes['extendableId'];
       const collectionId = document.getElementById('collections').value
       const definitionName = document.getElementById('propertyName').value; 
       const definitionType = document.getElementById('propertyType').value;
@@ -95,12 +106,13 @@ export async function showCollections(hubId) {
         `/api/fusiondata/collections/${collectionId}/definitions`, 'POST',
         JSON.stringify({ definitionName, definitionType, definitionDescription, isHidden }));
       
+       showDefinitions(collectionId); 
+
     } catch {}
   };
 
   document.getElementById('updateDefinition').onclick = async () => {
     try {
-      //const extendableId = document.getElementById('properties').attributes['extendableId'];
       const definitionId = document.getElementById('definitions').value
       const definitionDescription = document.getElementById('propertyDescription').value;
       const isHidden = document.getElementById('isHidden').checked;
@@ -113,11 +125,13 @@ export async function showCollections(hubId) {
 }
 
 async function showDefinitions(collectionId) {
+  console.log(`Selected collection's ID: ${collectionId}`);
+
   const definitionsElem =  document.getElementById('definitions');
   definitionsElem.innerHTML = '';
-  definitionsElem.classList.add("loading");
-    const definitions = await getJSON(`/api/fusiondata/collections/${collectionId}/definitions`, 'GET');
-  definitionsElem.classList.remove("loading");
+  const definitions = await useLoadingSymbol(async () => {
+    return await getJSON(`/api/fusiondata/collections/${collectionId}/definitions`, 'GET')
+  }, 'definitions');
   for (let definition of definitions) {
     definitionsElem.innerHTML += `<option value="${definition.id}">${definition.name}</option>`
   }
@@ -125,6 +139,8 @@ async function showDefinitions(collectionId) {
 
 async function showDefinition() {
   const definitionsElem =  document.getElementById('definitions');
+  console.log(`Selected definition's ID: ${definitionsElem.value}`);
+
   const definition = await getJSON(`/api/fusiondata/definitions/${definitionsElem.value}`, 'GET');
   
   // show values
@@ -134,136 +150,166 @@ async function showDefinition() {
   document.getElementById('isHidden').checked = definition.isHidden;
 }
 
-export async function showProperties(hubId, projectId, fileVersionId, fileName, extendableId) {
-  if (!projectId) {
+async function showProperties() {
+  const propertiesElem =  document.getElementById('properties');
+  propertiesElem.innerHTML = '';
+  const properties = await useLoadingSymbol(async () => {
+    const extendableId = propertiesElem.attributes['extendableId'];
+    return await getJSON(`/api/fusiondata/${extendableId}/properties`);
+  }, 'properties');
+
+  for (let property of properties) {
+    propertiesElem.innerHTML += 
+      `<option 
+        id="${property.propertyDefinition.id}" 
+        value="${property.value}" 
+        type="${property.propertyDefinition.type}" 
+        isHidden="${property.propertyDefinition.isHidden}" 
+        description="${property.propertyDefinition.description}">${property.propertyDefinition.name}
+      </option>`
+  }
+
+  propertiesElem.onchange = (event) => {
+    showProperty(event.target.selectedOptions[0]);
+  }
+}
+
+async function showProperty(propertyElem) {
+  const definitionId = propertyElem.getAttribute('id');
+  console.log(`Selected property's definition ID: ${definitionId}`);
+
+  document.getElementById('propertyName').value = propertyElem.text;
+  document.getElementById('propertyValue').value = propertyElem.getAttribute('value');
+  document.getElementById('propertyType').value = propertyElem.getAttribute('type');
+  document.getElementById('propertyDescription').value = propertyElem.getAttribute('description');
+  document.getElementById('isHidden').checked = propertyElem.getAttribute('isHidden') === 'true';
+}
+
+export async function initPropertiesControl(type, hubId, projectId, fileItemVersionId, fileName) {
+   if (type === 'hub') {
     showCollections(hubId);
     return;
-  }
+   }
 
-
-  if (projectId && fileVersionId) {
-    showThumbnail(projectId, fileVersionId);
-    showName(fileVersionId, fileName);
-  }
-
-  
+   if (type !== 'version' && type !== 'item') {
+    clearId();
+    return;
+   }
 
   document.getElementById('createProperty').onclick = async () => {
     try {
-      if (!tree.selectedNode) {
-        alert('Select a property or property group!');
+      const definitionId = document.getElementById('definitions').value;
+      if (!definitionId) {
+        alert('Select a property definition!');
         return;
       }
-
-      let groupNode = tree.selectedNode; 
-      if (tree.selectedNode.__typename !== NodeType.PropertyGroup) {
-        groupNode = groupNode.itree.parent;
-      }
-
-      const propertyName = document.getElementById('propertyName').value; 
-      const propertyValue = document.getElementById('propertyValue').value; 
-      const propertyType = document.getElementById('propertyType').value; 
+ 
+      const propertyValue = document.getElementById('propertyValue').value;
+      const extendableId = document.getElementById('properties').attributes['extendableId'];  
       const property = await getJSON(
-        `/api/fusiondata/${groupNode.id}/properties`, 'POST',
+        `/api/fusiondata/${extendableId}/properties`, 'POST',
         JSON.stringify({ 
-          propertyGroupId: groupNode.id,
-          name: propertyName, 
-          value: propertyValue,
-          type: propertyType
+          definitionId: definitionId,
+          value: propertyValue
       }));
-      groupNode.itree.state.collapsed = false;
-      property.text = getPropertyText(property);
-      selectNode(groupNode.children.addNode(property));
+
+      showProperties();
     } catch {}
   };
 
-  document.getElementById('updateProperty').onclick = async () => {
+  document.getElementById('updateProperty').onclick = async (event) => {
     try {
-      if (!tree.selectedNode || tree.selectedNode.__typename === NodeType.PropertyGroup) {
+      if (event.target.selectedOptions.length < 1) {
         alert('Select a property!');
         return;
       }
 
-      let groupNode = tree.selectedNode.itree.parent;
-      const propertyName = document.getElementById('propertyName').value; 
-      const propertyValue = document.getElementById('propertyValue').value; 
-      const propertyType = document.getElementById('propertyType').value; 
+      const optionElement = event.target.selectedOptions[0];
+      const definitionId = optionElement.id;
+      const extendableId = document.getElementById('properties').attributes['extendableId'];  
+      const propertyValue = document.getElementById('propertyValue').value;  
       const property = await getJSON(
-        `/api/fusiondata/${groupNode.id}/properties/${propertyName}`, 'PUT',
+        `/api/fusiondata/${extendableId}/properties/${definitionId}`, 'PUT',
         JSON.stringify({ 
-          value: propertyValue,
-          type: propertyType
+          value: propertyValue
       }));
-      tree.selectedNode.value = property.value;
-      tree.selectedNode.text = getPropertyText(property);
-      tree.selectedNode.focus();
+
     } catch {}
   };
 
   document.getElementById('deleteProperty').onclick =async () => {
     try {
-      if (!tree.selectedNode || tree.selectedNode.__typename === NodeType.PropertyGroup) {
+      if (event.target.selectedOptions.length < 1) {
         alert('Select a property!');
         return;
       }
 
-      let groupNode = tree.selectedNode.itree.parent;
-      const propertyName = document.getElementById('propertyName').value; 
+      const optionElement = event.target.selectedOptions[0];
+      const definitionId = optionElement.id;
+      const extendableId = document.getElementById('properties').attributes['extendableId'];  
       await getJSON(
-        `/api/fusiondata/${groupNode.id}/properties/${propertyName}`, 'DELETE'
+        `/api/fusiondata/${extendableId}/properties/${definitionId}`, 'DELETE'
       );
-      let prevVisibleNode = tree.selectedNode.previousVisibleNode();
-      tree.selectedNode.remove();
-      if (groupNode.children.length < 1) {
-        groupNode.collapse();
-      } 
-      selectNode(prevVisibleNode);
+
+      showProperties();  
     } catch {}
   };
 
-  // See http://inspire-tree.com
-  const tree = new InspireTree({
-      data: async function (node) {
-          if (!node || !node.id) {
-            const propertyGroups = extendableId ?
-              await getJSON(`/api/fusiondata/${extendableId}/properties`)
-              :
-              await getJSON(`/api/fusiondata/${projectId}/${encodeURIComponent(fileVersionId)}/properties`);
-            console.log(propertyGroups);
-            /*
-            for (let group of propertyGroups.propertyGroups.results) {
-              for (let property of group.properties) {
-                property.text = getPropertyText(property);
-              }
-              if (group.properties) {
-                group.children = group.properties;
-                group.itree = {
-                  state: {
-                    collapsed: group.children.length === 0
-                  }
-                };
-              }
-              group.text = group.name;
-            }
+  if (type === 'version') {
+    showThumbnail(projectId, fileItemVersionId);
+    storeId(type, projectId, fileItemVersionId).then(() => {
+      showProperties();
+    }) 
+    showName(fileItemVersionId, fileName);
+  } else {
+    storeId(type, projectId, fileItemVersionId).then(() => {
+      showProperties();
+    }) 
+  }
 
-            document.getElementById('properties').attributes['extendableId'] = propertyGroups.id;
-            document.getElementById('properties').classList.remove("loading");
-            */
+  // // See http://inspire-tree.com
+  // const tree = new InspireTree({
+  //     data: async function (node) {
+  //         if (!node || !node.id) {
+  //           const propertyGroups = extendableId ?
+  //             await getJSON(`/api/fusiondata/${extendableId}/properties`)
+  //             :
+  //             await getJSON(`/api/fusiondata/${projectId}/${encodeURIComponent(fileVersionId)}/properties`);
+  //           console.log(propertyGroups);
+  //           /*
+  //           for (let group of propertyGroups.propertyGroups.results) {
+  //             for (let property of group.properties) {
+  //               property.text = getPropertyText(property);
+  //             }
+  //             if (group.properties) {
+  //               group.children = group.properties;
+  //               group.itree = {
+  //                 state: {
+  //                   collapsed: group.children.length === 0
+  //                 }
+  //               };
+  //             }
+  //             group.text = group.name;
+  //           }
 
-            if (!extendableId)
-              showOccurrences(propertyGroups.id);
+  //           document.getElementById('properties').attributes['extendableId'] = propertyGroups.id;
+  //           document.getElementById('properties').classList.remove("loading");
+  //           */
 
-            return propertyGroups.propertyGroups.results;
-          } 
-      }
-  });
+  //           if (!extendableId)
+  //             showOccurrences(propertyGroups.id);
+
+  //           return propertyGroups.propertyGroups.results;
+  //         } 
+  //     }
+  // });
   
-  tree.on('node.click', function (event, node) {
-    event.preventTreeDefault();
-    selectNode(node);
-  });
+  // tree.on('node.click', function (event, node) {
+  //   event.preventTreeDefault();
+  //   selectNode(node);
+  // });
 
-  document.getElementById('properties').classList.add("loading");
+  // document.getElementById('properties').classList.add("loading");
 
-  return new InspireTreeDOM(tree, { target: '#properties' });
+  // return new InspireTreeDOM(tree, { target: '#properties' });
 }
