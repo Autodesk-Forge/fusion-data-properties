@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head> 
+    <title>MFG Data Model API Demo</title>
+    <style>
+      .universal-header {
+        /* universal-header */
+
+
+        /* Auto layout */
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0px;
+
+        width: 100%;
+        height: 96px;
+
+
+        /* light/fill-primary
+
+        Fill color for surfaces that are meant to contrast starkly against the page background.
+        */
+        background: #000000;
+        /* light/divider-0-bottom
+
+        Dividing line/border at the bottom.
+        */
+        box-shadow: inset 0px -1px 0px rgba(0, 0, 0, 0.1);
+
+        /* Inside auto layout */
+
+        flex: none;
+        order: 0;
+        flex-grow: 0;
+      }
+
+      .header {
+        /* ⚙️ header */
+
+
+/* Auto layout */
+
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px 68px;
+
+width: 100%;
+height: 56px;
+
+/* 🛠 utility/🛠 fill-transparent */
+
+background: rgba(255, 255, 255, 0.003);
+/* light/divider-0-bottom-on-fill-primary
+
+Dividing line/border at the bottom for items placed on surfaces with the background color fill-primary.
+*/
+box-shadow: inset 0px -1px 0px rgba(255, 255, 255, 0.2);
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+      }
+
+      .primary-navigation {
+        /* ⚙️ primary-navigation */
+
+
+/* Auto layout */
+
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px 68px;
+
+width: 100%;
+height: 40px;
+
+/* light/fill-primary-panel
+
+Background for panels or sections that are meant to be contrasting in a very subtle way against fill-primary.
+*/
+background: #0A0A0A;
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+      }
+
+      #base {
+        /* #base */
+
+
+/* Auto layout */
+
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px;
+
+width: 100%;
+height: 40px;
+
+/* 🛠 utility/🛠 fill-transparent */
+
+background: rgba(255, 255, 255, 0.003);
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+      }
+    </style>
+  </head>
+<body>
+  <div class="universal-header">
+    <div class="header">
+    </div>
+    <div class="primary-navigation">
+      <div id="base">
+        <div id="start">
+          <div id="alignment"></div>
+          <div id="negative-margin">
+            etc
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

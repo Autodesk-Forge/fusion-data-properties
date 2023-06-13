@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head> 
+    <title>MFG Data Model API Demo</title>
+   
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  </head>
+<body>
+  <main>
+  <header class="p-3 border-bottom bg-dark">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+          <svg width="176" height="30" viewBox="0 0 176 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M147.98 13.5962L144.306 13.1817C142.152 12.9445 141.62 12.4109 141.62 11.68C141.62 10.8701 142.726 10.1393 144.879 10.1393C146.953 10.1393 148.039 10.9102 148.236 12.0755H152.187C151.987 8.73669 149.183 6.66333 145.096 6.66333C140.237 6.66333 137.787 8.59853 137.787 12.0154C137.787 14.8006 139.407 16.1051 142.765 16.4605L146.498 16.8549C147.921 17.0131 148.573 17.5667 148.573 18.2775C148.573 19.0874 147.625 19.8183 145.333 19.8183C142.686 19.8183 141.62 19.1465 141.442 17.803H137.57C137.748 21.4381 140.118 23.2942 145.195 23.2942C149.836 23.2942 152.424 21.2599 152.424 18.1984C152.424 15.5314 150.883 13.9316 147.98 13.5962ZM62.3928 19.6991C64.5462 19.6991 65.8106 18.8702 65.8106 16.8159V7.03875H69.8392V17.2704C69.8392 21.8326 65.7906 23.2552 62.3928 23.2552C58.9759 23.2552 54.9073 21.8326 54.9073 17.2704V7.03875H58.9368V16.8159C58.9368 18.8302 60.2994 19.6991 62.3928 19.6991ZM7.06799 22.9008L21.2181 14.0988H28.5584C28.6148 14.0988 28.6706 14.1099 28.7226 14.1315C28.7747 14.1531 28.8219 14.1847 28.8617 14.2246C28.9016 14.2645 28.9331 14.3119 28.9546 14.364C28.976 14.4161 28.987 14.4719 28.9869 14.5283C28.9927 14.6014 28.9768 14.6746 28.9412 14.7387C28.9056 14.8028 28.8518 14.855 28.7867 14.8887L21.8368 19.0554C21.3853 19.3257 21.2271 19.8683 21.2271 20.2748L21.2201 22.9008H30.0521V7.63944C30.0523 7.56625 30.0377 7.49378 30.0091 7.4264C29.9805 7.35903 29.9386 7.29814 29.8858 7.24743C29.833 7.19671 29.7705 7.15722 29.702 7.13134C29.6336 7.10545 29.5606 7.09371 29.4875 7.09682H21.0599L6.94385 15.8608V22.9008H7.06799ZM123.072 22.8998H135.792V19.4819H127.101V16.6186H134.094V13.1807H127.101V10.5147H135.792V7.09782H123.072V22.8998ZM37.051 22.8998L43.1149 7.09782H48.2547L54.3927 22.8998H50.0878L49.0466 19.9364H42.2769L41.2187 22.8998H37.051ZM45.6898 10.3846L43.4763 16.5786L47.8663 16.5806L45.6898 10.3846ZM71.6764 10.5147H76.7732V22.8998H80.8027V10.5147H85.8785V7.09782H71.6764V10.5147ZM169.056 7.09782H164.256L158.508 13.5171V7.09782H154.478L154.498 22.8998H158.508V16.895L163.959 22.8998H169.056L161.708 15.0969L169.056 7.09782ZM106.204 7.09782H113.591C119.32 7.09782 120.82 9.32935 120.82 14.8797C120.82 20.7864 119.26 22.8998 113.591 22.8998H106.204V7.09782ZM110.225 19.4839H113.429C115.863 19.4839 116.712 18.2375 116.708 14.8797C116.708 11.2065 115.958 10.5147 113.429 10.5147H110.225V19.4839ZM86.5302 14.9588C86.5302 10.1983 89.5126 6.66333 95.2611 6.66333C101.029 6.66333 104.011 10.1983 104.011 14.9588C104.011 19.7392 101.029 23.2942 95.2611 23.2942C89.5126 23.2942 86.5302 19.7392 86.5302 14.9588ZM90.6389 14.9588C90.6389 17.9221 92.2787 19.7392 95.2611 19.7392C98.2635 19.7392 99.8834 17.9221 99.8834 14.9588C99.8834 12.0555 98.2645 10.2184 95.2611 10.2184C92.2787 10.2184 90.6389 12.0555 90.6389 14.9588Z" fill="white"/>
+            </svg>
+        </a>
+
+        <!-- just to keep the avatar dropdown on the right -->
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"></ul>
+        
+        <div class="dropdown text-end">
+          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+          </a>
+
+          <ul class="dropdown-menu text-small">
+            <li><a class="dropdown-item" href="#">Manage property definitions</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <span class="text-small text-light ">MFG Data Model APIs • Demo Application</span>
+    </div>
+  </header>
+  <header class="shadow-sm p-1">
+    <div class="container">
+
+      <nav aria-label="breadcrumb" >
+        <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
+          <!--
+          <li class="breadcrumb-item">
+            <a class="link-body-emphasis" href="#">
+              <span class="bi bi-house-door-fill"></span>
+              <span class="visually-hidden">Home</span>
+            </a>
+          </li>
+          <li class="breadcrumb-item">
+            <a class="link-body-emphasis fw-semibold text-decoration-none" href="#">Library</a>
+          </li>
+          -->
+          <li class="breadcrumb-item active" aria-current="page">
+            <span class="d-block pt-2">Property collections</span>
+          </li>
+             <!-- just to keep the avatar dropdown on the right -->
+          <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"></ul>
+
+          <li>
+            <button type="button" class="btn btn-dark">Add new collection</button>
+          </li>
+        </ol>
+      </nav>
+     
+    </div>
+    
+   
+  </header>
+
+  <div class="container pt-3">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Collection name</th>
+        <th scope="col">App name</th>
+        <th scope="col">Collection description</th>
+        <th scope="col">Created on</th>
+        <th scope="col">Created by</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Partner 1 - Collection A</td>
+        <td>App 1</td>
+        <td>Some description</td>
+        <td>05/12/2023</td>
+        <td>Aditi Khedkar</td>
+        <td>
+          <div class="dropdown">
+            <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="bi-three-dots-vertical" style="position: relative; left:-6px"></span>
+            </a>
+            <ul class="dropdown-menu text-small">
+              <li><a class="dropdown-item" href="#">Add properties</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Edit collection details</a></li>
+            </ul>
+          </div>
+         
+        </td>
+      </tr>
+      <tr>
+        <td>Partner 1 - Collection B</td>
+        <td>App 1</td>
+        <td>Some description</td>
+        <td>06/12/2023</td>
+        <td>Aditi Khedkar</td>
+        <td>
+          <div class="dropdown">
+            <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="bi-three-dots-vertical" style="position: relative; left:-6px"></span>
+            </a>
+            <ul class="dropdown-menu text-small">
+              <li><a class="dropdown-item" href="#">Add properties</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Edit collection details</a></li>
+            </ul>
+          </div>
+         
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</main>
+  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>
