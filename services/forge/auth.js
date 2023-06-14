@@ -35,12 +35,18 @@ async function authRefreshMiddleware(req, res, next) {
     }
 
     if (expires_at < Date.now()) {
-        const internalCredentials = await internalAuthClient.refreshToken({ refresh_token });
-        const publicCredentials = await publicAuthClient.refreshToken(internalCredentials);
-        req.session.public_token = publicCredentials.access_token;
-        req.session.internal_token = internalCredentials.access_token;
-        req.session.refresh_token = publicCredentials.refresh_token;
-        req.session.expires_at = Date.now() + internalCredentials.expires_in * 1000;
+        try { 
+          const internalCredentials = await internalAuthClient.refreshToken({ refresh_token });
+          const publicCredentials = await publicAuthClient.refreshToken(internalCredentials);
+          req.session.public_token = publicCredentials.access_token;
+          req.session.internal_token = internalCredentials.access_token;
+          req.session.refresh_token = publicCredentials.refresh_token;
+          req.session.expires_at = Date.now() + internalCredentials.expires_in * 1000;
+        } catch {
+          req.session.refresh_token = null;
+          res.status(401).end();
+          return;
+        }
     }
     req.internalOAuthToken = {
         access_token: req.session.internal_token,
