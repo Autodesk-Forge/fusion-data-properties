@@ -1,31 +1,5 @@
-import { showOccurrences } from './occurrences.js';
-
-async function getJSON(url, verb = 'GET', body) {
-  const resp = await fetch(url, {
-    method: verb,
-    body: body,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  if (!resp.ok) {
-      const err = await resp.json();
-      alert(err[0].message);
-      console.error(err);
-      throw err;
-  }
-  return resp.json();
-}
-
-async function useLoadingSymbol(func, elementId) {
-  const element = document.getElementById(elementId);
-  element.classList.add("loading");
-  try {
-    return await func();
-  } finally {
-    element.classList.remove("loading");
-  }
-}
+import { showOccurrences } from './_occurrences.js';
+import { getJSON, useLoadingSymbol } from './utils.js';
 
 const NodeType = {
   PropertyGroup: 'PropertyGroup',

@@ -1,12 +1,13 @@
-import { initPropertiesControl, showCollections } from './properties.js';
-import { initTreeControl } from './sidebar.js';
+import { initPropertiesControl, showCollections } from './_properties.js';
+import { initTreeControl } from './hubstree.js';
+import { showCollectionsTable } from './collectionsviews.js';
 
 const login = document.getElementById('login');
 try {
     const resp = await fetch('/api/auth/profile');
     if (resp.ok) {
         const user = await resp.json();
-        login.innerText = `Logout (${user.name})`;
+        login.innerText = `Log out`;
         login.onclick = () => {
             // Log the user out (see https://forge.autodesk.com/blog/log-out-forge)
             const iframe = document.createElement('iframe');
@@ -19,10 +20,11 @@ try {
             };
         }
 
-        showCollections();
+        //showCollections();
+        showCollectionsTable();
         initTreeControl('#tree', initPropertiesControl);
     } else {
-        login.innerText = 'Login';
+        login.innerText = 'Log in';
         login.onclick = () => window.location.replace('/api/auth/login');
     }
     login.style.visibility = 'visible';

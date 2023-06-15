@@ -148,12 +148,6 @@ async getCollections() {
           results {
             id
             name
-            propertyDefinitions {
-              results {
-                id
-                name
-              }
-            }
           }
         }
       }`,
@@ -181,12 +175,6 @@ async getCollectionsByHubId(hubId) {
           results {
             id
             name
-            propertyDefinitions {
-              results {
-                id
-                name
-              }
-            }
           }
         }
       }`,
@@ -241,6 +229,10 @@ async getDefinitions(collectionId) {
             id
             name
             type
+            units {
+              id
+              name
+            }
             isArchived
             isHidden
             readOnly
