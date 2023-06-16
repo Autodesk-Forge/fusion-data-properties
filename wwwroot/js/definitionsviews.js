@@ -1,16 +1,64 @@
-import { getJSON, showView, useLoadingSymbol } from './utils.js';
+import { getJSON, showView, useLoadingSymbol, toYesOrNo, toNonEmpty, formatString, wait } from './utils.js';
 import { showDefinitionDialog } from './definitiondialog.js';
 
 document.getElementById('createDefinition').onclick =
 document.getElementById('newDefinition').onclick = (event) => {
-  showDefinitionDialog(values => {
+  showDefinitionDialog(async values => {
     console.log(values);
+
+    const collectionId = definitionsTable.getAttribute('collectionId');
+    const collectionName = definitionsTable.getAttribute('collectionName');
+
+    try {
+      const definition = await useLoadingSymbol(async () => {
+        return await getJSON(
+          `/api/fusiondata/collections/${collectionId}/definitions`, 'POST',
+          JSON.stringify({ 
+            definitionName: values.name, 
+            definitionType: values.type, 
+            definitionDescription: values.description, 
+            isHidden: values.isHidden,
+            propertyBehavior: values.propertyBehavior
+          }));
+      });
+
+      showDefinitionsTable(collectionId, collectionName);
+    } catch {
+      alert('Could not add new property');
+    }
   })
 }
 
 function onEdit(event) {
   console.log('onEdit');
   event.preventDefault();
+
+  const currentValues = event.target.parentElement.parentElement.definition;
+  const collectionId = definitionsTable.getAttribute('collectionId');
+  const collectionName = definitionsTable.getAttribute('collectionName');
+
+  showDefinitionDialog(async values => {
+    console.log(values);
+
+    try {
+      const definition = await useLoadingSymbol(async () => {
+        const res = await getJSON(
+          `/api/fusiondata/definitions/${currentValues.id}`, 'PUT',
+          JSON.stringify({ 
+            definitionDescription : values.description, 
+            isHidden: values.isHidden }
+        ));
+
+        await wait(1);
+
+        return res;
+      });
+
+      showDefinitionsTable(collectionId, collectionName);
+    } catch {
+      alert('Could not add new property');
+    }
+  }, currentValues);
 }
 
 function onArchive(event) {
@@ -18,22 +66,15 @@ function onArchive(event) {
   event.preventDefault();
 }
 
-function toYesOrNo(value) {
-  return value === true ? 'Yes' : 'No';
-}
-
-function toNonEmpty(value) {
-  return value !== undefined ? value : '-';
-}
-
 function addRow(definitionsTable, definition) {
   let row = definitionsTable.insertRow();
+  row.definition = definition;
   row.innerHTML +=
     `<tr>
       <td definitionId="${definition.id}">${definition.name}</td>
-      <td>${definition.type}</td>
+      <td>${formatString(definition.type)}</td>
       <td>${toNonEmpty(definition.units?.name)}</td>
-      <td>${toNonEmpty(definition.propertyBehaviour)}</td>
+      <td>${formatString(toNonEmpty(definition.propertyBehavior))}</td>
       <td>${definition.description}</td>
       <td>${toYesOrNo(definition.isHidden)}</td>
       <td>${toYesOrNo(definition.readOnly)}</td>
@@ -43,29 +84,35 @@ function addRow(definitionsTable, definition) {
       </td>
     </tr>`
 
-    let [edit, archive] = row.getElementsByTagName("span");
-    edit.onclick = onEdit;
-    archive.onclick = onArchive;
+  let [edit, archive] = row.getElementsByTagName("span");
+  edit.onclick = onEdit;
+  archive.onclick = onArchive;
 }
 
 export async function showDefinitionsTable(collectionId, collectionName) {
   const definitionsTable =  document.getElementById('definitionsTable');
-  definitionsTable.innerHTML = '';
+  definitionsTable.setAttribute('collectionId', collectionId);
+  definitionsTable.setAttribute('collectionName', collectionName);
 
+  /*
   showView("emptyDefinitionsView", ` ${collectionName} properties`, () => {
     showView('collectionsView');
   });
+  */
   let definitions = await useLoadingSymbol(async () => {
     return await getJSON(`/api/fusiondata/collections/${collectionId}/definitions`, 'GET')
   });
    
   if (definitions.length < 1) {
+    showView("emptyDefinitionsView");
     return;
   }
 
   showView("definitionsView", ` ${collectionName} properties`, () => {
     showView('collectionsView');
   });
+
+  definitionsTable.innerHTML = '';
   for (let definition of definitions) {
     addRow(definitionsTable, definition);
   }

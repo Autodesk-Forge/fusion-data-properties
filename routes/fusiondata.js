@@ -9,9 +9,9 @@ router.use(authRefreshMiddleware);
 router.get('/collections', async function (req, res, next) {
   try {
     let hubId = req.query.hub_id;
-    let token = hubId ? req.internalOAuthToken.access_token : await get2LO();
+    let token = await get2LO();
     let fd = new fusionData(token);
-    const response = hubId ? await fd.getCollectionsByHubId(hubId) : await fd.getCollections();
+    const response = await fd.getCollections();
     res.json(response);
   } catch (err) {
     res.status(400).json(err);
@@ -20,8 +20,20 @@ router.get('/collections', async function (req, res, next) {
 
 router.post('/collections', async function (req, res, next) {
   try {
-    let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
+    let fd = new fusionData(await get2LO());
     const response = await fd.createCollection(req.body.collectionName, true);
+    res.json(response);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/:hub_id/collections', async function (req, res, next) {
+  try {
+    let hubId = req.params.hub_id;
+    let token = req.internalOAuthToken.access_token;
+    let fd = new fusionData(token);
+    const response = await fd.getCollectionsByHubId(hubId);
     res.json(response);
   } catch (err) {
     res.status(400).json(err);
@@ -43,7 +55,7 @@ router.post('/collections/:collection_id/definitions', async function (req, res)
     let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
     const response = await fd.createDefinition(
       req.params.collection_id, req.body.definitionName, req.body.definitionType,
-      req.body.definitionDescription, req.body.isHidden 
+      req.body.definitionDescription, req.body.isHidden, req.body.propertyBehavior 
     );
     res.json(response);
   } catch (err) {

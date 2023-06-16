@@ -1,8 +1,9 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    font-family: ArtifaktElement;
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  font-family: ArtifaktElement;
 }
 
 .view {
@@ -20,25 +21,27 @@ body, html {
   cursor: pointer;
 }
 
-#header, #hubstree, #preview {
-    position: absolute;
+#header,
+#hubstree,
+#preview {
+  position: absolute;
 }
 
 #header {
-    height: 3em;
-    width: 100%;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: center;
+  height: 3em;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #hubstree {
-    width: 40%;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    overflow-y: scroll;
+  width: 40%;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow-y: scroll;
 }
 
 #preview {
@@ -52,7 +55,7 @@ body, html {
   border-top: 0px;
   border-right: 0px;
   border-bottom: 0px;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 #info {
@@ -70,7 +73,8 @@ body, html {
   display: inline-block;
 }
 
-#occurrences, #collections {
+#occurrences,
+#collections {
   height: 30%;
   width: 50%;
   overflow: auto;
@@ -81,7 +85,8 @@ body, html {
   box-sizing: border-box;
 }
 
-#properties, #definitions {
+#properties,
+#definitions {
   height: 30%;
   width: 50%;
   overflow: auto;
@@ -89,7 +94,7 @@ body, html {
   border-style: solid;
   border-left: 0px;
   border-right: 0px;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 #loadingSign {
@@ -104,30 +109,30 @@ body, html {
 }
 
 #header > * {
-    height: 2em;
-    margin: 0 0.5em;
+  height: 2em;
+  margin: 0 0.5em;
 }
 
 #header .title {
-    height: auto;
-    margin-right: auto;
+  height: auto;
+  margin-right: auto;
 }
 
 #tree {
-    margin: 0.5em;
+  margin: 0.5em;
 }
 
 @media (max-width: 768px) {
-    #hubstree {
-        width: 100%;
-        top: 3em;
-        bottom: 75%;
-    }
-    #preview {
-        width: 100%;
-        top: 25%;
-        bottom: 0;
-    }
+  #hubstree {
+    width: 100%;
+    top: 3em;
+    bottom: 75%;
+  }
+  #preview {
+    width: 100%;
+    top: 25%;
+    bottom: 0;
+  }
 }
 
 /* Inspire Tree */
@@ -159,5 +164,12 @@ body, html {
   background-image: none !important;
 }
 
+/* Bootstrap Overrides */
 
+.form-label {
+  font-size: x-small;
+}
 
+.form-text {
+  font-size: small;
+}

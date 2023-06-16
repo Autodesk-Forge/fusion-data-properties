@@ -192,9 +192,9 @@ async getCollectionsByHubId(hubId) {
 async createCollection(name, isPublic) { 
 
     let response = await this.sendQuery(
-      `mutation createPropertyDefinitionCollection($propertyDefinitionCollectionName: String!, $propertyDefinitionCollectionIsPublic: Boolean!) {
+      `mutation createPropertyDefinitionCollection($propertyDefinitionCollectionName: String!) {
         createPropertyDefinitionCollection(
-          input: {name: $propertyDefinitionCollectionName, isPublic: $propertyDefinitionCollectionIsPublic}
+          input: {name: $propertyDefinitionCollectionName}
         ) {
           propertyDefinitionCollection {
             id
@@ -203,13 +203,12 @@ async createCollection(name, isPublic) {
         }
       }`,
       {
-        propertyDefinitionCollectionName: name,
-        propertyDefinitionCollectionIsPublic: isPublic
+        propertyDefinitionCollectionName: name
       }
     );
     
 
-  return response;
+  return response?.data?.data?.createPropertyDefinitionCollection?.propertyDefinitionCollection;
 }
 
 async getDefinitions(collectionId) { 
@@ -253,12 +252,12 @@ async getDefinitions(collectionId) {
 }
 
 
-async createDefinition(collectionId, name, type, description, isHidden) { 
+async createDefinition(collectionId, name, type, description, isHidden, propertyBehavior) { 
 
   let response = await this.sendQuery(
-    `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!) {
+    `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $propertyBehavior: PropertyBehavior!) {
       createPropertyDefinition(
-        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, propertyBehavior: DEFAULT}
+        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, propertyBehavior: $propertyBehavior}
       ) {
         propertyDefinition {
           id
@@ -277,7 +276,8 @@ async createDefinition(collectionId, name, type, description, isHidden) {
       propertyDefinitionName: name,
       propertyType: type,
       description: description,
-      isHidden: isHidden
+      isHidden: isHidden,
+      propertyBehavior: propertyBehavior
     }
   );
   

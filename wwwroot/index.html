@@ -337,15 +337,105 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Modal title</h5>
+            <h5 class="modal-title" id="definitionDialogTitle">definitionDialogTitle</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p>Modal body text goes here.</p>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="mb-3">
+                  <label for="definitionName" class="form-label" disabled>Property name</label>
+                  <input type="text" class="form-control" id="definitionName" aria-describedby="basic-addon3 basic-addon4">
+                  <div class="form-text" id="basic-addon4">Only alphanumeric characters allowed - Limit 64 characters</div>
+                </div>
+                <br />
+                <div class="form-group">
+                  <label for="definitionType" class="form-label">Type</label>
+                  <select class="form-select" id="definitionType">
+                    <option value="DISTANCE">Distance</option>
+                    <option value="MASS">Mass</option>
+                    <option value="VOLUME">Volume</option>
+                    <option value="AREA">Area</option>
+                    <option value="DENSITY">Density</option>
+                    <option value="STRING">String</option>
+                    <option value="INTEGER">Integer</option>
+                    <option value="BOOLEAN">Boolean</option>
+                    <option value="FLOAT">Float</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="mb-3">
+                  <label for="definitionDescription" class="form-label">Description</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="definitionDescription" aria-describedby="basic-addon3 basic-addon4">
+                  </div>
+                  <div class="form-text" id="basic-addon4">Only alphanumeric characters allowed - Limit 64 characters</div>
+                </div>
+                <br />
+                <div class="form-group">
+                  <label for="definitionBehaviour" class="form-label">Behavior</label>
+                  <select class="form-select" id="definitionBehaviour">
+                    <option value="STANDARD">Standard</option>
+                    <option value="DYNAMIC_AT_VERSION">Dynamic at version</option>
+                    <option value="DYNAMIC">Dynamic</option>
+                    <option value="TIMELESS">Timeless</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <br />
+            <div class="row">
+              <div class="col-sm-2">
+                <label class="form-label">Hidden</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="definitionHidden" id="definitionHiddenYes" checked>
+                  <label class="form-check-label form-text" for="definitionHiddenYes">
+                    Yes
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="definitionHidden" id="definitionHiddenNo">
+                  <label class="form-check-label form-text" for="definitionHiddenNo">
+                    No
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-2">
+                <label class="form-label">Read-only</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="definitionReadonly" id="definitionReadonlyYes" checked>
+                  <label class="form-check-label form-text" for="definitionReadonlyYes">
+                    Yes
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="definitionReadonly" id="definitionReadonlyNo">
+                  <label class="form-check-label form-text" for="definitionReadonlyNo">
+                    No
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label class="form-label">Include if copied</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="definitionInclude" id="definitionIncludeYes" checked>
+                  <label class="form-check-label form-text" for="definitionIncludeYes">
+                    Yes
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="definitionInclude" id="definitionIncludeNo">
+                  <label class="form-check-label form-text" for="definitionIncludeNo">
+                    No
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button id="definitionDialogOk" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+            <button type="button" class="btn btn-secondary btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button id="definitionDialogOk" type="button" class="btn btn-primary" data-bs-dismiss="modal">definitionDialogOk</button>
           </div>
         </div>
       </div>

@@ -1,11 +1,28 @@
-import { getJSON, showView, useLoadingSymbol } from './utils.js';
+import { getJSON, showView, useLoadingSymbol, wait } from './utils.js';
 import { showDefinitionsTable } from './definitionsviews.js';
 import { showCollectionDialog } from './collectiondialog.js';
 
 document.getElementById('createCollection').onclick =
 document.getElementById('newCollection').onclick = (event) => {
-  showCollectionDialog(values => {
+  showCollectionDialog(async values => {
     console.log(values);
+
+    try {
+      const collectionName = values.name; 
+      //const collectionDescription = values.description; 
+      const collection = await useLoadingSymbol(async () => {
+        return await getJSON(
+        `/api/fusiondata/collections`, 'POST',
+        JSON.stringify({ collectionName }));
+      });
+
+      wait(1);
+
+      showCollectionsTable();
+    } catch (error) {
+      console.log(error);
+      alert('Could not create collection')
+    }
   })
 }
 
@@ -58,18 +75,19 @@ function addRow(collectionsTable, collection) {
 
 export async function showCollectionsTable() {
   const collectionsTable =  document.getElementById('collectionsTable');
-  collectionsTable.innerHTML = '';
 
-  showView("emptyCollectionsView");
+  //showView("emptyCollectionsView");
   let collections = await useLoadingSymbol(async () => {
     return await getJSON(`/api/fusiondata/collections`, 'GET')
   });
    
   if (collections.length < 1) {
+    showView("emptyCollectionsView");
     return;
   }
 
   showView("collectionsView");
+  collectionsTable.innerHTML = '';
   for (let collection of collections) {
     addRow(collectionsTable, collection);
   }
