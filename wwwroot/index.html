@@ -22,7 +22,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     />
     <link rel="stylesheet" href="/css/main.css" />
-    <title>Autodesk Forge: Hubs Browser</title>
+    <title>MFG Data Model APIs • Demo Application</title>
   </head>
 
   <body>
@@ -77,12 +77,17 @@
 
             <ul class="dropdown-menu text-small">
               <li>
-                <a class="dropdown-item" href="#"
+                <a id="menuitemCollectionsView" class="dropdown-item" href="#"
                   >Manage property definitions</a
                 >
               </li>
+              <li>
+                <a id="menuitemPropertiesView" class="dropdown-item" href="#"
+                  >Hubs browser</a
+                >
+              </li>
               <li><hr class="dropdown-divider" /></li>
-              <li><a id="login" class="dropdown-item" href="#">Log out</a></li>
+              <li><a id="menuitemLogin" class="dropdown-item" href="#">Log out</a></li>
             </ul>
           </div>
         </div>
@@ -110,7 +115,7 @@
       </div>
     </div>
 
-    <div id="collectionsView" class="view" style="display: none">
+    <div id="collectionsView" class="view full-height" style="display: none">
       <header class="shadow-sm p-1">
         <div class="container">
           <nav aria-label="breadcrumb">
@@ -246,47 +251,154 @@
     <!-- Hubs view -->
 
     <div id="propertiesView" class="view" style="display: none">
-      <div id="hubstree">
-        <div id="tree"></div>
-      </div>
-      <div id="preview">
-        <div id="info">
-          <img id="thumbnail" src="/images/box-200x200.png" />
-          <span id="title"></span>
+      <div class="row full-height">
+        <div class="grey-border-right col-sm-3 full-height">
+          <div id="hubstree" class="full-height">
+            <div id="tree"></div>
+          </div>
         </div>
-        <div id="occurrences"></div>
-        <select id="properties" size="10"></select>
-        <div id="controls">
-          <button id="createProperty">Create Property</button>
-          <button id="updateProperty">Update Property</button>
-          <button id="deleteProperty">Delete Property</button>
-        </div>
-        <select id="collections" size="10"></select>
-        <select id="definitions" size="10"></select>
-        <div id="controls">
-          <input id="propertyName" type="text" placeholder="name" />
-          <input id="propertyValue" type="text" placeholder="value" />
-          <input
-            id="propertyDescription"
-            type="text"
-            placeholder="description"
-          />
-          <select id="propertyType">
-            <option value="DISTANCE">DISTANCE</option>
-            <option value="MASS">MASS</option>
-            <option value="VOLUME">VOLUME</option>
-            <option value="AREA">AREA</option>
-            <option value="DENSITY">DENSITY</option>
-            <option value="STRING">STRING</option>
-            <option value="INTEGER">INTEGER</option>
-            <option value="BOOLEAN">BOOLEAN</option>
-            <option value="FLOAT">FLOAT</option>
-          </select>
-          <input id="isHidden" type="checkbox" value="Hidden" />
-          <br />
-          <button id="createCollection">Create Collection</button>
-          <button id="createDefinition">Create Definition</button>
-          <button id="updateDefinition">Update Definition</button>
+        <div class="col-sm-9">
+          <header class="shadow-sm p-1">
+            <div class="container">
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
+                  <li class="breadcrumb-item">
+                    <a class="link-body-emphasis" href="#">
+                      <span class="bi bi-house-door-fill"></span>
+                      <span class="visually-hidden">Home</span>
+                    </a>
+                  </li>
+                  <li class="breadcrumb-item">
+                    <a class="link-body-emphasis fw-semibold text-decoration-none" href="#">Library</a>
+                  </li>
+            
+                </ol>
+              </nav>
+            </div>
+          </header>
+          <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+              <button class="nav-link active" id="nav-overview-tab" data-bs-toggle="tab" data-bs-target="#nav-overview" type="button" role="tab" aria-controls="nav-overview" aria-selected="true">Overview</button>
+              <button class="nav-link" id="nav-properties-tab" data-bs-toggle="tab" data-bs-target="#nav-properties" type="button" role="tab" aria-controls="nav-properties" aria-selected="false">Custom Properties</button>
+            </div>
+          </nav>
+          <div class="tab-content">
+            <div class="tab-pane active" id="nav-overview" role="tabpanel" aria-labelledby="nav-overview-tab">
+              <div class="row">
+                <div class="grey-border-right col-sm-3">
+                  <div id="preview">
+                    <div id="info">
+                      <img id="thumbnail" src="/images/box-200x200.png" />
+                      <span id="title"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-9">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th class="name-column" scope="col">General</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody id="generalPropertiesTable">
+                      <tr>
+                        <td>Part Number</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Part Name</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Description</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Material Name</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th class="name-column" scope="col">Manage</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody id="managePropertiesTable">
+                      <tr>
+                        <td>Item Number</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Lifecycle</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Revision</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>State</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Change Order</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Change URN</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th class="name-column" scope="col">Physical Properties</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody id="physicalPropertiesTable">
+                      <tr>
+                        <td>Mass</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Volume</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Density</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Area</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Bounding Box</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="nav-properties" role="tabpanel" aria-labelledby="nav-properties-tab">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="name-column" scope="col">Physical Properties</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+                <tbody id="physicalPropertiesTable" />
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -459,5 +571,7 @@
       crossorigin="anonymous"
     ></script>
     <script src="/js/main.js" type="module"></script>
+    <script src="/js/collectionsView.js" type="module"></script>
+    <script src="/js/propertiesView.js" type="module"></script>
   </body>
 </html>

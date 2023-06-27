@@ -105,10 +105,11 @@ async getVersionId(projectId, fileVersionId) {
     }
   )
 
-  let fileVersion = response.data.data.fileVersion;
-  let id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+  const fileVersion = response.data.data.fileVersion;
+  const id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+  const type = fileVersion.rootComponentVersion ? 'component' : 'drawing';
 
-  return { id };
+  return { id, type };
 }
 
 async getItemId(projectId, fileItemId) {  
@@ -180,6 +181,31 @@ async getCollectionsByHubId(hubId) {
       }`,
       {
         hubId
+      }
+    )
+    //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
+  } while (cursor)
+
+  return res;
+}
+
+async linkCollectionToHub(hubId, collectionId) { 
+  let res = [];
+  let cursor = null;
+  do {
+    let response = await this.sendQuery(
+      `mutation linkPropertyDefinitionCollection ($propertyDefinitionCollectionId: ID!, $targetHubId: ID!) {
+        linkPropertyDefinitionCollection (input: { propertyDefinitionCollectionId: $propertyDefinitionCollectionId, targetHubId: $targetHubId }) {
+          hub {
+            id
+            name
+          }
+        }
+      }`,
+      {
+        targetHubId: hubId,
+        propertyDefinitionCollectionId: collectionId
       }
     )
     //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
@@ -314,9 +340,11 @@ async updateDefinition(definitionId, description, isHidden) {
       updatePropertyDefinition(
         input: {propertyDefinitionId: $propertyDefinitionId, description: $description, isHidden: $isHidden}
       ) {
-        propertyDefinitionId
-        description
-        isHidden
+        propertyDefinition {
+          id
+          description
+          isHidden
+        }
       }
     }`,
     {
@@ -358,7 +386,57 @@ async deleteDefinition(collectionId, name, type) {
   return response?.data?.data?.createPropertyDefinition?.propertyDefinition;
 }
 
+async getGeneralProperties(versionId) {  
+  let response = await this.sendQuery(
+    `query GetProperties($componentVersionId: String!) {
+      componentVersion(componentVersionId: $componentVersionId) {
+        partNumber
+        name
+        partDescription
+        materialName
 
+        itemNumber
+        lifeCycle
+        revision
+        changeOrder
+        changeOrderURN
+
+        physicalProperties {
+          mass {
+            value
+          }
+          volume {
+            value
+          }
+          density {
+            value
+          }
+          area {
+            value
+          }
+          boundingBox {
+            length {
+              value
+            }
+            width {
+              value
+            }
+            height {
+              value
+            }
+          }
+        }
+      }
+    }`,
+    {
+      componentVersionId: versionId
+    }
+  )
+
+  return response.data.data.componentVersion;
+}
+
+/*
 // <getProperties>
 async getProperties(projectId, fileVersionId) {  
   let response = await this.sendQuery(
@@ -542,6 +620,9 @@ async getModelOccurrences(componentVersionId) {
     return response.data.data.deleteProperty;
   }
 // </deleteProperty>
+*/
+
 }
+
 
 module.exports = App;

@@ -1,8 +1,12 @@
-import { initPropertiesControl, showCollections } from './_properties.js';
-import { initTreeControl } from './hubstree.js';
-import { showCollectionsTable } from './collectionsviews.js';
+import { showView } from './utils.js';
 
-const login = document.getElementById('login');
+const propertiesView = document.getElementById('menuitemPropertiesView');
+propertiesView.onclick = () => showView('propertiesView');
+
+const collectionsView = document.getElementById('menuitemCollectionsView');
+collectionsView.onclick = () => showView('collectionsView');
+
+const login = document.getElementById('menuitemLogin');
 try {
     const resp = await fetch('/api/auth/profile');
     if (resp.ok) {
@@ -21,8 +25,7 @@ try {
         }
 
         //showCollections();
-        showCollectionsTable();
-        initTreeControl('#tree', initPropertiesControl);
+        showView('collectionsView');
     } else {
         login.innerText = 'Log in';
         login.onclick = () => window.location.replace('/api/auth/login');

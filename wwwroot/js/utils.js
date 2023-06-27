@@ -1,3 +1,5 @@
+let controller;
+
 export function wait(seconds) {
   return new Promise((resolve, reject) => {
     setTimeout(resolve, 1000 * seconds);
@@ -28,9 +30,12 @@ export function toNonEmpty(value) {
   return value !== undefined ? value : '-';
 }
 
-
 export async function getJSON(url, verb = 'GET', body) {
+  controller = new AbortController();
+  const { signal } = controller;
+
   const resp = await fetch(url, {
+    signal,
     method: verb,
     body: body,
     headers: {
@@ -56,9 +61,11 @@ export async function useLoadingSymbol(func) {
 }
 
 export function showView(viewId, breadcrumbText, breadcrumbCallback) {
+  let oldViewId;
   let views = document.getElementsByClassName("view");
   for (let view of views) {
     if (view.style.display !== 'none') {
+      oldViewId = view.id;
       view.style.display = 'none';
       break;
     }
@@ -66,6 +73,18 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
 
   let view = document.getElementById(viewId);
   view.style.display = 'block';
+
+  if (oldViewId !== viewId) {
+    // if we are chaning view then any data load it triggered should be cancelled
+    if (controller) {
+      controller.abort();
+      controller = null;
+    }
+
+    if (view.onload) {
+      view.onload();
+    }
+  }
 
   if (!breadcrumbText)
     return;

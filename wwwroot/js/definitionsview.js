@@ -1,6 +1,7 @@
 import { getJSON, showView, useLoadingSymbol, toYesOrNo, toNonEmpty, formatString, wait } from './utils.js';
 import { showDefinitionDialog } from './definitiondialog.js';
 
+
 document.getElementById('createDefinition').onclick =
 document.getElementById('newDefinition').onclick = (event) => {
   showDefinitionDialog(async values => {
@@ -94,27 +95,24 @@ export async function showDefinitionsTable(collectionId, collectionName) {
   definitionsTable.setAttribute('collectionId', collectionId);
   definitionsTable.setAttribute('collectionName', collectionName);
 
-  /*
-  showView("emptyDefinitionsView", ` ${collectionName} properties`, () => {
-    showView('collectionsView');
-  });
-  */
-  let definitions = await useLoadingSymbol(async () => {
-    return await getJSON(`/api/fusiondata/collections/${collectionId}/definitions`, 'GET')
-  });
-   
-  if (definitions.length < 1) {
-    showView("emptyDefinitionsView");
-    return;
-  }
+  try {
+    let definitions = await useLoadingSymbol(async () => {
+      return await getJSON(`/api/fusiondata/collections/${collectionId}/definitions`, 'GET')
+    });
+    
+    if (definitions.length < 1) {
+      showView("emptyDefinitionsView");
+      return;
+    }
 
-  showView("definitionsView", ` ${collectionName} properties`, () => {
-    showView('collectionsView');
-  });
+    showView("definitionsView", ` ${collectionName} properties`, () => {
+      showView('collectionsView');
+    });
 
-  definitionsTable.innerHTML = '';
-  for (let definition of definitions) {
-    addRow(definitionsTable, definition);
-  }
+    definitionsTable.innerHTML = '';
+    for (let definition of definitions) {
+      addRow(definitionsTable, definition);
+    }
+  } catch { }
 }
 

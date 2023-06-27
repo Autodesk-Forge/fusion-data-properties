@@ -1,6 +1,10 @@
 import { getJSON, showView, useLoadingSymbol, wait } from './utils.js';
-import { showDefinitionsTable } from './definitionsviews.js';
+import { showDefinitionsTable } from './definitionsview.js';
 import { showCollectionDialog } from './collectiondialog.js';
+
+document.getElementById('collectionsView').onload = () => {
+  showCollectionsTable();
+}
 
 document.getElementById('createCollection').onclick =
 document.getElementById('newCollection').onclick = (event) => {
@@ -76,20 +80,21 @@ function addRow(collectionsTable, collection) {
 export async function showCollectionsTable() {
   const collectionsTable =  document.getElementById('collectionsTable');
 
-  //showView("emptyCollectionsView");
-  let collections = await useLoadingSymbol(async () => {
-    return await getJSON(`/api/fusiondata/collections`, 'GET')
-  });
-   
-  if (collections.length < 1) {
-    showView("emptyCollectionsView");
-    return;
-  }
+  try {
+    let collections = await useLoadingSymbol(async () => {
+      return await getJSON(`/api/fusiondata/collections`, 'GET')
+    });
+    
+    if (collections.length < 1) {
+      showView("emptyCollectionsView");
+      return;
+    }
 
-  showView("collectionsView");
-  collectionsTable.innerHTML = '';
-  for (let collection of collections) {
-    addRow(collectionsTable, collection);
-  }
+    showView("collectionsView");
+    collectionsTable.innerHTML = '';
+    for (let collection of collections) {
+      addRow(collectionsTable, collection);
+    }
+  } catch  { }
 }
 

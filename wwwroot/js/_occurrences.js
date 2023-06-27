@@ -1,4 +1,4 @@
-import { initPropertiesControl } from './_properties.js';
+import { initPropertiesControl } from './propertiesview.js';
 
 async function getJSON(url, verb = 'GET', body) {
   const resp = await fetch(url, {

@@ -6,6 +6,17 @@ let router = express.Router();
 
 router.use(authRefreshMiddleware);
 
+router.get('/:version_id/generalproperties', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const props = await fd.getGeneralProperties(req.params.version_id);
+      
+    res.json(props);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
 router.get('/collections', async function (req, res, next) {
   try {
     let hubId = req.query.hub_id;
@@ -34,6 +45,18 @@ router.get('/:hub_id/collections', async function (req, res, next) {
     let token = req.internalOAuthToken.access_token;
     let fd = new fusionData(token);
     const response = await fd.getCollectionsByHubId(hubId);
+    res.json(response);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.post('/:hub_id/collections', async function (req, res, next) {
+  try {
+    let hubId = req.params.hub_id;
+    let token = req.internalOAuthToken.access_token;
+    let fd = new fusionData(token);
+    const response = await fd.linkCollectionToHub(hubId, req.body.collectionId);
     res.json(response);
   } catch (err) {
     res.status(400).json(err);
@@ -138,10 +161,10 @@ router.delete('/:extendable_id/properties/:definition_id', async function (req, 
   }
 });
 
-router.get('/:project_id/:version_id/thumbnail', async function (req, res) {
+router.get('/:project_id/:file_version_id/thumbnail', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const thumbnail = await fd.getThumbnail(req.params.project_id, req.params.version_id);
+    const thumbnail = await fd.getThumbnail(req.params.project_id, req.params.file_version_id);
       
     res.end(thumbnail);
   } catch (err) {
@@ -149,10 +172,10 @@ router.get('/:project_id/:version_id/thumbnail', async function (req, res) {
   }
 });
 
-router.get('/:project_id/:version_id/versionid', async function (req, res) {
+router.get('/:project_id/:file_version_id/versionid', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const id = await fd.getVersionId(req.params.project_id, req.params.version_id);
+    const id = await fd.getVersionId(req.params.project_id, req.params.file_version_id);
       
     res.json(id);
   } catch (err) {
@@ -160,10 +183,10 @@ router.get('/:project_id/:version_id/versionid', async function (req, res) {
   }
 });
 
-router.get('/:project_id/:item_id/itemid', async function (req, res) {
+router.get('/:project_id/:file_item_id/itemid', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const id = await fd.getItemId(req.params.project_id, req.params.item_id);
+    const id = await fd.getItemId(req.params.project_id, req.params.file_item_id);
       
     res.json(id);
   } catch (err) {
