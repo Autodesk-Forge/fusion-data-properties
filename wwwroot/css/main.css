@@ -10,12 +10,24 @@ thead {
   border-bottom: black;
 }
 
+.hidden {
+  display: none;
+}
+
 .name-column {
   width: 50%;
 }
 
 .full-height {
   height: 100%;
+}
+
+.float-right {
+  float: right;
+}
+
+.link-icon {
+  padding-left: 5px;
 }
 
 .view {
@@ -39,6 +51,11 @@ thead {
 
 .clickable {
   cursor: pointer;
+}
+
+.modal-body {
+  max-height: 80vh;
+  overflow: scroll;
 }
 
 /*

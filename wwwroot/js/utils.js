@@ -50,6 +50,7 @@ export async function getJSON(url, verb = 'GET', body) {
   return resp.json();
 }
 
+/*
 export async function useLoadingSymbol(func) {
   const element = document.getElementById("loadingSign");
   element.style.display = 'block';
@@ -59,20 +60,34 @@ export async function useLoadingSymbol(func) {
     element.style.display = 'none';
   }
 }
+*/
+
+export async function useLoadingSymbol(func) {
+  const element = document.getElementById("loadingSign");
+  element.classList.remove("hidden");
+  try {
+    return await func();
+  } finally {
+    element.classList.add("hidden");
+  }
+}
 
 export function showView(viewId, breadcrumbText, breadcrumbCallback) {
   let oldViewId;
   let views = document.getElementsByClassName("view");
   for (let view of views) {
-    if (view.style.display !== 'none') {
+    //if (view.style.display !== 'none') {
+    if (!view.classList.contains("hidden")) {
       oldViewId = view.id;
-      view.style.display = 'none';
+      //view.style.display = 'none';
+      view.classList.add("hidden")
       break;
     }
   }
 
   let view = document.getElementById(viewId);
-  view.style.display = 'block';
+  //view.style.display = 'block';
+  view.classList.remove("hidden");
 
   if (oldViewId !== viewId) {
     // if we are chaning view then any data load it triggered should be cancelled

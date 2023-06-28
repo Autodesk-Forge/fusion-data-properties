@@ -1,12 +1,13 @@
 import { getJSON, useLoadingSymbol } from './utils.js';
 import { initTreeControl } from './hubstree.js';
+import { showHubCollectionsDialog } from './hubcollectionsdialog.js';
 
 let tree; 
 let extendableId;
 
 document.getElementById('propertiesView').onload = () => {
   if (!tree)
-    tree = initTreeControl('#tree', onSelectionChanged);
+    tree = initTreeControl('#tree', onSelectionChanged, onHubButtonClicked);
 }
 
 async function showThumbnail(projectId, fileVersionId) {
@@ -63,7 +64,10 @@ async function showProperties() {
     `${props.boundingBox.length.value} x ${props.boundingBox.width.value} x ${props.boundingBox.height.value}`;
 }
 
-
+function onHubButtonClicked(event) {
+  let str = "adasd";
+  showHubCollectionsDialog(null, )
+}
 
 export async function onSelectionChanged(type, hubId, projectId, fileItemVersionId, fileName) {
    

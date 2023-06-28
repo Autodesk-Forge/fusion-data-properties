@@ -24,7 +24,6 @@ try {
             };
         }
 
-        //showCollections();
         showView('collectionsView');
     } else {
         login.innerText = 'Log in';

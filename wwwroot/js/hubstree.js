@@ -1,7 +1,7 @@
 async function getJSON(url) {
     const resp = await fetch(url);
     if (!resp.ok) {
-        alert('Could not load tree data. See console for more details.');
+        //alert('Could not load tree data. See console for more details.');
         console.error(await resp.text());
         return [];
     }
@@ -14,6 +14,7 @@ function createTreeNode(id, text, icon, children = false) {
 
 async function getHubs() {
     const hubs = await getJSON('/api/hubs');
+    getLinkedCollections(hubs);
     return hubs.map(hub => createTreeNode(`hub|${hub.id}`, hub.attributes.name, 'icon-hub', true));
 }
 
@@ -38,7 +39,14 @@ async function getVersions(hubId, projectId, itemId) {
     return versions.map(version => createTreeNode(`version|${version.id}`, version.attributes.createTime, 'icon-version'));
 }
 
-export function initTreeControl(selector, onSelectionChanged) {
+async function getLinkedCollections(hubs) {
+  for (let hub of hubs) {
+    const versions = await getJSON(`/api/fusiondata/${hub.id}/collections`);
+    let str = "Adsad";
+  }
+}
+
+export function initTreeControl(selector, onSelectionChanged, onHubButtonClicked) {
     // See http://inspire-tree.com
     const tree = new InspireTree({
         data: function (node) {
@@ -56,6 +64,18 @@ export function initTreeControl(selector, onSelectionChanged) {
             }
         }
     });
+
+    tree.on('data.loaded', function (event, node) {
+       setTimeout(() => {
+          for (let item of document.getElementsByClassName("title icon icon-hub")) {
+            item.innerHTML += '<span class="bi-link-45deg link-icon hidden"></span><span class="float-right bi-three-dots clickable"></span>';
+            item.getElementsByClassName("float-right")[0].onclick = (event) => {
+              onHubButtonClicked(event);
+            };
+        }
+       }, 100);
+    });
+
     tree.on('node.click', function (event, node) {
         event.preventTreeDefault();
         const tokens = node.id.split('|');

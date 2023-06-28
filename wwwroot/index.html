@@ -115,7 +115,7 @@
       </div>
     </div>
 
-    <div id="collectionsView" class="view full-height" style="display: none">
+    <div id="collectionsView" class="view full-height hidden">
       <header class="shadow-sm p-1">
         <div class="container">
           <nav aria-label="breadcrumb">
@@ -163,7 +163,7 @@
 
     <!-- Definitions -->
 
-    <div id="emptyDefinitionsView" class="view" style="display: none">
+    <div id="emptyDefinitionsView" class="view hidden">
       <header class="shadow-sm p-1">
         <div class="container">
           <nav aria-label="breadcrumb">
@@ -196,7 +196,7 @@
       </div>
     </div>
 
-    <div id="definitionsView" class="view" style="display: none">
+    <div id="definitionsView" class="view hidden">
       <header class="shadow-sm p-1">
         <div class="container">
           <nav aria-label="breadcrumb">
@@ -250,7 +250,7 @@
 
     <!-- Hubs view -->
 
-    <div id="propertiesView" class="view" style="display: none">
+    <div id="propertiesView" class="view hidden">
       <div class="row full-height">
         <div class="grey-border-right col-sm-3 full-height">
           <div id="hubstree" class="full-height">
@@ -405,7 +405,7 @@
 
     <!-- Dialogs -->
 
-    <button id="collectionDialogButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#collectionDialog" style="display: none">
+    <button id="collectionDialogButton" type="button" class="btn btn-primary hidden" data-bs-toggle="modal" data-bs-target="#collectionDialog">
       Launch collection dialog
     </button>
 
@@ -441,7 +441,7 @@
       </div>
     </div>
 
-    <button id="definitionDialogButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#definitionDialog" style="display: none">
+    <button id="definitionDialogButton" type="button" class="btn btn-primary hidden" data-bs-toggle="modal" data-bs-target="#definitionDialog">
       Launch definition dialog
     </button>
 
@@ -553,9 +553,28 @@
       </div>
     </div>
 
+    <button id="collectionsDialogButton" type="button" class="btn btn-primary hidden" data-bs-toggle="modal" data-bs-target="#collectionsDialog">
+      Launch collection dialog
+    </button>
+
+    <div id="collectionsDialog" class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Link/Unlink collections</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul id="collectionsList" class="list-group">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Helper -->
 
-    <div id="loadingSign">
+    <div id="loadingSign" class="hidden">
       <div class="spinner-border" role="status">
         <span class="sr-only"></span>
       </div>
