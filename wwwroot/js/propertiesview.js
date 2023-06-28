@@ -65,8 +65,8 @@ async function showProperties() {
 }
 
 function onHubButtonClicked(event) {
-  let str = "adasd";
-  showHubCollectionsDialog(null, )
+  const hubId = event.target.parentElement.getAttribute('data-uid').split('|')[1]
+  showHubCollectionsDialog(hubId)
 }
 
 export async function onSelectionChanged(type, hubId, projectId, fileItemVersionId, fileName) {

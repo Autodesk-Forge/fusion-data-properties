@@ -14,7 +14,7 @@ function createTreeNode(id, text, icon, children = false) {
 
 async function getHubs() {
     const hubs = await getJSON('/api/hubs');
-    getLinkedCollections(hubs);
+    showHubsWithLinkedCollections(hubs);
     return hubs.map(hub => createTreeNode(`hub|${hub.id}`, hub.attributes.name, 'icon-hub', true));
 }
 
@@ -39,10 +39,17 @@ async function getVersions(hubId, projectId, itemId) {
     return versions.map(version => createTreeNode(`version|${version.id}`, version.attributes.createTime, 'icon-version'));
 }
 
-async function getLinkedCollections(hubs) {
+async function showHubsWithLinkedCollections(hubs) {
   for (let hub of hubs) {
-    const versions = await getJSON(`/api/fusiondata/${hub.id}/collections`);
-    let str = "Adsad";
+    const collections = await getJSON(`/api/fusiondata/${hub.id}/collections`);
+    if (collections.length < 1)
+      continue;
+
+    const node = document.querySelector(`a[data-uid="hub|${hub.id}"]>span.link-icon`);
+    if (!node) 
+      continue;
+    
+    node.classList.remove("hidden");
   }
 }
 

@@ -1,6 +1,9 @@
 import { getJSON, useLoadingSymbol } from './utils.js';
 
-export async function showHubCollectionsDialog(callback, values) {
+export async function showHubCollectionsDialog(hubId) {
+  const collectionsDialogEmpty =  document.getElementById('collectionsDialogEmpty');
+  collectionsDialogEmpty.classList.remove("hidden");
+
   const dialogButton =  document.getElementById('collectionsDialogButton');
   dialogButton.click();
 
@@ -8,13 +11,30 @@ export async function showHubCollectionsDialog(callback, values) {
   const collectionsList =  document.getElementById('collectionsList');
   collectionsList.innerHTML = '';
 
-  let collections = await useLoadingSymbol(async () => {
-    return await getJSON(`/api/fusiondata/collections`, 'GET')
+  let [collections, linkedCollections] = await useLoadingSymbol(async () => {
+    return await Promise.allSettled([
+      getJSON(`/api/fusiondata/collections`, 'GET'),
+      getJSON(`/api/fusiondata/${hubId}/collections`)
+    ])
   });
 
-  for (let collection of collections) {
-    collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}<span
-    class="bi-link-45deg float-right clickable"></span></li>`
+  // If getting lkinked collections failed (linkedCollections.status='rejected')
+  // you have no admin access to that hub
+
+  if (collections.value?.length < 1 || !linkedCollections.value) 
+    return;
+
+  const isLinked = (collectionId) => {
+    const result = linkedCollections.value.find((item) => item.id === collectionId)
+
+    return !!result; 
+  }
+
+  collectionsDialogEmpty.classList.add("hidden");
+
+  for (let collection of collections.value) {
+    const linkIcon = isLinked(collection.id) ? `<span class="bi-link-45deg float-right clickable"></span>` : '';
+    collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}${linkIcon}</li>`
   }
 }
 
