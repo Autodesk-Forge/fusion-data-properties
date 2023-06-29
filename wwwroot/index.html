@@ -26,7 +26,6 @@
   </head>
 
   <body>
-
     <!-- Main Header -->
 
     <header class="p-3 border-bottom bg-dark">
@@ -87,7 +86,9 @@
                 >
               </li>
               <li><hr class="dropdown-divider" /></li>
-              <li><a id="menuitemLogin" class="dropdown-item" href="#">Log out</a></li>
+              <li>
+                <a id="menuitemLogin" class="dropdown-item" href="#">Log out</a>
+              </li>
             </ul>
           </div>
         </div>
@@ -132,7 +133,9 @@
                 </li>
                 -->
               <li class="breadcrumb-item active" aria-current="page">
-                <span class="d-block pt-2 breadcrumb-text">Property collections</span>
+                <span class="d-block pt-2 breadcrumb-text"
+                  >Property collections</span
+                >
               </li>
               <!-- just to keep the avatar dropdown on the right -->
               <ul
@@ -180,7 +183,9 @@
                 </li>
                 -->
               <li class="breadcrumb-item active" aria-current="page">
-                <span class="d-block pt-2 bi bi-arrow-left clickable breadcrumb-text"></span>
+                <span
+                  class="d-block pt-2 bi bi-arrow-left clickable breadcrumb-text"
+                ></span>
               </li>
             </ol>
           </nav>
@@ -190,7 +195,12 @@
         <h3>There are no properties in this collection yet.</h3>
         <img src="./images/emptybox.svg" />
         <p>Start adding properties to your collection.</p>
-        <button id="createDefinition" type="button" class="btn btn-primary" onclick="">
+        <button
+          id="createDefinition"
+          type="button"
+          class="btn btn-primary"
+          onclick=""
+        >
           Add properties to collection
         </button>
       </div>
@@ -213,7 +223,9 @@
                 </li>
                 -->
               <li class="breadcrumb-item active" aria-current="page">
-                <span class="d-block pt-2 bi bi-arrow-left clickable breadcrumb-text"></span>
+                <span
+                  class="d-block pt-2 bi bi-arrow-left clickable breadcrumb-text"
+                ></span>
               </li>
               <!-- just to keep the avatar dropdown on the right -->
               <ul
@@ -258,7 +270,7 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <header class="shadow-sm p-1">
+          <header class="p-1">
             <div class="container">
               <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
@@ -269,31 +281,61 @@
                     </a>
                   </li>
                   <li class="breadcrumb-item">
-                    <a class="link-body-emphasis fw-semibold text-decoration-none" href="#">Library</a>
+                    <a
+                      class="link-body-emphasis fw-semibold text-decoration-none"
+                      href="#"
+                      >Library</a
+                    >
                   </li>
-            
                 </ol>
               </nav>
             </div>
           </header>
-          <nav>
+          <nav class="pt-1">
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-              <button class="nav-link active" id="nav-overview-tab" data-bs-toggle="tab" data-bs-target="#nav-overview" type="button" role="tab" aria-controls="nav-overview" aria-selected="true">Overview</button>
-              <button class="nav-link" id="nav-properties-tab" data-bs-toggle="tab" data-bs-target="#nav-properties" type="button" role="tab" aria-controls="nav-properties" aria-selected="false">Custom Properties</button>
+              <button
+                class="nav-link active"
+                id="nav-overview-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#nav-overview"
+                type="button"
+                role="tab"
+                aria-controls="nav-overview"
+                aria-selected="true"
+              >
+                Overview
+              </button>
+              <button
+                class="nav-link"
+                id="nav-properties-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#nav-properties"
+                type="button"
+                role="tab"
+                aria-controls="nav-properties"
+                aria-selected="false"
+              >
+                Custom Properties
+              </button>
             </div>
           </nav>
-          <div class="tab-content">
-            <div class="tab-pane active" id="nav-overview" role="tabpanel" aria-labelledby="nav-overview-tab">
-              <div class="row">
-                <div class="grey-border-right col-sm-3">
-                  <div id="preview">
-                    <div id="info">
-                      <img id="thumbnail" src="/images/box-200x200.png" />
-                      <span id="title"></span>
-                    </div>
-                  </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <div id="preview">
+                <div id="info">
+                  <img id="thumbnail" src="/images/box-200x200.png" />
+                  <span id="title"></span>
                 </div>
-                <div class="col-sm-9">
+              </div>
+            </div>
+            <div class="col-sm-9 big-padding">
+              <div class="tab-content">
+                <div
+                  class="tab-pane active"
+                  id="nav-overview"
+                  role="tabpanel"
+                  aria-labelledby="nav-overview-tab"
+                >
                   <table class="table">
                     <thead>
                       <tr>
@@ -357,7 +399,9 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th class="name-column" scope="col">Physical Properties</th>
+                        <th class="name-column" scope="col">
+                          Physical Properties
+                        </th>
                         <th scope="col">Value</th>
                       </tr>
                     </thead>
@@ -385,18 +429,33 @@
                     </tbody>
                   </table>
                 </div>
+                <div
+                  class="tab-pane"
+                  id="nav-properties"
+                  role="tabpanel"
+                  aria-labelledby="nav-properties-tab"
+                >
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th class="name-column" scope="col">
+                          Physical Properties
+                        </th>
+                        <th scope="col">Value</th>
+                        <th scope="col" class="no-border button-column">
+                          <span
+                            class="bi-link-45deg float-right clickable dimmed"
+                          ></span
+                          ><span
+                            class="bi-link-45deg float-right clickable dimmed"
+                          ></span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="physicalPropertiesTable" />
+                  </table>
+                </div>
               </div>
-            </div>
-            <div class="tab-pane" id="nav-properties" role="tabpanel" aria-labelledby="nav-properties-tab">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th class="name-column" scope="col">Physical Properties</th>
-                    <th scope="col">Value</th>
-                  </tr>
-                </thead>
-                <tbody id="physicalPropertiesTable" />
-              </table>
             </div>
           </div>
         </div>
@@ -405,7 +464,13 @@
 
     <!-- Dialogs -->
 
-    <button id="collectionDialogButton" type="button" class="btn btn-primary hidden" data-bs-toggle="modal" data-bs-target="#collectionDialog">
+    <button
+      id="collectionDialogButton"
+      type="button"
+      class="btn btn-primary hidden"
+      data-bs-toggle="modal"
+      data-bs-target="#collectionDialog"
+    >
       Launch collection dialog
     </button>
 
@@ -414,34 +479,76 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Create new property collection</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="collectionName" class="form-label">Collection name</label>
+              <label for="collectionName" class="form-label"
+                >Collection name</label
+              >
               <div class="input-group">
-                <input type="text" class="form-control" id="collectionName" aria-describedby="basic-addon3 basic-addon4">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="collectionName"
+                  aria-describedby="basic-addon3 basic-addon4"
+                />
               </div>
-              <div class="form-text" id="basic-addon4">Only alphanumeric characters allowed - Limit 64v characters</div>
+              <div class="form-text" id="basic-addon4">
+                Only alphanumeric characters allowed - Limit 64v characters
+              </div>
             </div>
             <br />
             <div class="mb-3">
-              <label for="collectionDescription" class="form-label">Description (optional)</label>
+              <label for="collectionDescription" class="form-label"
+                >Description (optional)</label
+              >
               <div class="input-group">
-                <input type="text" class="form-control" id="collectionDescription" aria-describedby="basic-addon3 basic-addon4">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="collectionDescription"
+                  aria-describedby="basic-addon3 basic-addon4"
+                />
               </div>
-              <div class="form-text" id="basic-addon4">Only alphanumeric characters allowed - Limit 64 characters</div>
+              <div class="form-text" id="basic-addon4">
+                Only alphanumeric characters allowed - Limit 64 characters
+              </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button id="collectionDialogOk" type="button" class="btn btn-primary" data-bs-dismiss="modal">Create collection</button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-light"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              id="collectionDialogOk"
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              Create collection
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <button id="definitionDialogButton" type="button" class="btn btn-primary hidden" data-bs-toggle="modal" data-bs-target="#definitionDialog">
+    <button
+      id="definitionDialogButton"
+      type="button"
+      class="btn btn-primary hidden"
+      data-bs-toggle="modal"
+      data-bs-target="#definitionDialog"
+    >
       Launch definition dialog
     </button>
 
@@ -449,16 +556,32 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="definitionDialogTitle">definitionDialogTitle</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title" id="definitionDialogTitle">
+              definitionDialogTitle
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="row">
               <div class="col-sm-6">
                 <div class="mb-3">
-                  <label for="definitionName" class="form-label" disabled>Property name</label>
-                  <input type="text" class="form-control" id="definitionName" aria-describedby="basic-addon3 basic-addon4">
-                  <div class="form-text" id="basic-addon4">Only alphanumeric characters allowed - Limit 64 characters</div>
+                  <label for="definitionName" class="form-label" disabled
+                    >Property name</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="definitionName"
+                    aria-describedby="basic-addon3 basic-addon4"
+                  />
+                  <div class="form-text" id="basic-addon4">
+                    Only alphanumeric characters allowed - Limit 64 characters
+                  </div>
                 </div>
                 <br />
                 <div class="form-group">
@@ -478,18 +601,31 @@
               </div>
               <div class="col-sm-6">
                 <div class="mb-3">
-                  <label for="definitionDescription" class="form-label">Description</label>
+                  <label for="definitionDescription" class="form-label"
+                    >Description</label
+                  >
                   <div class="input-group">
-                    <input type="text" class="form-control" id="definitionDescription" aria-describedby="basic-addon3 basic-addon4">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="definitionDescription"
+                      aria-describedby="basic-addon3 basic-addon4"
+                    />
                   </div>
-                  <div class="form-text" id="basic-addon4">Only alphanumeric characters allowed - Limit 64 characters</div>
+                  <div class="form-text" id="basic-addon4">
+                    Only alphanumeric characters allowed - Limit 64 characters
+                  </div>
                 </div>
                 <br />
                 <div class="form-group">
-                  <label for="definitionBehaviour" class="form-label">Behavior</label>
+                  <label for="definitionBehaviour" class="form-label"
+                    >Behavior</label
+                  >
                   <select class="form-select" id="definitionBehaviour">
                     <option value="STANDARD">Standard</option>
-                    <option value="DYNAMIC_AT_VERSION">Dynamic at version</option>
+                    <option value="DYNAMIC_AT_VERSION">
+                      Dynamic at version
+                    </option>
                     <option value="DYNAMIC">Dynamic</option>
                     <option value="TIMELESS">Timeless</option>
                   </select>
@@ -501,14 +637,31 @@
               <div class="col-sm-2">
                 <label class="form-label">Hidden</label>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="definitionHidden" id="definitionHiddenYes" checked>
-                  <label class="form-check-label form-text" for="definitionHiddenYes">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definitionHidden"
+                    id="definitionHiddenYes"
+                    checked
+                  />
+                  <label
+                    class="form-check-label form-text"
+                    for="definitionHiddenYes"
+                  >
                     Yes
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="definitionHidden" id="definitionHiddenNo">
-                  <label class="form-check-label form-text" for="definitionHiddenNo">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definitionHidden"
+                    id="definitionHiddenNo"
+                  />
+                  <label
+                    class="form-check-label form-text"
+                    for="definitionHiddenNo"
+                  >
                     No
                   </label>
                 </div>
@@ -516,14 +669,31 @@
               <div class="col-sm-2">
                 <label class="form-label">Read-only</label>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="definitionReadonly" id="definitionReadonlyYes" checked>
-                  <label class="form-check-label form-text" for="definitionReadonlyYes">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definitionReadonly"
+                    id="definitionReadonlyYes"
+                    checked
+                  />
+                  <label
+                    class="form-check-label form-text"
+                    for="definitionReadonlyYes"
+                  >
                     Yes
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="definitionReadonly" id="definitionReadonlyNo">
-                  <label class="form-check-label form-text" for="definitionReadonlyNo">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definitionReadonly"
+                    id="definitionReadonlyNo"
+                  />
+                  <label
+                    class="form-check-label form-text"
+                    for="definitionReadonlyNo"
+                  >
                     No
                   </label>
                 </div>
@@ -531,14 +701,31 @@
               <div class="col-sm-3">
                 <label class="form-label">Include if copied</label>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="definitionInclude" id="definitionIncludeYes" checked>
-                  <label class="form-check-label form-text" for="definitionIncludeYes">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definitionInclude"
+                    id="definitionIncludeYes"
+                    checked
+                  />
+                  <label
+                    class="form-check-label form-text"
+                    for="definitionIncludeYes"
+                  >
                     Yes
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="definitionInclude" id="definitionIncludeNo">
-                  <label class="form-check-label form-text" for="definitionIncludeNo">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definitionInclude"
+                    id="definitionIncludeNo"
+                  />
+                  <label
+                    class="form-check-label form-text"
+                    for="definitionIncludeNo"
+                  >
                     No
                   </label>
                 </div>
@@ -546,14 +733,33 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button id="definitionDialogOk" type="button" class="btn btn-primary" data-bs-dismiss="modal">definitionDialogOk</button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-light"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              id="definitionDialogOk"
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              definitionDialogOk
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <button id="collectionsDialogButton" type="button" class="btn btn-primary hidden" data-bs-toggle="modal" data-bs-target="#collectionsDialog">
+    <button
+      id="collectionsDialogButton"
+      type="button"
+      class="btn btn-primary hidden"
+      data-bs-toggle="modal"
+      data-bs-target="#collectionsDialog"
+    >
       Launch collection dialog
     </button>
 
@@ -562,14 +768,18 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Link/Unlink collections</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <div id="collectionsDialogEmpty" class="container pt-3 center">
               <img src="./images/emptybox.svg" />
             </div>
-            <ul id="collectionsList" class="list-group">
-            </ul>
+            <ul id="collectionsList" class="list-group"></ul>
           </div>
         </div>
       </div>

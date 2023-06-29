@@ -40,6 +40,8 @@ async function showProperties() {
     return await getJSON(`/api/fusiondata/${extendableId}/generalproperties`);
   }, 'properties');
 
+  // Overview tab
+
   const generalPropertiesTable = document.getElementById('generalPropertiesTable');
   generalPropertiesTable.children[0].children[1].textContent = properties.partNumber;
   generalPropertiesTable.children[1].children[1].textContent = properties.name;
@@ -62,6 +64,10 @@ async function showProperties() {
   physicalPropertiesTable.children[3].children[1].textContent = props.area.value;
   physicalPropertiesTable.children[4].children[1].textContent = 
     `${props.boundingBox.length.value} x ${props.boundingBox.width.value} x ${props.boundingBox.height.value}`;
+
+  // Custom Properties tab
+
+  
 }
 
 function onHubButtonClicked(event) {

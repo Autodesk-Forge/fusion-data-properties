@@ -14,8 +14,24 @@ thead {
   display: none;
 }
 
+.big-padding {
+  padding: 30px;
+}
+
+.no-border {
+  border: none;
+}
+
+.dimmed {
+  color: lightgrey;
+}
+
 .name-column {
   width: 50%;
+}
+
+.button-column {
+  width: 50px;
 }
 
 .full-height {
@@ -211,4 +227,13 @@ thead {
 
 .form-text {
   font-size: small;
+}
+
+.nav-link {
+  border: none !important;
+  --bs-nav-link-color: darkgrey;
+}
+
+.nav-link.active {
+  border-bottom: black solid 2px !important;
 }
