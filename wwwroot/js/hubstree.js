@@ -45,7 +45,7 @@ async function showHubsWithLinkedCollections(hubs) {
     if (collections.length < 1)
       continue;
 
-    const node = document.querySelector(`a[data-uid="hub|${hub.id}"]>span.link-icon`);
+    const node = document.querySelector(`a[data-uid="hub|${hub.id}"]`);
     if (!node) 
       continue;
     
@@ -90,16 +90,16 @@ export function initTreeControl(selector, onSelectionChanged, onHubButtonClicked
             for (var projectNode = node; !projectNode.id.startsWith('project'); projectNode = projectNode.itree.parent) {}
             const tokens2 = projectNode.id.split('|');
             const fileName = node.itree.parent.text;
-            onSelectionChanged(tokens[0], tokens2[1], tokens2[2], tokens[1], fileName);
+            onSelectionChanged(node, tokens[0], tokens2[1], tokens2[2], tokens[1], fileName);
         } else if (tokens[0] === 'item') {
           for (var projectNode = node; !projectNode.id.startsWith('project'); projectNode = projectNode.itree.parent) {}
           const tokens2 = projectNode.id.split('|');
           const fileName = node.itree.parent.text;
-          onSelectionChanged(tokens[0], tokens2[1], tokens2[2], tokens[3], fileName);
+          onSelectionChanged(node, tokens[0], tokens2[1], tokens2[2], tokens[3], fileName);
         } else if (tokens[0] === 'hub') {
-          onSelectionChanged(tokens[0], tokens[1]);
+          onSelectionChanged(node, tokens[0], tokens[1]);
         } else {
-          onSelectionChanged(tokens[0]);
+          onSelectionChanged(node, tokens[0]);
         }
     });
     return new InspireTreeDOM(tree, { target: selector });

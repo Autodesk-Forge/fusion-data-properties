@@ -67,7 +67,7 @@ async function showProperties() {
 
   // Custom Properties tab
 
-  
+
 }
 
 function onHubButtonClicked(event) {
@@ -75,8 +75,44 @@ function onHubButtonClicked(event) {
   showHubCollectionsDialog(hubId)
 }
 
-export async function onSelectionChanged(type, hubId, projectId, fileItemVersionId, fileName) {
-   
+function updateBreadcrumbs(node) {
+  const propertiesView = document.getElementById('propertiesView');
+  const breadCrumbs = propertiesView.getElementsByClassName('breadcrumb')[0];
+  breadCrumbs.innerHTML = 
+    `<li class="breadcrumb-item">
+      <a class="link-body-emphasis" href="#">
+        <span class="bi bi-house-door-fill"></span>
+        <span class="visually-hidden">Home</span>
+      </a>
+    </li>`
+
+  let parents = node.getParents().toArray().reverse();
+  parents.push(node);
+  let listItems = parents.map(parent => {
+    return `<li class="breadcrumb-item">
+        <a
+          class="link-body-emphasis fw-semibold text-decoration-none"
+          href="#"
+          node-id="${parent.id}"
+          >${parent.text}</a
+        >
+      </li>`
+  })
+
+  breadCrumbs.innerHTML += listItems.join('');
+
+  for (let item of breadCrumbs.getElementsByClassName('link-body-emphasis')) {
+    item.onclick = (event) => {
+      const nodeId = event.target.getAttribute("node-id");
+      const node = document.querySelector(`a[data-uid="${nodeId}"]`);
+      if (node)
+        node.click();
+    }
+  }
+}
+
+export async function onSelectionChanged(node, type, hubId, projectId, fileItemVersionId, fileName) {
+   updateBreadcrumbs(node);
 
    if (type !== 'version' && type !== 'item') {
     clearId();

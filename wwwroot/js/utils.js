@@ -76,17 +76,14 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
   let oldViewId;
   let views = document.getElementsByClassName("view");
   for (let view of views) {
-    //if (view.style.display !== 'none') {
     if (!view.classList.contains("hidden")) {
       oldViewId = view.id;
-      //view.style.display = 'none';
       view.classList.add("hidden")
       break;
     }
   }
 
   let view = document.getElementById(viewId);
-  //view.style.display = 'block';
   view.classList.remove("hidden");
 
   if (oldViewId !== viewId) {
