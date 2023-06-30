@@ -130,6 +130,10 @@ thead {
   height: 100%;
 }
 
+#avatarImage { 
+  background-color: #fff;
+}
+
 #title {
   height: 100%;
   vertical-align: middle;
@@ -250,4 +254,8 @@ thead {
 
 .nav-link.active {
   border-bottom: black solid 2px !important;
+}
+
+.dropdown-toggle::after {
+  color: white;
 }

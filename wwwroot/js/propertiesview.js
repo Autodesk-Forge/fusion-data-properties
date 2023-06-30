@@ -158,8 +158,12 @@ export async function onSelectionChanged(node, type, hubId, projectId, fileItemV
 
    document.getElementById("versioInfo").classList.add("hidden");
 
+   clearGeneralProperties();
+
    if (type === 'item') {
     listVersions(hubId, projectId, fileItemVersionId, fileName);
+   } else {
+    document.getElementById("thumbnail").src = "/images/box-200x200.png";
    }
 
    if (type !== 'version' && type !== 'item') {
