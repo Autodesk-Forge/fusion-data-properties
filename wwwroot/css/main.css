@@ -11,7 +11,7 @@ thead {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .big-padding {
@@ -53,6 +53,14 @@ thead {
 
 .row {
   width: 100%;
+}
+
+.pr-0 {
+  padding-right: 0;
+}
+
+.display-block {
+  display: block;
 }
 
 .grey-border-right {
@@ -106,7 +114,7 @@ thead {
 }
 
 #preview {
-  width: 60%;
+  /*width: 60%;*/
   right: 0;
   top: 3em;
   bottom: 0;
@@ -175,6 +183,12 @@ thead {
 
 #tree {
   margin: 0.5em;
+}
+
+#versionList {
+  width: fit-content;
+  display: inline-block;
+  border: none;
 }
 
 @media (max-width: 768px) {

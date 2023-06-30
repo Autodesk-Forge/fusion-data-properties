@@ -323,8 +323,20 @@
             <div class="col-sm-3">
               <div id="preview">
                 <div id="info">
-                  <img id="thumbnail" src="/images/box-200x200.png" />
-                  <span id="title"></span>
+                  <div class="row">
+                    <img id="thumbnail" src="/images/box-200x200.png" />
+                  </div>
+                  <div id="versioInfo" class="hidden">
+                    <div class="row">
+                      <span id="title">Last Modified on:&nbsp;<span id="lastModifiedOn">01/01/2023</span></span>
+                    </div>
+                    <div id="versioInfo" class="row display-block">
+                      <span class="pr-0">Component Version <span class="bi bi-info-circle"></span></span>
+                      <select id="versionList" class="form-select">
+                        <option>v1</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -346,19 +358,19 @@
                     <tbody id="generalPropertiesTable">
                       <tr>
                         <td>Part Number</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Part Name</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Description</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Material Name</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                     </tbody>
                   </table>
@@ -372,27 +384,27 @@
                     <tbody id="managePropertiesTable">
                       <tr>
                         <td>Item Number</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Lifecycle</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Revision</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>State</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Change Order</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Change URN</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                     </tbody>
                   </table>
@@ -408,23 +420,23 @@
                     <tbody id="physicalPropertiesTable">
                       <tr>
                         <td>Mass</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Volume</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Density</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Area</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                       <tr>
                         <td>Bounding Box</td>
-                        <td></td>
+                        <td class="prop-value"></td>
                       </tr>
                     </tbody>
                   </table>

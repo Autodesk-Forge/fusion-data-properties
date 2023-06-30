@@ -168,7 +168,7 @@ router.get('/:project_id/:file_version_id/thumbnail', async function (req, res) 
       
     res.end(thumbnail);
   } catch (err) {
-    res.redirect('/box-200x200.png');
+    res.redirect('/images/box-200x200.png');
   }
 });
 

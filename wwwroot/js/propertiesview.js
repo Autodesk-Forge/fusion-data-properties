@@ -10,6 +10,29 @@ document.getElementById('propertiesView').onload = () => {
     tree = initTreeControl('#tree', onSelectionChanged, onHubButtonClicked);
 }
 
+function clearGeneralProperties() {
+  for (let item of document.getElementsByClassName("prop-value")) {
+    item.textContent = '';
+  }
+}
+
+document.getElementById("versionList").onchange = () => {
+  clearGeneralProperties();
+
+  const versionList = document.getElementById("versionList");
+  const versionUrn = versionList.value;
+  const selectedVersion = versionList.selectedOptions[0];
+  const fileName = versionList.getAttribute("fileName");
+  const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
+  document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
+
+  const projectId = versionList.getAttribute("projectId");
+  showThumbnail(projectId, versionUrn);
+  storeId('version', projectId, versionUrn).then(() => {
+    showProperties();
+  }) 
+}
+
 async function showThumbnail(projectId, fileVersionId) {
   document.getElementById('thumbnail').src = 
     `/api/fusiondata/${projectId}/${encodeURIComponent(fileVersionId)}/thumbnail`;
@@ -111,8 +134,33 @@ function updateBreadcrumbs(node) {
   }
 }
 
+async function listVersions(hubId, projectId, fileItemVersionId, fileName) {
+  const versionList = document.getElementById("versionList");
+  versionList.setAttribute("projectId", projectId);
+  versionList.setAttribute("itemUrn", fileItemVersionId);
+  versionList.setAttribute("fileName", fileName);
+
+  versionList.innerHTML = '';
+  const versions = await getJSON(`/api/hubs/${hubId}/projects/${projectId}/contents/${fileItemVersionId}/versions`);
+  const listItems = versions.map(version => {
+    const lastModifiedOn = version.attributes.lastModifiedTime.split('T')[0];
+    return `<option value="${version.id}" lastModifiedOn="${lastModifiedOn}">v${version.attributes.versionNumber}</option>`;
+  })
+  versionList.innerHTML = listItems.join();
+
+  versionList.onchange();
+
+  document.getElementById("versioInfo").classList.remove("hidden");
+}
+
 export async function onSelectionChanged(node, type, hubId, projectId, fileItemVersionId, fileName) {
    updateBreadcrumbs(node);
+
+   document.getElementById("versioInfo").classList.add("hidden");
+
+   if (type === 'item') {
+    listVersions(hubId, projectId, fileItemVersionId, fileName);
+   }
 
    if (type !== 'version' && type !== 'item') {
     clearId();

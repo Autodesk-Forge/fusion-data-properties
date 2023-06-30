@@ -29,7 +29,7 @@ async function getContents(hubId, projectId, folderId = null) {
         if (item.type === 'folders') {
             return createTreeNode(`folder|${hubId}|${projectId}|${item.id}`, item.attributes.displayName, 'icon-my-folder', true);
         } else {
-            return createTreeNode(`item|${hubId}|${projectId}|${item.id}`, item.attributes.displayName, 'icon-item', true);
+            return createTreeNode(`item|${hubId}|${projectId}|${item.id}`, item.attributes.displayName, 'icon-item', false);
         }
     });
 }
@@ -65,7 +65,7 @@ export function initTreeControl(selector, onSelectionChanged, onHubButtonClicked
                     case 'hub': return getProjects(tokens[1]);
                     case 'project': return getContents(tokens[1], tokens[2]);
                     case 'folder': return getContents(tokens[1], tokens[2], tokens[3]);
-                    case 'item': return getVersions(tokens[1], tokens[2], tokens[3]);
+                    //case 'item': return getVersions(tokens[1], tokens[2], tokens[3]);
                     default: return [];
                 }
             }
