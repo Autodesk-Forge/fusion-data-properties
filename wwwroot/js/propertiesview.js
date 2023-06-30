@@ -1,11 +1,16 @@
-import { getJSON, useLoadingSymbol } from "./utils.js";
+import { getJSON, abortJSON, useLoadingSymbol } from "./utils.js";
 import { initTreeControl } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
 let _tree;
 let _extendableId;
+let _extendableVersionId;
+let _projectId;
 
-document.getElementById("propertiesView").onload = () => {
+const _propertiesView = document.getElementById("propertiesView");
+const _versionList = document.getElementById("versionList");
+
+_propertiesView.onload = () => {
   if (!_tree)
     _tree = initTreeControl("#tree", onSelectionChanged, onHubButtonClicked);
 };
@@ -16,20 +21,18 @@ function clearGeneralProperties() {
   }
 }
 
-document.getElementById("versionList").onchange = () => {
+_versionList.onchange = () => {
+  abortJSON();
   clearGeneralProperties();
 
-  const versionList = document.getElementById("versionList");
-  const versionUrn = versionList.value;
-  const selectedVersion = versionList.selectedOptions[0];
-  const fileName = versionList.getAttribute("fileName");
+  const versionUrn = _versionList.value;
+  const selectedVersion = _versionList.selectedOptions[0];
   const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
   document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
 
-  const projectId = versionList.getAttribute("projectId");
-  showThumbnail(projectId, versionUrn);
-  storeId("version", projectId, versionUrn).then((extendableId) => {
-    showVersionProperties(extendableId);
+  showThumbnail(_projectId, versionUrn);
+  storeId("version", _projectId, versionUrn).then(() => {
+    showVersionProperties(_extendableVersionId);
   });
 };
 
@@ -42,78 +45,79 @@ async function showThumbnail(projectId, fileVersionId) {
 }
 
 async function storeId(type, projectId, fileItemOrVersionId) {
-  const response = await getJSON(
-    `/api/fusiondata/${projectId}/${encodeURIComponent(
-      fileItemOrVersionId
-    )}/${type}id`,
-    "GET"
-  );
+  try {
+    const response = await getJSON(
+      `/api/fusiondata/${projectId}/${encodeURIComponent(
+        fileItemOrVersionId
+      )}/${type}id`,
+      "GET"
+    );
 
-  _extendableId = response.id;
-  console.log(`Selected item's ID: ${response.id}`);
-
-  return _extendableId;
-}
-
-async function clearId() {
-  _extendableId = undefined;
-}
-
-async function showName(fileVersionId, fileName) {
-  const versionNumber = fileVersionId.split("?version=");
-  document.getElementById(
-    "title"
-  ).innerHTML = `${fileName} (v${versionNumber[1]})`;
+    if (type === 'item') {
+      _extendableId = response.id;
+      console.log(`Selected item's ID: ${response.id}`);
+    } else {
+      _extendableVersionId = response.id;
+      console.log(`Selected version's ID: ${response.id}`);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function showVersionProperties(extendableId) {
-  const properties = await useLoadingSymbol(async () => {
-    return await getJSON(`/api/fusiondata/${extendableId}/generalproperties`);
-  }, "properties");
+  try {
+    const properties = await useLoadingSymbol(async () => {
+      return await getJSON(`/api/fusiondata/${extendableId}/generalproperties`);
+    }, "properties");
+ 
 
-  // Overview tab
+    // Overview tab
 
-  const generalPropertiesTable = document.getElementById(
-    "generalPropertiesTable"
-  );
-  generalPropertiesTable.children[0].children[1].textContent =
-    properties.partNumber;
-  generalPropertiesTable.children[1].children[1].textContent = properties.name;
-  generalPropertiesTable.children[2].children[1].textContent =
-    properties.partDescription;
-  generalPropertiesTable.children[3].children[1].textContent =
-    properties.materialName;
+    const generalPropertiesTable = document.getElementById(
+      "generalPropertiesTable"
+    );
+    generalPropertiesTable.children[0].children[1].textContent =
+      properties.partNumber;
+    generalPropertiesTable.children[1].children[1].textContent = properties.name;
+    generalPropertiesTable.children[2].children[1].textContent =
+      properties.partDescription;
+    generalPropertiesTable.children[3].children[1].textContent =
+      properties.materialName;
 
-  const managePropertiesTable = document.getElementById(
-    "managePropertiesTable"
-  );
-  managePropertiesTable.children[0].children[1].textContent =
-    properties.itemNumber;
-  managePropertiesTable.children[1].children[1].textContent =
-    properties.lifecycle;
-  managePropertiesTable.children[2].children[1].textContent =
-    properties.revision;
-  managePropertiesTable.children[3].children[1].textContent = "state?";
-  managePropertiesTable.children[4].children[1].textContent =
-    properties.changeOrder;
-  managePropertiesTable.children[5].children[1].textContent =
-    properties.changeOrderURN;
+    const managePropertiesTable = document.getElementById(
+      "managePropertiesTable"
+    );
+    managePropertiesTable.children[0].children[1].textContent =
+      properties.itemNumber;
+    managePropertiesTable.children[1].children[1].textContent =
+      properties.lifecycle;
+    managePropertiesTable.children[2].children[1].textContent =
+      properties.revision;
+    managePropertiesTable.children[3].children[1].textContent = "state?";
+    managePropertiesTable.children[4].children[1].textContent =
+      properties.changeOrder;
+    managePropertiesTable.children[5].children[1].textContent =
+      properties.changeOrderURN;
 
-  const physicalPropertiesTable = document.getElementById(
-    "physicalPropertiesTable"
-  );
-  const props = properties.physicalProperties;
-  physicalPropertiesTable.children[0].children[1].textContent =
-    props.mass.value;
-  physicalPropertiesTable.children[1].children[1].textContent =
-    props.volume.value;
-  physicalPropertiesTable.children[2].children[1].textContent =
-    props.density.value;
-  physicalPropertiesTable.children[3].children[1].textContent =
-    props.area.value;
-  physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox.length.value} x ${props.boundingBox.width.value} x ${props.boundingBox.height.value}`;
+    const physicalPropertiesTable = document.getElementById(
+      "physicalPropertiesTable"
+    );
+    const props = properties.physicalProperties;
+    physicalPropertiesTable.children[0].children[1].textContent =
+      props.mass.value;
+    physicalPropertiesTable.children[1].children[1].textContent =
+      props.volume.value;
+    physicalPropertiesTable.children[2].children[1].textContent =
+      props.density.value;
+    physicalPropertiesTable.children[3].children[1].textContent =
+      props.area.value;
+    physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox.length.value} x ${props.boundingBox.width.value} x ${props.boundingBox.height.value}`;
 
-  // Custom Properties tab
+    // Custom Properties tab
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function onHubButtonClicked(event) {
@@ -124,8 +128,7 @@ function onHubButtonClicked(event) {
 }
 
 function updateBreadcrumbs(node) {
-  const propertiesView = document.getElementById("propertiesView");
-  const breadCrumbs = propertiesView.getElementsByClassName("breadcrumb")[0];
+  const breadCrumbs = _propertiesView.getElementsByClassName("breadcrumb")[0];
   breadCrumbs.innerHTML = `<li class="breadcrumb-item">
       <a class="link-body-emphasis" href="#">
         <span class="bi bi-house-door-fill"></span>
@@ -157,13 +160,11 @@ function updateBreadcrumbs(node) {
   }
 }
 
-async function listVersions(hubId, projectId, fileItemVersionId, fileName) {
-  const versionList = document.getElementById("versionList");
-  versionList.setAttribute("projectId", projectId);
-  versionList.setAttribute("itemUrn", fileItemVersionId);
-  versionList.setAttribute("fileName", fileName);
+async function listVersions(hubId, projectId, fileItemVersionId) {
+  _projectId = projectId;
+  _extendableId = fileItemVersionId;
 
-  versionList.innerHTML = "";
+  _versionList.innerHTML = "";
   const versions = await getJSON(
     `/api/hubs/${hubId}/projects/${projectId}/contents/${fileItemVersionId}/versions`
   );
@@ -171,9 +172,9 @@ async function listVersions(hubId, projectId, fileItemVersionId, fileName) {
     const lastModifiedOn = version.attributes.lastModifiedTime.split("T")[0];
     return `<option value="${version.id}" lastModifiedOn="${lastModifiedOn}">v${version.attributes.versionNumber}</option>`;
   });
-  versionList.innerHTML = listItems.join();
+  _versionList.innerHTML = listItems.join();
 
-  versionList.onchange();
+  _versionList.onchange();
 
   document.getElementById("versioInfo").classList.remove("hidden");
 }
@@ -183,9 +184,10 @@ export async function onSelectionChanged(
   type,
   hubId,
   projectId,
-  fileItemVersionId,
-  fileName
+  fileItemVersionId
 ) {
+  abortJSON();
+
   updateBreadcrumbs(node);
 
   document.getElementById("versioInfo").classList.add("hidden");
@@ -193,14 +195,10 @@ export async function onSelectionChanged(
   clearGeneralProperties();
 
   if (type === "item") {
-    listVersions(hubId, projectId, fileItemVersionId, fileName);
+    listVersions(hubId, projectId, fileItemVersionId);
   } else {
+    _extendableId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
-  }
-
-  if (type !== "version" && type !== "item") {
-    clearId();
-    return;
   }
 
   /*

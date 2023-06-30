@@ -60,6 +60,14 @@ export async function useLoadingSymbol(func) {
   }
 }
 
+export function abortJSON() {
+  if (!_controller)
+    return;
+
+  _controller.abort();
+  _controller = null;  
+}
+
 export function showView(viewId, breadcrumbText, breadcrumbCallback) {
   let oldViewId;
   let views = document.getElementsByClassName("view");

@@ -1,3 +1,5 @@
+//import { getJSON } from "./utils";
+
 async function getJSON(url) {
   const resp = await fetch(url);
   if (!resp.ok) {
@@ -7,6 +9,7 @@ async function getJSON(url) {
   }
   return resp.json();
 }
+
 
 function createTreeNode(id, text, icon, children = false) {
   return { id, text, children, itree: { icon } };
@@ -56,28 +59,19 @@ async function getContents(hubId, projectId, folderId = null) {
   });
 }
 
-async function getVersions(hubId, projectId, itemId) {
-  const versions = await getJSON(
-    `/api/hubs/${hubId}/projects/${projectId}/contents/${itemId}/versions`
-  );
-  return versions.map((version) =>
-    createTreeNode(
-      `version|${version.id}`,
-      version.attributes.createTime,
-      "icon-version"
-    )
-  );
-}
-
 async function showHubsWithLinkedCollections(hubs) {
   for (let hub of hubs) {
-    const collections = await getJSON(`/api/fusiondata/${hub.id}/collections`);
-    if (collections.length < 1) continue;
+    try {
+      const collections = await getJSON(`/api/fusiondata/${hub.id}/collections`);
+      if (collections.length < 1) continue;
 
-    const node = document.querySelector(`a[data-uid="hub|${hub.id}"]`);
-    if (!node) continue;
+      const node = document.querySelector(`a[data-uid="hub|${hub.id}"]`);
+      if (!node) continue;
 
-    node.classList.remove("hidden");
+      node.classList.remove("hidden");
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
@@ -100,7 +94,6 @@ export function initTreeControl(
             return getContents(tokens[1], tokens[2]);
           case "folder":
             return getContents(tokens[1], tokens[2], tokens[3]);
-          //case 'item': return getVersions(tokens[1], tokens[2], tokens[3]);
           default:
             return [];
         }
@@ -130,14 +123,12 @@ export function initTreeControl(
         projectNode = projectNode.itree.parent
       ) {}
       const tokens2 = projectNode.id.split("|");
-      const fileName = node.itree.parent.text;
       onSelectionChanged(
         node,
         tokens[0],
         tokens2[1],
         tokens2[2],
-        tokens[1],
-        fileName
+        tokens[1]
       );
     } else if (tokens[0] === "item") {
       for (
@@ -146,14 +137,12 @@ export function initTreeControl(
         projectNode = projectNode.itree.parent
       ) {}
       const tokens2 = projectNode.id.split("|");
-      const fileName = node.itree.parent.text;
       onSelectionChanged(
         node,
         tokens[0],
         tokens2[1],
         tokens2[2],
-        tokens[3],
-        fileName
+        tokens[3]
       );
     } else if (tokens[0] === "hub") {
       onSelectionChanged(node, tokens[0], tokens[1]);
