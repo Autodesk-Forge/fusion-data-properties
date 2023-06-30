@@ -1,4 +1,4 @@
-let controller;
+let _controller;
 
 export function wait(seconds) {
   return new Promise((resolve, reject) => {
@@ -8,59 +8,47 @@ export function wait(seconds) {
 
 export function formatString(text) {
   // Turn e.g. "DYNAMIC_AT_VERSION" to "Dynamic at version"
-  return (text.charAt(0) + text.slice(1).toLowerCase()).replaceAll('_', ' ');
+  return (text.charAt(0) + text.slice(1).toLowerCase()).replaceAll("_", " ");
 }
 
 export function disableElements(ids, disable) {
   for (let id of ids) {
     const elem = document.getElementById(id);
-    if (elem.hasAttribute('disabled') && !disable) {
-      elem.removeAttribute('disabled');
-    } else if (!elem.hasAttribute('disabled') && disable) {
-      elem.setAttribute('disabled', '');
+    if (elem.hasAttribute("disabled") && !disable) {
+      elem.removeAttribute("disabled");
+    } else if (!elem.hasAttribute("disabled") && disable) {
+      elem.setAttribute("disabled", "");
     }
   }
 }
 
 export function toYesOrNo(value) {
-  return value === true ? 'Yes' : 'No';
+  return value === true ? "Yes" : "No";
 }
 
 export function toNonEmpty(value) {
-  return value !== undefined ? value : '-';
+  return value !== undefined ? value : "-";
 }
 
-export async function getJSON(url, verb = 'GET', body) {
-  controller = new AbortController();
-  const { signal } = controller;
+export async function getJSON(url, verb = "GET", body) {
+  _controller = new AbortController();
+  const { signal } = _controller;
 
   const resp = await fetch(url, {
     signal,
     method: verb,
     body: body,
     headers: {
-      'Content-Type': 'application/json'
-    }
+      "Content-Type": "application/json",
+    },
   });
   if (!resp.ok) {
-      const err = await resp.json();
-      console.error(err);
-      throw err;
+    const err = await resp.json();
+    console.error(err);
+    throw err;
   }
   return resp.json();
 }
-
-/*
-export async function useLoadingSymbol(func) {
-  const element = document.getElementById("loadingSign");
-  element.style.display = 'block';
-  try {
-    return await func();
-  } finally {
-    element.style.display = 'none';
-  }
-}
-*/
 
 export async function useLoadingSymbol(func) {
   const element = document.getElementById("loadingSign");
@@ -78,7 +66,7 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
   for (let view of views) {
     if (!view.classList.contains("hidden")) {
       oldViewId = view.id;
-      view.classList.add("hidden")
+      view.classList.add("hidden");
       break;
     }
   }
@@ -88,9 +76,9 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
 
   if (oldViewId !== viewId) {
     // if we are chaning view then any data load it triggered should be cancelled
-    if (controller) {
-      controller.abort();
-      controller = null;
+    if (_controller) {
+      _controller.abort();
+      _controller = null;
     }
 
     if (view.onload) {
@@ -98,13 +86,9 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
     }
   }
 
-  if (!breadcrumbText)
-    return;
+  if (!breadcrumbText) return;
 
-  const breadCrumb = view.getElementsByClassName('breadcrumb-text')[0];
+  const breadCrumb = view.getElementsByClassName("breadcrumb-text")[0];
   breadCrumb.textContent = breadcrumbText;
   breadCrumb.onclick = breadcrumbCallback;
 }
-
-
-

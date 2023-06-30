@@ -1,54 +1,66 @@
-import { getJSON, showView, useLoadingSymbol, toYesOrNo, toNonEmpty, formatString, wait } from './utils.js';
-import { showDefinitionDialog } from './definitiondialog.js';
+import {
+  getJSON,
+  showView,
+  useLoadingSymbol,
+  toYesOrNo,
+  toNonEmpty,
+  formatString,
+  wait,
+} from "./utils.js";
+import { showDefinitionDialog } from "./definitiondialog.js";
 
-
-document.getElementById('createDefinition').onclick =
-document.getElementById('newDefinition').onclick = (event) => {
-  showDefinitionDialog(async values => {
+document.getElementById("createDefinition").onclick = document.getElementById(
+  "newDefinition"
+).onclick = (event) => {
+  showDefinitionDialog(async (values) => {
     console.log(values);
 
-    const collectionId = definitionsTable.getAttribute('collectionId');
-    const collectionName = definitionsTable.getAttribute('collectionName');
+    const collectionId = definitionsTable.getAttribute("collectionId");
+    const collectionName = definitionsTable.getAttribute("collectionName");
 
     try {
       const definition = await useLoadingSymbol(async () => {
         return await getJSON(
-          `/api/fusiondata/collections/${collectionId}/definitions`, 'POST',
-          JSON.stringify({ 
-            definitionName: values.name, 
-            definitionType: values.type, 
-            definitionDescription: values.description, 
+          `/api/fusiondata/collections/${collectionId}/definitions`,
+          "POST",
+          JSON.stringify({
+            definitionName: values.name,
+            definitionType: values.type,
+            definitionDescription: values.description,
             isHidden: values.isHidden,
-            propertyBehavior: values.propertyBehavior
-          }));
+            propertyBehavior: values.propertyBehavior,
+          })
+        );
       });
 
       showDefinitionsTable(collectionId, collectionName);
     } catch {
-      alert('Could not add new property');
+      alert("Could not add new property");
     }
-  })
-}
+  });
+};
 
 function onEdit(event) {
-  console.log('onEdit');
+  console.log("onEdit");
   event.preventDefault();
 
   const currentValues = event.target.parentElement.parentElement.definition;
-  const collectionId = definitionsTable.getAttribute('collectionId');
-  const collectionName = definitionsTable.getAttribute('collectionName');
+  const collectionId = definitionsTable.getAttribute("collectionId");
+  const collectionName = definitionsTable.getAttribute("collectionName");
 
-  showDefinitionDialog(async values => {
+  showDefinitionDialog(async (values) => {
     console.log(values);
 
     try {
       const definition = await useLoadingSymbol(async () => {
         const res = await getJSON(
-          `/api/fusiondata/definitions/${currentValues.id}`, 'PUT',
-          JSON.stringify({ 
-            definitionDescription : values.description, 
-            isHidden: values.isHidden }
-        ));
+          `/api/fusiondata/definitions/${currentValues.id}`,
+          "PUT",
+          JSON.stringify({
+            definitionDescription: values.description,
+            isHidden: values.isHidden,
+          })
+        );
 
         await wait(1);
 
@@ -57,21 +69,20 @@ function onEdit(event) {
 
       showDefinitionsTable(collectionId, collectionName);
     } catch {
-      alert('Could not add new property');
+      alert("Could not add new property");
     }
   }, currentValues);
 }
 
 function onArchive(event) {
-  console.log('onArchive');
+  console.log("onArchive");
   event.preventDefault();
 }
 
 function addRow(definitionsTable, definition) {
   let row = definitionsTable.insertRow();
   row.definition = definition;
-  row.innerHTML +=
-    `<tr>
+  row.innerHTML += `<tr>
       <td definitionId="${definition.id}">${definition.name}</td>
       <td>${formatString(definition.type)}</td>
       <td>${toNonEmpty(definition.units?.name)}</td>
@@ -83,7 +94,7 @@ function addRow(definitionsTable, definition) {
         <span href="" class="bi bi-pencil clickable" title="Edit property">&nbsp;</span>
         <span href="" class="bi bi-archive clickable" title="Archive property">&nbsp;</span>
       </td>
-    </tr>`
+    </tr>`;
 
   let [edit, archive] = row.getElementsByTagName("span");
   edit.onclick = onEdit;
@@ -91,28 +102,30 @@ function addRow(definitionsTable, definition) {
 }
 
 export async function showDefinitionsTable(collectionId, collectionName) {
-  const definitionsTable =  document.getElementById('definitionsTable');
-  definitionsTable.setAttribute('collectionId', collectionId);
-  definitionsTable.setAttribute('collectionName', collectionName);
+  const definitionsTable = document.getElementById("definitionsTable");
+  definitionsTable.setAttribute("collectionId", collectionId);
+  definitionsTable.setAttribute("collectionName", collectionName);
 
   try {
     let definitions = await useLoadingSymbol(async () => {
-      return await getJSON(`/api/fusiondata/collections/${collectionId}/definitions`, 'GET')
+      return await getJSON(
+        `/api/fusiondata/collections/${collectionId}/definitions`,
+        "GET"
+      );
     });
-    
+
     if (definitions.length < 1) {
       showView("emptyDefinitionsView");
       return;
     }
 
     showView("definitionsView", ` ${collectionName} properties`, () => {
-      showView('collectionsView');
+      showView("collectionsView");
     });
 
-    definitionsTable.innerHTML = '';
+    definitionsTable.innerHTML = "";
     for (let definition of definitions) {
       addRow(definitionsTable, definition);
     }
-  } catch { }
+  } catch {}
 }
-
