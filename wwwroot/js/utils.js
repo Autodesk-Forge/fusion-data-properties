@@ -68,10 +68,10 @@ export async function useLoadingSymbol(func) {
 }
 
 export function abortJSON() {
-  if (_controllers.length < 1)
+  if (_controllers.size < 1)
     return;
 
-  if (_controllers.length > 1) {
+  if (_controllers.size > 1) {
     console.log("Multiple JSON requests to abort")
   } else {
     console.log("Single JSON request to abort")
