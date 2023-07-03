@@ -138,6 +138,9 @@ async function showVersionProperties() {
 }
 
 function onHubButtonClicked(event) {
+  // prevent "node.click" from firing
+  event.stopPropagation();
+
   const hubId = event.target.parentElement
     .getAttribute("data-uid")
     .split("|")[1];

@@ -1,13 +1,17 @@
 //import { getJSON } from "./utils";
 
 async function getJSON(url) {
-  const resp = await fetch(url);
-  if (!resp.ok) {
-    //alert('Could not load tree data. See console for more details.');
-    console.error(await resp.text());
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      console.log(await resp.text());
+      return [];
+    }
+    return resp.json();
+  } catch (err) {
+    console.log(err);
     return [];
   }
-  return resp.json();
 }
 
 

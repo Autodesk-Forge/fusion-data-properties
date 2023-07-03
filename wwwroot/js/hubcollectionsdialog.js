@@ -20,12 +20,15 @@ export async function showHubCollectionsDialog(hubId) {
     ]);
   });
 
-  // If getting lkinked collections failed (linkedCollections.status='rejected')
-  // you have no admin access to that hub
+  // If getting lkinked collections failed 
+  // then you don't have anything linked yet 
 
-  if (collections.value?.length < 1 || !linkedCollections.value) return;
+  if (collections.value?.length < 1) return;
 
   const isLinked = (collectionId) => {
+    if (!linkedCollections.value)
+      return false;
+
     const result = linkedCollections.value.find(
       (item) => item.id === collectionId
     );

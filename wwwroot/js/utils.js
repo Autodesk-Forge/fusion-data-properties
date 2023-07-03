@@ -47,8 +47,8 @@ export async function getJSON(url, verb = "GET", body) {
 
 
     if (!resp.ok) {
-      const err = await resp.json();
-      console.error(err);
+      const err = await resp.text();
+      console.log(err);
       throw err;
     }
     return resp.json();
@@ -73,6 +73,8 @@ export function abortJSON() {
 
   if (_controllers.length > 1) {
     console.log("Multiple JSON requests to abort")
+  } else {
+    console.log("Single JSON request to abort")
   }
 
   for (let controller of _controllers) {
