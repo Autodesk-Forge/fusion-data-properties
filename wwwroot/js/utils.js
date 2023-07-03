@@ -1,4 +1,4 @@
-let _controller;
+let _controllers = new Set();
 
 export function wait(seconds) {
   return new Promise((resolve, reject) => {
@@ -31,23 +31,30 @@ export function toNonEmpty(value) {
 }
 
 export async function getJSON(url, verb = "GET", body) {
-  _controller = new AbortController();
-  const { signal } = _controller;
+  const controller = new AbortController();
+  const { signal } = controller;
+  _controllers.add(controller);
 
-  const resp = await fetch(url, {
-    signal,
-    method: verb,
-    body: body,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (!resp.ok) {
-    const err = await resp.json();
-    console.error(err);
-    throw err;
+  try {
+    const resp = await fetch(url, {
+      signal,
+      method: verb,
+      body: body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      console.error(err);
+      throw err;
+    }
+    return resp.json();
+  } finally {
+    _controllers.delete(controller);
   }
-  return resp.json();
 }
 
 export async function useLoadingSymbol(func) {
@@ -61,11 +68,18 @@ export async function useLoadingSymbol(func) {
 }
 
 export function abortJSON() {
-  if (!_controller)
+  if (_controllers.length < 1)
     return;
 
-  _controller.abort();
-  _controller = null;  
+  if (_controllers.length > 1) {
+    console.log("Multiple JSON requests to abort")
+  }
+
+  for (let controller of _controllers) {
+    controller.abort();
+  }
+
+  _controllers.deleteAll();
 }
 
 export function showView(viewId, breadcrumbText, breadcrumbCallback) {
@@ -84,10 +98,7 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
 
   if (oldViewId !== viewId) {
     // if we are chaning view then any data load it triggered should be cancelled
-    if (_controller) {
-      _controller.abort();
-      _controller = null;
-    }
+    abortJSON();
 
     if (view.onload) {
       view.onload();

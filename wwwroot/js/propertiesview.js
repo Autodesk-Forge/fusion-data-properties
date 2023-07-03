@@ -5,6 +5,7 @@ import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 let _tree;
 let _extendableId;
 let _extendableVersionId;
+let _hubId;
 let _projectId;
 
 const _propertiesView = document.getElementById("propertiesView");
@@ -32,7 +33,7 @@ _versionList.onchange = () => {
 
   showThumbnail(_projectId, versionUrn);
   storeId("version", _projectId, versionUrn).then(() => {
-    showVersionProperties(_extendableVersionId);
+    showVersionProperties();
   });
 };
 
@@ -65,56 +66,72 @@ async function storeId(type, projectId, fileItemOrVersionId) {
   }
 }
 
-async function showVersionProperties(extendableId) {
+async function showVersionProperties() {
   try {
-    const properties = await useLoadingSymbol(async () => {
-      return await getJSON(`/api/fusiondata/${extendableId}/generalproperties`);
-    }, "properties");
- 
+    console.log("requesting properties for", _extendableId, _extendableVersionId);
 
+    const [generalProperties, versionProperties, hubCollections] = await useLoadingSymbol(async () => {
+      return await Promise.allSettled([
+        getJSON(`/api/fusiondata/${_extendableVersionId}/generalproperties`),
+        getJSON(`/api/fusiondata/${_extendableVersionId}/properties`),
+        getJSON(`/api/fusiondata/${_hubId}/collections`)
+      ])
+    });
+ 
     // Overview tab
 
-    const generalPropertiesTable = document.getElementById(
-      "generalPropertiesTable"
-    );
-    generalPropertiesTable.children[0].children[1].textContent =
-      properties.partNumber;
-    generalPropertiesTable.children[1].children[1].textContent = properties.name;
-    generalPropertiesTable.children[2].children[1].textContent =
-      properties.partDescription;
-    generalPropertiesTable.children[3].children[1].textContent =
-      properties.materialName;
+    if (generalProperties.value) {
+      const values = generalProperties.value;
+      const generalPropertiesTable = document.getElementById(
+        "generalPropertiesTable"
+      );
+      generalPropertiesTable.children[0].children[1].textContent =
+        values.partNumber;
+      generalPropertiesTable.children[1].children[1].textContent = values.name;
+      generalPropertiesTable.children[2].children[1].textContent =
+        values.partDescription;
+      generalPropertiesTable.children[3].children[1].textContent =
+        values.materialName;
 
-    const managePropertiesTable = document.getElementById(
-      "managePropertiesTable"
-    );
-    managePropertiesTable.children[0].children[1].textContent =
-      properties.itemNumber;
-    managePropertiesTable.children[1].children[1].textContent =
-      properties.lifecycle;
-    managePropertiesTable.children[2].children[1].textContent =
-      properties.revision;
-    managePropertiesTable.children[3].children[1].textContent = "state?";
-    managePropertiesTable.children[4].children[1].textContent =
-      properties.changeOrder;
-    managePropertiesTable.children[5].children[1].textContent =
-      properties.changeOrderURN;
+      const managePropertiesTable = document.getElementById(
+        "managePropertiesTable"
+      );
+      managePropertiesTable.children[0].children[1].textContent =
+        values.itemNumber;
+      managePropertiesTable.children[1].children[1].textContent =
+        values.lifecycle;
+      managePropertiesTable.children[2].children[1].textContent =
+        values.revision;
+      managePropertiesTable.children[3].children[1].textContent = "state?";
+      managePropertiesTable.children[4].children[1].textContent =
+        values.changeOrder;
+      managePropertiesTable.children[5].children[1].textContent =
+        values.changeOrderURN;
 
-    const physicalPropertiesTable = document.getElementById(
-      "physicalPropertiesTable"
-    );
-    const props = properties.physicalProperties;
-    physicalPropertiesTable.children[0].children[1].textContent =
-      props.mass.value;
-    physicalPropertiesTable.children[1].children[1].textContent =
-      props.volume.value;
-    physicalPropertiesTable.children[2].children[1].textContent =
-      props.density.value;
-    physicalPropertiesTable.children[3].children[1].textContent =
-      props.area.value;
-    physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox.length.value} x ${props.boundingBox.width.value} x ${props.boundingBox.height.value}`;
+      const physicalPropertiesTable = document.getElementById(
+        "physicalPropertiesTable"
+      );
+      const props = values.physicalProperties;
+      physicalPropertiesTable.children[0].children[1].textContent =
+        props.mass.value;
+      physicalPropertiesTable.children[1].children[1].textContent =
+        props.volume.value;
+      physicalPropertiesTable.children[2].children[1].textContent =
+        props.density.value;
+      physicalPropertiesTable.children[3].children[1].textContent =
+        props.area.value;
+      physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox.length.value} x ${props.boundingBox.width.value} x ${props.boundingBox.height.value}`;
+    }
 
     // Custom Properties tab
+
+    console.log(itemProperties.value);
+    console.log(versionProperties.value);
+
+    if (itemProperties.value) {
+     
+    }
+
   } catch (error) {
     console.log(error);
   }
@@ -161,8 +178,10 @@ function updateBreadcrumbs(node) {
 }
 
 async function listVersions(hubId, projectId, fileItemVersionId) {
+  await storeId('item', projectId, fileItemVersionId);
+
+  _hubId = hubId;
   _projectId = projectId;
-  _extendableId = fileItemVersionId;
 
   _versionList.innerHTML = "";
   const versions = await getJSON(
@@ -200,6 +219,12 @@ export async function onSelectionChanged(
     _extendableId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
   }
+}
+
+
+
+
+
 
   /*
   document.getElementById('createProperty').onclick = async () => {
@@ -274,4 +299,4 @@ export async function onSelectionChanged(
     }) 
   }
   */
-}
+

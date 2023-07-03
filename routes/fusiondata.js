@@ -121,7 +121,7 @@ router.get('/:version_id/occurrences', async function (req, res) {
 router.get('/:extendable_id/properties', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const occurrences = await fd.getPropertiesForExtandable(req.params.extendable_id);
+    const occurrences = await fd.getPropertiesForExtendable(req.params.extendable_id);
     res.json(occurrences);
   } catch (err) {
     res.status(400).json(err);

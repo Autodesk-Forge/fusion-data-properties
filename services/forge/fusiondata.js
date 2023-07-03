@@ -176,6 +176,14 @@ async getCollectionsByHubId(hubId) {
           results {
             id
             name
+            propertyDefinitions {
+              results {
+                id
+                propertyBehavior
+                isArchived
+                readOnly
+              }
+            }
           }
         }
       }`,
@@ -436,6 +444,32 @@ async getGeneralProperties(versionId) {
   return response.data.data.componentVersion;
 }
 
+async getPropertiesForExtendable(extendableId) {  
+  let response = await this.sendQuery(
+    `query getAllProperties($extendableId: ID!) {
+      properties(
+        extendableId: $extendableId
+      ) {
+        results {
+            value
+            propertyDefinition {
+                id
+                name
+                type
+                isHidden
+                description
+            }
+        }
+      }
+    }`,
+    {
+      extendableId
+    }
+  )
+
+  return response.data.data.properties.results;
+}
+
 /*
 // <getProperties>
 async getProperties(projectId, fileVersionId) {  
@@ -479,33 +513,7 @@ async getProperties(projectId, fileVersionId) {
 }
 // </getProperties>
 
-// <getPropertiesForExtandable>
-async getPropertiesForExtandable(extendableId) {  
-  let response = await this.sendQuery(
-    `query getAllProperties($extendableId: ID!) {
-      properties(
-        extendableId: $extendableId
-      ) {
-        results {
-            value
-            propertyDefinition {
-                id
-                name
-                type
-                isHidden
-                description
-            }
-        }
-      }
-    }`,
-    {
-      extendableId
-    }
-  )
 
-  return response.data.data.properties.results;
-}
-// </getPropertiesForExtandable>
 
 // <getModelOccurrences>
 async getModelOccurrences(componentVersionId) {
