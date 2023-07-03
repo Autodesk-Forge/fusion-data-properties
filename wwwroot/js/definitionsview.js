@@ -112,7 +112,9 @@ export async function showDefinitionsTable(collectionId, collectionName) {
     });
 
     if (definitions.length < 1) {
-      showView("emptyDefinitionsView");
+      showView("emptyDefinitionsView", ` ${collectionName} properties`, () => {
+        showView("collectionsView");
+      });
       return;
     }
 

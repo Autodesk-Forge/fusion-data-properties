@@ -66,6 +66,34 @@ async function storeId(type, projectId, fileItemOrVersionId) {
   }
 }
 
+function addCollectionTable(hub) {
+  const table = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="name-column" scope="col">
+            ${hub.name}
+          </th>
+          <th scope="col">Value</th>
+          <th scope="col">Value</th>
+        </tr>
+        <tr>
+        <th class="name-column" scope="col">
+          Physical Properties
+        </th>
+        <th scope="col">Value</th>
+      </tr>
+      </thead>
+      <tbody id="physicalPropertiesTable">
+        <tr>
+          <td>Mass</td>
+          <td class="prop-value"></td>
+        </tr>
+        <tr>
+      </tbody>
+    </table>`
+}
+
 async function showVersionProperties() {
   try {
     console.log("requesting properties for", _extendableId, _extendableVersionId);
@@ -125,10 +153,12 @@ async function showVersionProperties() {
 
     // Custom Properties tab
 
-    console.log(versionProperties.value);
+    console.log(hubCollections.value);
 
-    if (versionProperties.value) {
-     
+    if (hubCollections.value) {
+      for (let hub of hubCollections) {
+        addCollectionTable(hub);
+      }
     }
 
   } catch (error) {

@@ -122,17 +122,6 @@
         <div class="container">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
-              <!--
-                <li class="breadcrumb-item">
-                  <a class="link-body-emphasis" href="#">
-                    <span class="bi bi-house-door-fill"></span>
-                    <span class="visually-hidden">Home</span>
-                  </a>
-                </li>
-                <li class="breadcrumb-item">
-                  <a class="link-body-emphasis fw-semibold text-decoration-none" href="#">Library</a>
-                </li>
-                -->
               <li class="breadcrumb-item active" aria-current="page">
                 <span class="d-block pt-2 breadcrumb-text"
                   >Property collections</span
@@ -172,17 +161,6 @@
         <div class="container">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
-              <!--
-                <li class="breadcrumb-item">
-                  <a class="link-body-emphasis" href="#">
-                    <span class="bi bi-house-door-fill"></span>
-                    <span class="visually-hidden">Home</span>
-                  </a>
-                </li>
-                <li class="breadcrumb-item">
-                  <a class="link-body-emphasis fw-semibold text-decoration-none" href="#">Library</a>
-                </li>
-                -->
               <li class="breadcrumb-item active" aria-current="page">
                 <span
                   class="d-block pt-2 bi bi-arrow-left clickable breadcrumb-text"
@@ -296,24 +274,24 @@
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
               <button
                 class="nav-link active"
-                id="nav-overview-tab"
+                id="overviewTab"
                 data-bs-toggle="tab"
-                data-bs-target="#nav-overview"
+                data-bs-target="#overviewPane"
                 type="button"
                 role="tab"
-                aria-controls="nav-overview"
+                aria-controls="overviewPane"
                 aria-selected="true"
               >
                 Overview
               </button>
               <button
                 class="nav-link"
-                id="nav-properties-tab"
+                id="propertiesTab"
                 data-bs-toggle="tab"
-                data-bs-target="#nav-properties"
+                data-bs-target="#propertiesPane"
                 type="button"
                 role="tab"
-                aria-controls="nav-properties"
+                aria-controls="propertiesPane"
                 aria-selected="false"
               >
                 Custom Properties
@@ -345,9 +323,9 @@
               <div class="tab-content">
                 <div
                   class="tab-pane active"
-                  id="nav-overview"
+                  id="overviewPane"
                   role="tabpanel"
-                  aria-labelledby="nav-overview-tab"
+                  aria-labelledby="overviewTab"
                 >
                   <table class="table">
                     <thead>
@@ -444,9 +422,9 @@
                 </div>
                 <div
                   class="tab-pane"
-                  id="nav-properties"
+                  id="propertiesPane"
                   role="tabpanel"
-                  aria-labelledby="nav-properties-tab"
+                  aria-labelledby="propertiesTab"
                 >
                   <table class="table">
                     <thead>
@@ -466,6 +444,28 @@
                       </tr>
                     </thead>
                     <tbody id="physicalPropertiesTable" />
+                    <thead>
+                      <tr>
+                        <th class="name-column" scope="col">
+                          Physical Properties
+                        </th>
+                        <th scope="col">Value</th>
+                        <th scope="col" class="no-border button-column">
+                          <span
+                            class="bi-link-45deg float-right clickable dimmed"
+                          ></span
+                          ><span
+                            class="bi-link-45deg float-right clickable dimmed"
+                          ></span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="physicalPropertiesTable">
+                      <tr>
+                        <td>asdasd</td>
+                        <td>adsasdad</td>
+                      </tr>
+                    </tbody>
                   </table>
                 </div>
               </div>
