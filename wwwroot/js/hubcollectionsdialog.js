@@ -1,4 +1,5 @@
 import { getJSON, useLoadingSymbol } from "./utils.js";
+import { getHubs } from "./hubstree.js";
 
 export async function showHubCollectionsDialog(hubId) {
   const collectionsDialogEmpty = document.getElementById(
@@ -58,6 +59,9 @@ export async function showHubCollectionsDialog(hubId) {
           JSON.stringify({ collectionId })
         );
         item.classList.remove("dimmed");
+
+        // Update links in tree control
+        getHubs();
       } catch (error) {
         console.log(error);
       }

@@ -19,7 +19,7 @@ function createTreeNode(id, text, icon, children = false) {
   return { id, text, children, itree: { icon } };
 }
 
-async function getHubs() {
+export async function getHubs() {
   const hubs = await getJSON("/api/hubs");
   showHubsWithLinkedCollections(hubs);
   return hubs.map((hub) =>
@@ -66,11 +66,15 @@ async function getContents(hubId, projectId, folderId = null) {
 async function showHubsWithLinkedCollections(hubs) {
   for (let hub of hubs) {
     try {
-      const collections = await getJSON(`/api/fusiondata/${hub.id}/collections`);
-      if (collections.length < 1) continue;
-
       const node = document.querySelector(`a[data-uid="hub|${hub.id}"]>span.link-icon`);
-      if (!node) continue;
+      if (!node) 
+        continue;
+
+      const collections = await getJSON(`/api/fusiondata/${hub.id}/collections`);
+      if (collections.length < 1) {
+        node.classList.add("hidden");
+        continue;
+      }
 
       node.classList.remove("hidden");
     } catch (error) {
