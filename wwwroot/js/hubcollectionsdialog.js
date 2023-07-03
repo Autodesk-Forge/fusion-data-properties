@@ -1,5 +1,11 @@
-import { getJSON, useLoadingSymbol } from "./utils.js";
+import { getJSON, useLoadingSymbol, showView } from "./utils.js";
 import { getHubs } from "./hubstree.js";
+
+document.getElementById("showCollectionsView").onclick = () => {
+  const closeButton = document.getElementById("collectionsDialogClose");
+  closeButton.click();
+  showView('collectionsView')
+}
 
 export async function showHubCollectionsDialog(hubId) {
   const collectionsDialogEmpty = document.getElementById(

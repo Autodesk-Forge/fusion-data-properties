@@ -1,4 +1,4 @@
-//import { getJSON } from "./utils";
+import { wait } from "./utils.js";
 
 async function getJSON(url) {
   try {
@@ -21,7 +21,6 @@ function createTreeNode(id, text, icon, children = false) {
 
 export async function getHubs() {
   const hubs = await getJSON("/api/hubs");
-  showHubsWithLinkedCollections(hubs);
   return hubs.map((hub) =>
     createTreeNode(`hub|${hub.id}`, hub.attributes.name, "icon-hub", true)
   );
@@ -63,24 +62,24 @@ async function getContents(hubId, projectId, folderId = null) {
   });
 }
 
-async function showHubsWithLinkedCollections(hubs) {
-  for (let hub of hubs) {
+async function showLinkIconForHubsWithLinkedCollections() {
     try {
-      const node = document.querySelector(`a[data-uid="hub|${hub.id}"]>span.link-icon`);
-      if (!node) 
-        continue;
+      const hubs = document.querySelectorAll(`a[data-uid]`);
+      for (let hub of hubs) {
+        const hubId = hub.getAttribute('data-uid').split('|')[1];
+        const collections = await getJSON(`/api/fusiondata/${hubId}/collections`);
 
-      const collections = await getJSON(`/api/fusiondata/${hub.id}/collections`);
-      if (collections.length < 1) {
-        node.classList.add("hidden");
-        continue;
+        const link = hub.querySelector(`span.link-icon`);
+        if (collections.length < 1) {
+          link.classList.add("hidden");
+          continue;
+        }
+  
+        link.classList.remove("hidden");
       }
-
-      node.classList.remove("hidden");
     } catch (error) {
       console.log(error);
     }
-  }
 }
 
 export function initTreeControl(
@@ -109,16 +108,20 @@ export function initTreeControl(
     },
   });
 
-  tree.on("data.loaded", function (event, node) {
-    setTimeout(() => {
-      for (let item of document.getElementsByClassName("title icon icon-hub")) {
-        item.innerHTML +=
-          '<span class="bi-link-45deg link-icon hidden"></span><span class="float-right bi-three-dots clickable"></span>';
-        item.getElementsByClassName("float-right")[0].onclick = (event) => {
-          onHubButtonClicked(event);
-        };
-      }
-    }, 100);
+  tree.on("data.loaded", async function (event, node) {
+    do {
+      await wait(.1);
+    } while (document.getElementsByClassName("title icon icon-hub").length < 1)
+
+    for (let item of document.getElementsByClassName("title icon icon-hub")) {
+      item.innerHTML +=
+        '<span class="bi-link-45deg link-icon hidden" title="Hub has linked property collections"></span><span class="float-right bi-three-dots clickable"></span>';
+      item.getElementsByClassName("float-right")[0].onclick = (event) => {
+        onHubButtonClicked(event);
+      };
+    }
+
+    showLinkIconForHubsWithLinkedCollections();
   });
 
   tree.on("node.click", function (event, node) {

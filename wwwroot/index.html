@@ -782,6 +782,7 @@
           <div class="modal-header">
             <h5 class="modal-title">Link/Unlink collections</h5>
             <button
+              id="collectionsDialogClose"
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
@@ -791,6 +792,11 @@
           <div class="modal-body">
             <div id="collectionsDialogEmpty" class="container pt-3 center">
               <img src="./images/emptybox.svg" />
+              <h4>You haven't created any property collections yet.</h4>
+              <p>Start creating a new collectinon</p>
+              <button id="showCollectionsView" type="button" class="btn btn-primary">
+                Create property collection
+              </button>
             </div>
             <ul id="collectionsList" class="list-group"></ul>
           </div>
