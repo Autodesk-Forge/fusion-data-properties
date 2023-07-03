@@ -65,7 +65,7 @@ async function showHubsWithLinkedCollections(hubs) {
       const collections = await getJSON(`/api/fusiondata/${hub.id}/collections`);
       if (collections.length < 1) continue;
 
-      const node = document.querySelector(`a[data-uid="hub|${hub.id}"]`);
+      const node = document.querySelector(`a[data-uid="hub|${hub.id}"]>span.link-icon`);
       if (!node) continue;
 
       node.classList.remove("hidden");
