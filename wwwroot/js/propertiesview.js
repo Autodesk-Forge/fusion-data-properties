@@ -125,10 +125,9 @@ async function showVersionProperties() {
 
     // Custom Properties tab
 
-    console.log(itemProperties.value);
     console.log(versionProperties.value);
 
-    if (itemProperties.value) {
+    if (versionProperties.value) {
      
     }
 
