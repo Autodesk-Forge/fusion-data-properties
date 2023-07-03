@@ -19,7 +19,7 @@ function createTreeNode(id, text, icon, children = false) {
   return { id, text, children, itree: { icon } };
 }
 
-export async function getHubs() {
+async function getHubs() {
   const hubs = await getJSON("/api/hubs");
   return hubs.map((hub) =>
     createTreeNode(`hub|${hub.id}`, hub.attributes.name, "icon-hub", true)
@@ -62,7 +62,7 @@ async function getContents(hubId, projectId, folderId = null) {
   });
 }
 
-async function showLinkIconForHubsWithLinkedCollections() {
+export async function showLinkIconForHubsWithLinkedCollections() {
     try {
       const hubs = document.querySelectorAll(`a[data-uid]`);
       for (let hub of hubs) {

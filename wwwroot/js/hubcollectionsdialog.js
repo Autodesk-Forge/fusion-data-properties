@@ -1,5 +1,5 @@
 import { getJSON, useLoadingSymbol, showView } from "./utils.js";
-import { getHubs } from "./hubstree.js";
+import { showLinkIconForHubsWithLinkedCollections } from "./hubstree.js";
 
 document.getElementById("showCollectionsView").onclick = () => {
   const closeButton = document.getElementById("collectionsDialogClose");
@@ -30,7 +30,7 @@ export async function showHubCollectionsDialog(hubId) {
   // If getting lkinked collections failed 
   // then you don't have anything linked yet 
 
-  if (collections.value?.length < 1) return;
+  if (collections?.value?.length < 1) return;
 
   const isLinked = (collectionId) => {
     if (!linkedCollections.value)
@@ -59,15 +59,17 @@ export async function showHubCollectionsDialog(hubId) {
       const collectionId =
         event.target.parentElement.getAttribute("collectionId");
       try {
-        let result = await getJSON(
-          `/api/fusiondata/${hubId}/collections`,
-          "POST",
-          JSON.stringify({ collectionId })
-        );
+        let result = await useLoadingSymbol(async () => {
+          return getJSON(
+            `/api/fusiondata/${hubId}/collections`,
+            "POST",
+            JSON.stringify({ collectionId })
+          );
+        });
         item.classList.remove("dimmed");
 
         // Update links in tree control
-        getHubs();
+        showLinkIconForHubsWithLinkedCollections();
       } catch (error) {
         console.log(error);
       }
