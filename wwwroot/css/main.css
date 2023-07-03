@@ -60,6 +60,11 @@ thead {
   padding-right: 0;
 }
 
+.pl-ml-0 {
+  padding-left: 0;
+  margin-left: 0;
+}
+
 .display-block {
   display: block;
 }
