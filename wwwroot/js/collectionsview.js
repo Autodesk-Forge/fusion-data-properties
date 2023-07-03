@@ -1,4 +1,4 @@
-import { getJSON, showView, useLoadingSymbol, wait } from "./utils.js";
+import { getJSON, showView, useLoadingSymbol } from "./utils.js";
 import { showDefinitionsTable } from "./definitionsview.js";
 import { showCollectionDialog } from "./collectiondialog.js";
 
@@ -22,8 +22,6 @@ document.getElementById("createCollection").onclick = document.getElementById(
           JSON.stringify({ collectionName })
         );
       });
-
-      wait(1);
 
       showCollectionsTable();
     } catch (error) {

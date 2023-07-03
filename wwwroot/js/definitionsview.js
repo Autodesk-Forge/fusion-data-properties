@@ -4,8 +4,7 @@ import {
   useLoadingSymbol,
   toYesOrNo,
   toNonEmpty,
-  formatString,
-  wait,
+  formatString
 } from "./utils.js";
 import { showDefinitionDialog } from "./definitiondialog.js";
 
@@ -61,8 +60,6 @@ function onEdit(event) {
             isHidden: values.isHidden,
           })
         );
-
-        await wait(1);
 
         return res;
       });
