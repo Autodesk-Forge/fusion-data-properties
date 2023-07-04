@@ -66,32 +66,59 @@ async function storeId(type, projectId, fileItemOrVersionId) {
   }
 }
 
-function addCollectionTable(hub) {
+function addCollectionTable(hub, propertiesPane) {
   const table = `
     <table class="table">
       <thead>
         <tr>
-          <th class="name-column" scope="col">
+          <th class="name-column" scope="col" colspan="3">
             ${hub.name}
           </th>
-          <th scope="col">Value</th>
-          <th scope="col">Value</th>
         </tr>
         <tr>
-        <th class="name-column" scope="col">
-          Physical Properties
-        </th>
-        <th scope="col">Value</th>
-      </tr>
+          <th class="name-column" scope="col">
+            Component level properties
+          </th>
+          <th></th>
+          <th></th>
+        </tr>
       </thead>
       <tbody id="physicalPropertiesTable">
         <tr>
           <td>Mass</td>
-          <td class="prop-value"></td>
+          <td class="prop-value">werrwerw</td>
+          <td></td>
         </tr>
         <tr>
+          <td>Mass</td>
+          <td class="prop-value">werwrwe</td>
+          <td></td>
+        </tr>
+      </tbody>
+      <thead>
+        <tr>
+          <th class="name-column" scope="col">
+          Component version properties
+          </th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="physicalPropertiesTable">
+        <tr>
+          <td>Mass</td>
+          <td class="prop-value">asdads</td>
+          <td></td>
+        </tr>
+        <tr>
+        <td>Mass</td>
+        <td class="prop-value">asdad</td>
+        <td></td>
+      </tr>
       </tbody>
     </table>`
+
+  propertiesPane.innerHTML += table;
 }
 
 async function showVersionProperties() {
@@ -156,8 +183,10 @@ async function showVersionProperties() {
     console.log(hubCollections.value);
 
     if (hubCollections.value) {
-      for (let hub of hubCollections) {
-        addCollectionTable(hub);
+      const propertiesPane = document.getElementById("propertiesPane");
+      propertiesPane.innerHTML = '';
+      for (let hub of hubCollections.value) {
+        addCollectionTable(hub, propertiesPane);
       }
     }
 

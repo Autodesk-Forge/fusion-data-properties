@@ -10,6 +10,19 @@ thead {
   border-bottom: black;
 }
 
+tbody>tr:last-child {
+  border-bottom: 1px black solid;
+}
+
+tbody>tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.table>:not(caption)>*>* {
+  background-color: inherit;
+}
+
+
 .hidden {
   display: none !important;
 }
