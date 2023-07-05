@@ -48,7 +48,7 @@ export async function getJSON(url, verb = "GET", body) {
 
     if (!resp.ok) {
       const err = await resp.text();
-      console.log(err);
+      console.log(`failed request: ${verb} ${url}`, err);
       throw err;
     }
     return resp.json();

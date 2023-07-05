@@ -155,7 +155,10 @@ async getCollections() {
       {
       }
     )
-    //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    console.log({cursor});
+    cursor = null;
+
     res = res.concat(response?.data?.data?.propertyDefinitionCollections?.results);
   } while (cursor)
 
@@ -179,6 +182,7 @@ async getCollectionsByHubId(hubId) {
             propertyDefinitions {
               results {
                 id
+                name
                 propertyBehavior
                 isArchived
                 readOnly
@@ -191,7 +195,10 @@ async getCollectionsByHubId(hubId) {
         hubId
       }
     )
-    //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    console.log({cursor});
+    cursor = null;
+
     res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
   } while (cursor)
 
@@ -216,7 +223,10 @@ async linkCollectionToHub(hubId, collectionId) {
         propertyDefinitionCollectionId: collectionId
       }
     )
-    //cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+    console.log({cursor});
+    cursor = null;
+
     res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
   } while (cursor)
 
@@ -278,7 +288,10 @@ async getDefinitions(collectionId) {
         propertyDefinitionCollectionId: collectionId
       }
     )
-    //cursor = response?.data?.data?.propertyDefinitions?.pagination?.cursor;
+    cursor = response?.data?.data?.propertyDefinitions?.pagination?.cursor;
+    console.log({cursor});
+    cursor = null;
+
     res = res.concat(response?.data?.data?.propertyDefinitions?.results);
   } while (cursor)
 
@@ -458,6 +471,7 @@ async getPropertiesForExtendable(extendableId) {
                 type
                 isHidden
                 description
+                propertyBehavior
             }
         }
       }
@@ -468,6 +482,40 @@ async getPropertiesForExtendable(extendableId) {
   )
 
   return response.data.data.properties.results;
+}
+
+async setProperties(extendableId, properties) {  
+  let response = await this.sendQuery(
+    `mutation DeleteProperty($input: SetPropertiesInput!) {
+      setProperties(input: $input) {
+        extendableId
+      }
+    }`,
+    {
+      input: {
+        extendableId,
+        propertyInputs: properties
+      }
+    }
+  )
+
+  return response.data.data.deleteProperty;
+}
+
+async deleteProperty(extendableId, propertyDefinitionId) {  
+  let response = await this.sendQuery(
+    `mutation DeleteProperty($extendableId: ID!, $propertyDefinitionId: ID!) {
+      clearProperty(input: {extendableId: $extendableId, propertyDefinitionId: $propertyDefinitionId}) {
+        extendableId
+      }
+    }`,
+    {
+      extendableId,
+      propertyDefinitionId
+    }
+  )
+
+  return response.data.data.deleteProperty;
 }
 
 /*

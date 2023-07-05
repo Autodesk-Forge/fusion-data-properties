@@ -3,10 +3,11 @@ import { initTreeControl } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
 let _tree;
-let _extendableId;
+let _extendableItemId;
 let _extendableVersionId;
 let _hubId;
 let _projectId;
+let _itemUrn;
 
 const _propertiesView = document.getElementById("propertiesView");
 const _versionList = document.getElementById("versionList");
@@ -15,12 +16,6 @@ _propertiesView.onload = () => {
   if (!_tree)
     _tree = initTreeControl("#tree", onSelectionChanged, onHubButtonClicked);
 };
-
-function clearGeneralProperties() {
-  for (let item of document.getElementsByClassName("prop-value")) {
-    item.textContent = "";
-  }
-}
 
 _versionList.onchange = () => {
   abortJSON();
@@ -36,6 +31,12 @@ _versionList.onchange = () => {
     showVersionProperties();
   });
 };
+
+function clearGeneralProperties() {
+  for (let item of document.getElementsByClassName("prop-value")) {
+    item.textContent = "";
+  }
+}
 
 async function showThumbnail(projectId, fileVersionId) {
   document.getElementById(
@@ -55,7 +56,7 @@ async function storeId(type, projectId, fileItemOrVersionId) {
     );
 
     if (type === 'item') {
-      _extendableId = response.id;
+      _extendableItemId = response.id;
       console.log(`Selected item's ID: ${response.id}`);
     } else {
       _extendableVersionId = response.id;
@@ -66,64 +67,164 @@ async function storeId(type, projectId, fileItemOrVersionId) {
   }
 }
 
-function addCollectionTable(hub, propertiesPane) {
-  const table = `
-    <table class="table">
-      <thead>
-        <tr>
-          <th class="name-column" scope="col" colspan="3">
-            ${hub.name}
-          </th>
-        </tr>
-        <tr>
-          <th class="name-column" scope="col">
-            Component level properties
-          </th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="physicalPropertiesTable">
-        <tr>
-          <td>Mass</td>
-          <td class="prop-value">werrwerw</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Mass</td>
-          <td class="prop-value">werwrwe</td>
-          <td></td>
-        </tr>
-      </tbody>
-      <thead>
-        <tr>
-          <th class="name-column" scope="col">
-          Component version properties
-          </th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="physicalPropertiesTable">
-        <tr>
-          <td>Mass</td>
-          <td class="prop-value">asdads</td>
-          <td></td>
-        </tr>
-        <tr>
-        <td>Mass</td>
-        <td class="prop-value">asdad</td>
-        <td></td>
-      </tr>
-      </tbody>
-    </table>`
+function getInputElements(span) {
+  const tbody = span.parentElement.parentElement.parentElement.nextElementSibling;
+  return tbody.querySelectorAll("input");
+}
 
-  propertiesPane.innerHTML += table;
+function isComponentLevelTable(span) {
+  const tbody = span.parentElement.parentElement.parentElement.nextElementSibling;
+  return tbody.classList.contains("component-level");
+}
+
+function isComponentLevelProperty(propertyBehavior) {
+  return (propertyBehavior === 'STANDARD' || propertyBehavior === 'TIMELESS');
+}
+
+function updateView(isComponentLevel) {
+  if (isComponentLevel)
+    // Since a new vrsoni was generated we have to list all th available
+    // versions again
+    listVersions();
+  else
+    // Just update the properties
+    showVersionProperties();
+}
+
+function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
+  let info = '';
+  if (definition.propertyBehavior === 'TIMELESS')
+    info = `<span class="bi bi-info-circle" title="Applied to the lineage and only one value exists at any given time for ALL versions/revisions" />`
+  else if (definition.propertyBehavior === 'DYNAMIC_AT_VERSION')
+    info = `<span class="bi bi-info-circle" title="Property value is only applied to this component version" />`
+
+  const property = versionProperties.find(item => item.propertyDefinition.id === definition.id);
+  const value = (property) ? property.value : '';
+
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${definition.name} ${info}</td>
+    <td class="prop-value"><input disabled class="border-0 bg-transparent" type="text" definitionId="${definition.id}" old-value="${value}" value="${value}" /></td>
+    <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
+
+  const button = row.getElementsByClassName("bi-eraser clickable")[0];
+  button.onclick = async () => {
+    let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
+    await useLoadingSymbol(async () => {
+      return await Promise.allSettled([
+        getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
+      ])
+    }); 
+    
+    updateView(isComponentLevel);
+  }
+
+  tbody.appendChild(row); 
+}
+
+function addPropertiesToTable(table, collection, versionProperties, isComponentLevel, title) {
+  const thead = document.createElement("thead");
+  thead.innerHTML = ` 
+    <tr>
+      <th class="name-column" scope="col">
+        ${title}
+      </th>
+      <th colspan="2">
+        <span class="bi-pencil clickable" title="Edit property values"></span>
+        <span class="bi-x-circle clickable hidden" title="Cancel changes"></span>
+        <span class="bi-save clickable hidden" title="Save changes"></span>
+      </th>
+    </tr>`
+  const tbody = document.createElement("tbody");
+
+  for (let definition of collection.propertyDefinitions.results) {
+    if (isComponentLevel === isComponentLevelProperty(definition.propertyBehavior))
+      addRowToBody(tbody, definition, versionProperties, isComponentLevel);
+  }
+
+  for (let item of thead.getElementsByClassName("bi-save clickable")) {
+    item.onclick = async (event) => {
+      // Swap active buttons
+      for (const button of event.target.parentElement.children)   
+        button.classList.toggle("hidden");
+
+      let properties = [];
+      for (const input of getInputElements(event.target)) {
+        const oldValue = input.getAttribute("old-value");
+        const value = input.value;
+        const definitionId = input.getAttribute("definitionId");
+        if (value !== oldValue) 
+          properties.push({
+            propertyDefinitionId: definitionId,
+            value
+          })
+
+        input.toggleAttribute("disabled");
+      }
+
+      let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
+      await useLoadingSymbol(async () => {
+        return await Promise.allSettled([
+          getJSON(`/api/fusiondata/${extendableId}/properties`, 'PUT', JSON.stringify({properties})),
+        ])
+      }); 
+      
+      updateView(isComponentLevel);
+    }
+  }
+
+  for (let item of thead.getElementsByClassName("bi-pencil clickable")) {
+    item.onclick = async (event) => {
+      // Swap active buttons
+      for (const button of event.target.parentElement.children)   
+        button.classList.toggle("hidden");
+
+      for (const input of getInputElements(event.target)) {
+        input.toggleAttribute("disabled");
+      }
+    }
+  }
+
+  for (let item of thead.getElementsByClassName("bi-x-circle clickable")) {
+    item.onclick = async (event) => {
+      // Clear modifications
+      for (const input of getInputElements(event.target)) {
+        const oldValue = input.getAttribute("old-value");
+        input.value = oldValue;
+        input.toggleAttribute("disabled");
+      }
+
+      // Swap active buttons
+      for (const button of event.target.parentElement.children)   
+        button.classList.toggle("hidden");
+    }
+  }
+
+  table.appendChild(thead);
+  table.appendChild(tbody);
+}
+
+function addCollectionTableToPane(propertiesPane, collection, versionProperties) {
+  const table = document.createElement("table");
+  table.classList.add("table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th class="name-column fs-3" scope="col" colspan="3">
+          ${collection.name}
+        </th>
+      </tr>
+    </thead>`;
+
+  addPropertiesToTable(table, collection, versionProperties, true, 'Component level properties');
+  addPropertiesToTable(table, collection, versionProperties, false, 'Component version properties');
+
+  propertiesPane.appendChild(table);
 }
 
 async function showVersionProperties() {
   try {
-    console.log("requesting properties for", _extendableId, _extendableVersionId);
+    console.log("requesting properties for", _extendableItemId, _extendableVersionId);
 
     const [generalProperties, versionProperties, hubCollections] = await useLoadingSymbol(async () => {
       return await Promise.allSettled([
@@ -142,7 +243,8 @@ async function showVersionProperties() {
       );
       generalPropertiesTable.children[0].children[1].textContent =
         values.partNumber;
-      generalPropertiesTable.children[1].children[1].textContent = values.name;
+      generalPropertiesTable.children[1].children[1].textContent = 
+        values.name;
       generalPropertiesTable.children[2].children[1].textContent =
         values.partDescription;
       generalPropertiesTable.children[3].children[1].textContent =
@@ -168,28 +270,30 @@ async function showVersionProperties() {
       );
       const props = values.physicalProperties;
       physicalPropertiesTable.children[0].children[1].textContent =
-        props.mass.value;
+        props.mass?.value;
       physicalPropertiesTable.children[1].children[1].textContent =
-        props.volume.value;
+        props.volume?.value;
       physicalPropertiesTable.children[2].children[1].textContent =
-        props.density.value;
+        props.density?.value;
       physicalPropertiesTable.children[3].children[1].textContent =
-        props.area.value;
-      physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox.length.value} x ${props.boundingBox.width.value} x ${props.boundingBox.height.value}`;
+        props.area?.value;
+      physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox?.length?.value} x ${props.boundingBox?.width?.value} x ${props.boundingBox?.height?.value}`;
     }
 
     // Custom Properties tab
 
     console.log(hubCollections.value);
+    console.log(versionProperties.value);
+    if (!Array.isArray(versionProperties.value))
+      versionProperties.value = [];
 
     if (hubCollections.value) {
       const propertiesPane = document.getElementById("propertiesPane");
       propertiesPane.innerHTML = '';
-      for (let hub of hubCollections.value) {
-        addCollectionTable(hub, propertiesPane);
+      for (let collection of hubCollections.value) {
+        addCollectionTableToPane(propertiesPane, collection, versionProperties.value);
       }
     }
-
   } catch (error) {
     console.log(error);
   }
@@ -238,15 +342,12 @@ function updateBreadcrumbs(node) {
   }
 }
 
-async function listVersions(hubId, projectId, fileItemVersionId) {
-  await storeId('item', projectId, fileItemVersionId);
-
-  _hubId = hubId;
-  _projectId = projectId;
+async function listVersions() {
+  await storeId('item', _projectId, _itemUrn);
 
   _versionList.innerHTML = "";
   const versions = await getJSON(
-    `/api/hubs/${hubId}/projects/${projectId}/contents/${fileItemVersionId}/versions`
+    `/api/hubs/${_hubId}/projects/${_projectId}/contents/${_itemUrn}/versions`
   );
   const listItems = versions.map((version) => {
     const lastModifiedOn = version.attributes.lastModifiedTime.split("T")[0];
@@ -256,7 +357,7 @@ async function listVersions(hubId, projectId, fileItemVersionId) {
 
   _versionList.onchange();
 
-  document.getElementById("versioInfo").classList.remove("hidden");
+  document.getElementById("versionInfo").classList.remove("hidden");
 }
 
 export async function onSelectionChanged(
@@ -270,94 +371,17 @@ export async function onSelectionChanged(
 
   updateBreadcrumbs(node);
 
-  document.getElementById("versioInfo").classList.add("hidden");
+  document.getElementById("versionInfo").classList.add("hidden");
 
   clearGeneralProperties();
 
   if (type === "item") {
-    listVersions(hubId, projectId, fileItemVersionId);
+    _itemUrn = fileItemVersionId;
+    _hubId = hubId;
+    _projectId = projectId;
+    listVersions();
   } else {
-    _extendableId = null;
+    _extendableItemId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
   }
 }
-
-
-
-
-
-
-  /*
-  document.getElementById('createProperty').onclick = async () => {
-    try {
-      const definitionId = document.getElementById('definitions').value;
-      if (!definitionId) {
-        alert('Select a property definition!');
-        return;
-      }
- 
-      const propertyValue = document.getElementById('propertyValue').value;
-      const extendableId = document.getElementById('properties').attributes['extendableId'];  
-      const property = await getJSON(
-        `/api/fusiondata/${extendableId}/properties`, 'POST',
-        JSON.stringify({ 
-          definitionId: definitionId,
-          value: propertyValue
-      }));
-
-      showVersionProperties();
-    } catch {}
-  };
-
-  document.getElementById('updateProperty').onclick = async (event) => {
-    try {
-      if (event.target.selectedOptions.length < 1) {
-        alert('Select a property!');
-        return;
-      }
-
-      const optionElement = event.target.selectedOptions[0];
-      const definitionId = optionElement.id;
-      const extendableId = document.getElementById('properties').attributes['extendableId'];  
-      const propertyValue = document.getElementById('propertyValue').value;  
-      const property = await getJSON(
-        `/api/fusiondata/${extendableId}/properties/${definitionId}`, 'PUT',
-        JSON.stringify({ 
-          value: propertyValue
-      }));
-
-    } catch {}
-  };
-
-  document.getElementById('deleteProperty').onclick =async () => {
-    try {
-      if (event.target.selectedOptions.length < 1) {
-        alert('Select a property!');
-        return;
-      }
-
-      const optionElement = event.target.selectedOptions[0];
-      const definitionId = optionElement.id;
-      const extendableId = document.getElementById('properties').attributes['extendableId'];  
-      await getJSON(
-        `/api/fusiondata/${extendableId}/properties/${definitionId}`, 'DELETE'
-      );
-
-      showVersionProperties();  
-    } catch {}
-  };
-  
-
-  if (type === 'version') {
-    showThumbnail(projectId, fileItemVersionId);
-    storeId(type, projectId, fileItemVersionId).then(() => {
-      showVersionProperties();
-    }) 
-    showName(fileItemVersionId, fileName);
-  } else {
-    storeId(type, projectId, fileItemVersionId).then(() => {
-      showVersionProperties();
-    }) 
-  }
-  */
-

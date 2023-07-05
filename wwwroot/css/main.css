@@ -22,17 +22,12 @@ tbody>tr:nth-child(even) {
   background-color: inherit;
 }
 
-
 .hidden {
   display: none !important;
 }
 
 .big-padding {
   padding: 30px;
-}
-
-.no-border {
-  border: none;
 }
 
 .dimmed {

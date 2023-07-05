@@ -128,12 +128,12 @@ router.get('/:extendable_id/properties', async function (req, res) {
   }
 });
 
-router.post('/:extendable_id/properties', async function (req, res) {
+router.put('/:extendable_id/properties', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const property = await fd.createProperty(req.params.extendable_id, req.body.definitionId, req.body.value);
+    const properties = await fd.setProperties(req.params.extendable_id, req.body.properties);
       
-    res.json(property);
+    res.json(properties);
   } catch (err) {
     res.status(400).json(err);
   }
@@ -142,7 +142,7 @@ router.post('/:extendable_id/properties', async function (req, res) {
 router.put('/:extendable_id/properties/:definition_id', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const property = await fd.updateProperty(req.params.extendable_id, req.body.value);
+    const property = await fd.setProperty(req.params.extendable_id, req.body.value);
       
     res.json(property);
   } catch (err) {
