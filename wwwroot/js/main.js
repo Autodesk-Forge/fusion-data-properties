@@ -30,7 +30,7 @@ try {
 
     showView("collectionsView");
   } else {
-    _avatarImage.src = "/images/person.svg";
+    _avatarImage.src = "/images/login.svg";
     _login.innerText = "Log in";
     _login.onclick = () => window.location.replace("/api/auth/login");
   }
