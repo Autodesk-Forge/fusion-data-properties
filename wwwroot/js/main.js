@@ -7,12 +7,14 @@ document.getElementById("menuitemCollectionsView").onclick = () =>
   showView("collectionsView");
 
 const _avatarImage = document.getElementById("avatarImage");
+const _userName = document.getElementById("userName");
 
 const _login = document.getElementById("menuitemLogin");
 try {
   const resp = await fetch("/api/auth/profile");
   if (resp.ok) {
     const user = await resp.json();
+    _userName.textContent = user.name;
     _avatarImage.src = user.picture;
 
     _login.innerText = `Log out`;
@@ -30,7 +32,6 @@ try {
 
     showView("collectionsView");
   } else {
-    _avatarImage.src = "/images/login.svg";
     _login.innerText = "Log in";
     _login.onclick = () => window.location.replace("/api/auth/login");
   }
