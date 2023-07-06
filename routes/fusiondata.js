@@ -44,7 +44,8 @@ router.get('/:hub_id/collections', async function (req, res, next) {
     let hubId = req.params.hub_id;
     let token = req.internalOAuthToken.access_token;
     let fd = new fusionData(token);
-    const response = await fd.getCollectionsByHubId(hubId);
+    const isMinimal = req.query.minimal;
+    const response = await fd.getCollectionsByHubId(hubId, isMinimal);
     res.json(response);
   } catch (err) {
     res.status(400).json(err);

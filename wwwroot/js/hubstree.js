@@ -67,7 +67,7 @@ export async function showLinkIconForHubsWithLinkedCollections() {
       const hubs = document.querySelectorAll(`a[data-uid]`);
       for (let hub of hubs) {
         const hubId = hub.getAttribute('data-uid').split('|')[1];
-        const collections = await getJSON(`/api/fusiondata/${hubId}/collections`);
+        const collections = await getJSON(`/api/fusiondata/${hubId}/collections?minimal=true`);
 
         const link = hub.querySelector(`span.link-icon`);
         if (collections.length < 1) {

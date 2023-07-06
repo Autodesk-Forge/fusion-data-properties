@@ -165,13 +165,13 @@ async getCollections() {
   return res;
 }
 
-async getCollectionsByHubId(hubId) { 
+async getCollectionsByHubId(hubId, isMinimal) { 
   let res = [];
   let cursor = null;
   do {
     let response = await this.sendQuery(
       `query propertyDefinitionCollections ($hubId: ID!) {
-        propertyDefinitionCollectionsByHubId (hubId: $hubId${cursor ? `, pagination : { cursor: "${cursor}" }` : "" }) {
+        propertyDefinitionCollectionsByHubId (hubId: $hubId${cursor ? `, pagination : { cursor: "${cursor}" }` : `${isMinimal ? ', pagination : { limit: 1 }' : ''}` }) {
           pagination {
             cursor
             pageSize
@@ -186,6 +186,7 @@ async getCollectionsByHubId(hubId) {
                 propertyBehavior
                 isArchived
                 readOnly
+                type
               }
             }
           }
