@@ -62,8 +62,8 @@ async function authRefreshMiddleware(req, res, next) {
 async function getUserProfile(token) {
   const api = new UserProfileApi();
   api.apiClient.basePath = BASE_URL;
-    const resp = await api.getUserProfile(internalAuthClient, token);
-    return resp.body;
+  const resp = await api.getUserProfile(internalAuthClient, token);
+  return resp.body;
 }
 
 module.exports = {

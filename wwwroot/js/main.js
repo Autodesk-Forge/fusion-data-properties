@@ -6,13 +6,17 @@ document.getElementById("menuitemPropertiesView").onclick = () =>
 document.getElementById("menuitemCollectionsView").onclick = () =>
   showView("collectionsView");
 
-const login = document.getElementById("menuitemLogin");
+const _avatarImage = document.getElementById("avatarImage");
+
+const _login = document.getElementById("menuitemLogin");
 try {
   const resp = await fetch("/api/auth/profile");
   if (resp.ok) {
     const user = await resp.json();
-    login.innerText = `Log out`;
-    login.onclick = () => {
+    _avatarImage.src = user.picture;
+
+    _login.innerText = `Log out`;
+    _login.onclick = () => {
       // Log the user out (see https://forge.autodesk.com/blog/log-out-forge)
       const iframe = document.createElement("iframe");
       iframe.style.visibility = "hidden";
@@ -26,10 +30,11 @@ try {
 
     showView("collectionsView");
   } else {
-    login.innerText = "Log in";
-    login.onclick = () => window.location.replace("/api/auth/login");
+    _avatarImage.src = "/images/person.svg";
+    _login.innerText = "Log in";
+    _login.onclick = () => window.location.replace("/api/auth/login");
   }
-  login.style.visibility = "visible";
+  _login.style.visibility = "visible";
 } catch (err) {
   alert("Could not initialize the application. See console for more details.");
   console.error(err);

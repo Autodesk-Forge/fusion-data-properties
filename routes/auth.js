@@ -23,7 +23,10 @@ router.get('/token', authRefreshMiddleware, function (req, res) {
 router.get('/profile', authRefreshMiddleware, async function (req, res, next) {
     try {
         const profile = await getUserProfile(req.internalOAuthToken);
-        res.json({ name: `${profile.firstName} ${profile.lastName}` });
+        res.json({ 
+          name: `${profile.firstName} ${profile.lastName}`,
+          picture: profile.profileImages.sizeX40
+        });
     } catch (err) {
         next(err);
     }
