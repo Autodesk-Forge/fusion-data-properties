@@ -113,3 +113,11 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
   breadCrumb.textContent = breadcrumbText;
   breadCrumb.onclick = breadcrumbCallback;
 }
+
+export function showErrorDialog(text) {
+  const errorDialogText = document.getElementById("errorDialogText");
+  errorDialogText.textContent = text;
+
+  const errorDialogButton = document.getElementById("errorDialogButton");
+  errorDialogButton.click();
+}

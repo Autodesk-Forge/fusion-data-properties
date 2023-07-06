@@ -72,13 +72,27 @@ function getInputElements(span) {
   return tbody.querySelectorAll("input");
 }
 
-function isComponentLevelTable(span) {
-  const tbody = span.parentElement.parentElement.parentElement.nextElementSibling;
-  return tbody.classList.contains("component-level");
-}
-
 function isComponentLevelProperty(propertyBehavior) {
   return (propertyBehavior === 'STANDARD' || propertyBehavior === 'TIMELESS');
+}
+
+function getInputValues(input) {
+  if (input.type === 'checkbox') 
+    return [input.oldValue, (input.indeterminate) ? "" : input.checked];
+  else if (input.type === 'number')
+    return [input.oldValue, (input.value === "") ? "" : Number.parseFloat(input.value)]
+  else
+    return [input.oldValue, input.value];
+}
+
+function setInputValues(input, value) {
+  input.oldValue = value;
+  if (input.type === 'checkbox') {
+    input.indeterminate = (value === "");
+    input.checked = value;
+  }
+  else
+    input.value = value;  
 }
 
 function updateView(isComponentLevel) {
@@ -101,13 +115,19 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
   const property = versionProperties.find(item => item.propertyDefinition.id === definition.id);
   const value = (property) ? property.value : '';
 
+  let inputType = "number";
+  if (definition.type === 'BOOLEAN')
+    inputType = "checkbox";
+  else if (definition.type === 'STRING')
+    inputType = "text";
+
   const row = document.createElement("tr");
   row.innerHTML = `
     <td>${definition.name} ${info}</td>
-    <td class="prop-value"><input disabled class="border-0 bg-transparent" type="text" definitionId="${definition.id}" old-value="${value}" value="${value}" /></td>
+    <td class="prop-value"><input disabled class="border-0 bg-transparent" type="${inputType}" definitionId="${definition.id}" /></td>
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
 
-  const button = row.getElementsByClassName("bi-eraser clickable")[0];
+  const button = row.querySelector(".bi-eraser.clickable");
   button.onclick = async () => {
     let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
     await useLoadingSymbol(async () => {
@@ -118,6 +138,9 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
     
     updateView(isComponentLevel);
   }
+
+  const input = row.querySelector("input");
+  setInputValues(input, value);
 
   tbody.appendChild(row); 
 }
@@ -150,8 +173,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
 
       let properties = [];
       for (const input of getInputElements(event.target)) {
-        const oldValue = input.getAttribute("old-value");
-        const value = input.value;
+        const [oldValue, value] = getInputValues(input);
         const definitionId = input.getAttribute("definitionId");
         if (value !== oldValue) 
           properties.push({
@@ -161,6 +183,9 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
 
         input.toggleAttribute("disabled");
       }
+
+      if (properties.length < 1)
+        return;
 
       let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
       await useLoadingSymbol(async () => {
@@ -189,8 +214,8 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
     item.onclick = async (event) => {
       // Clear modifications
       for (const input of getInputElements(event.target)) {
-        const oldValue = input.getAttribute("old-value");
-        input.value = oldValue;
+        const [oldValue] = getInputValues(input);
+        setInputValues(input, oldValue);
         input.toggleAttribute("disabled");
       }
 

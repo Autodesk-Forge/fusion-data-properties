@@ -798,6 +798,36 @@
 
     <!-- Helper -->
 
+    <button
+      id="errorDialogButton"
+      type="button"
+      class="btn btn-primary hidden"
+      data-bs-toggle="modal"
+      data-bs-target="#errorDialog"
+    >
+      Launch collection dialog
+    </button>
+
+    <div id="errorDialog" class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Error</h5>
+            <button
+              id="collectionsDialogClose"
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h5 id="errorDialogText">You haven't created any property collections yet.</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="loadingSign" class="hidden">
       <div class="spinner-border" role="status">
         <span class="sr-only"></span>

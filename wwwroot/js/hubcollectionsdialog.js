@@ -1,4 +1,4 @@
-import { getJSON, useLoadingSymbol, showView } from "./utils.js";
+import { getJSON, useLoadingSymbol, showView, showErrorDialog } from "./utils.js";
 import { showLinkIconForHubsWithLinkedCollections } from "./hubstree.js";
 
 document.getElementById("showCollectionsView").onclick = () => {
@@ -71,6 +71,7 @@ export async function showHubCollectionsDialog(hubId) {
         // Update links in tree control
         showLinkIconForHubsWithLinkedCollections();
       } catch (error) {
+        showErrorDialog("Could not link collection to hub. Perhaps you're not the admin of this hub?")
         console.log(error);
       }
     };
