@@ -287,10 +287,9 @@ async function showVersionProperties() {
         values.lifecycle;
       managePropertiesTable.children[2].children[1].textContent =
         values.revision;
-      managePropertiesTable.children[3].children[1].textContent = "state?";
-      managePropertiesTable.children[4].children[1].textContent =
+      managePropertiesTable.children[3].children[1].textContent =
         values.changeOrder;
-      managePropertiesTable.children[5].children[1].textContent =
+      managePropertiesTable.children[4].children[1].textContent =
         values.changeOrderURN;
 
       const physicalPropertiesTable = document.getElementById(
