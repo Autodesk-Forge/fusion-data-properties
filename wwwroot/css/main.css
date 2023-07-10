@@ -10,11 +10,20 @@ thead {
   border-bottom: black;
 }
 
+th {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+td {
+  font-size: 14px;
+}
+
 tbody>tr:last-child {
   border-bottom: 1px black solid;
 }
 
-tbody>tr:nth-child(even) {
+tbody>tr:nth-child(odd) {
   background-color: #fafafa;
 }
 

@@ -123,8 +123,9 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
 
   const row = document.createElement("tr");
   row.innerHTML = `
-    <td>${definition.name} ${info}</td>
+    <td style="padding-left: 25px;">${definition.name} ${info}</td>
     <td class="prop-value"><input disabled class="border-0 bg-transparent" type="${inputType}" definitionId="${definition.id}" /></td>
+    <td>unit</td>
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
 
   const button = row.querySelector(".bi-eraser.clickable");
@@ -152,17 +153,26 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
       <th class="name-column" scope="col">
         ${title}
       </th>
-      <th colspan="2">
+      <th colspan="3">
         <span class="bi-pencil clickable" title="Edit property values"></span>
         <span class="bi-x-circle clickable hidden" title="Cancel changes"></span>
         <span class="bi-save clickable hidden" title="Save changes"></span>
       </th>
+    </tr>
+    <tr style="border-block-color: transparent;">
+      <th class="name-column" scope="col"></th>
+      <th>Value</th>
+      <th>Units</th>
+      <th>Action</th>
     </tr>`
   const tbody = document.createElement("tbody");
 
-  for (let definition of collection.propertyDefinitions.results) {
-    if (isComponentLevel === isComponentLevelProperty(definition.propertyBehavior))
-      addRowToBody(tbody, definition, versionProperties, isComponentLevel);
+  const definitions = collection.propertyDefinitions.results.filter(item => isComponentLevel === isComponentLevelProperty(item.propertyBehavior))
+  if (definitions.length < 1)
+    return;
+
+  for (let definition of definitions) {
+    addRowToBody(tbody, definition, versionProperties, isComponentLevel);
   }
 
   for (let item of thead.getElementsByClassName("bi-save clickable")) {
@@ -238,7 +248,7 @@ function addCollectionTableToPane(propertiesPane, collection, versionProperties)
   table.innerHTML = `
     <thead>
       <tr>
-        <th class="name-column fs-3" scope="col" colspan="3">
+        <th class="name-column" scope="col" colspan="4" style="font-size: 20px; font-weight: bolder;">
           ${collection.name}
         </th>
       </tr>
