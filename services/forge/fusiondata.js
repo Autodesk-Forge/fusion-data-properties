@@ -487,7 +487,7 @@ async getPropertiesForExtendable(extendableId) {
 
 async setProperties(extendableId, properties) {  
   let response = await this.sendQuery(
-    `mutation DeleteProperty($input: SetPropertiesInput!) {
+    `mutation SetProperties($input: SetPropertiesInput!) {
       setProperties(input: $input) {
         extendableId
       }
@@ -500,7 +500,7 @@ async setProperties(extendableId, properties) {
     }
   )
 
-  return response.data.data.deleteProperty;
+  return response.data.data.setProperties;
 }
 
 async deleteProperty(extendableId, propertyDefinitionId) {  
