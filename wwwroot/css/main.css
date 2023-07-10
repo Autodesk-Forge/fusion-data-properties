@@ -53,7 +53,6 @@ tbody>tr:nth-child(odd) {
 
 .full-height {
   height: 100%;
-  overflow: scroll;
 }
 
 .float-right {
