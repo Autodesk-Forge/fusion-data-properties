@@ -114,10 +114,36 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
   breadCrumb.onclick = breadcrumbCallback;
 }
 
-export function showErrorDialog(text) {
-  const errorDialogText = document.getElementById("errorDialogText");
-  errorDialogText.textContent = text;
+// type = 'error', 'success', 'question'
+export function showInfoDialog(type, title, text, cancelText, okText, onOk) {
+  const icons = {
+    'info': 'images/info.svg',
+    'question': 'images/info.svg',
+    'error': 'images/error.svg',
+    'success': 'images/complete.svg'
+  }
+  const infoDialogImage = document.getElementById("infoDialogImage");
+  infoDialogImage.src = icons[type];
 
-  const errorDialogButton = document.getElementById("errorDialogButton");
-  errorDialogButton.click();
+  const infoDialogText = document.getElementById("infoDialogText");
+  infoDialogText.textContent = text;
+
+  const infoDialogCancel = document.getElementById("infoDialogCancel");
+  infoDialogCancel.textContent = cancelText;
+
+  const infoDialogOk = document.getElementById("infoDialogOk");
+  infoDialogOk.textContent = okText;
+
+  const infoDialogTitle = document.getElementById("infoDialogTitle");
+  infoDialogTitle.textContent = title;
+
+  document.getElementById("infoDialogCancel").toggleAttribute("hidden", type !== 'question')
+
+  document.getElementById("infoDialogOk").onclick = () => {
+    if (onOk)
+      onOk();
+  }
+
+  const infoDialogButton = document.getElementById("infoDialogButton");
+  infoDialogButton.click();
 }

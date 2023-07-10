@@ -799,22 +799,25 @@
     <!-- Helper -->
 
     <button
-      id="errorDialogButton"
+      id="infoDialogButton"
       type="button"
       class="btn btn-primary hidden"
       data-bs-toggle="modal"
-      data-bs-target="#errorDialog"
+      data-bs-target="#infoDialog"
     >
       Launch collection dialog
     </button>
 
-    <div id="errorDialog" class="modal" tabindex="-1">
+    <div id="infoDialog" class="modal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Error</h5>
+            <div>
+              <p><img id="infoDialogImage" src="images/error.svg"></img></p>
+              <h5 id="infoDialogTitle" class="modal-title">Operation not allowed</h5>
+            </div>
             <button
-              id="collectionsDialogClose"
+              id="infoDialogClose"
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
@@ -822,7 +825,25 @@
             ></button>
           </div>
           <div class="modal-body">
-            <h5 id="errorDialogText">You haven't created any property collections yet.</h5>
+            <h6 id="infoDialogText">You haven't created any property collections yet.</h6>
+          </div>
+          <div class="modal-footer">
+            <button
+              id="infoDialogCancel"
+              type="button"
+              class="btn btn-secondary btn-light"
+              data-bs-dismiss="modal"
+            >
+            infoDialogCancel
+            </button>
+            <button
+              id="infoDialogOk"
+              type="button"
+              class="btn btn-dark"
+              data-bs-dismiss="modal"
+            >
+            infoDialogOk
+            </button>
           </div>
         </div>
       </div>

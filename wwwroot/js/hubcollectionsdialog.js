@@ -1,4 +1,4 @@
-import { getJSON, useLoadingSymbol, showView, showErrorDialog } from "./utils.js";
+import { getJSON, useLoadingSymbol, showView, showInfoDialog } from "./utils.js";
 import { showLinkIconForHubsWithLinkedCollections } from "./hubstree.js";
 
 document.getElementById("showCollectionsView").onclick = () => {
@@ -58,22 +58,27 @@ export async function showHubCollectionsDialog(hubId) {
 
       const collectionId =
         event.target.parentElement.getAttribute("collectionId");
-      try {
-        let result = await useLoadingSymbol(async () => {
-          return getJSON(
-            `/api/fusiondata/${hubId}/collections`,
-            "POST",
-            JSON.stringify({ collectionId })
-          );
-        });
-        item.classList.remove("dimmed");
 
-        // Update links in tree control
-        showLinkIconForHubsWithLinkedCollections();
-      } catch (error) {
-        showErrorDialog("Could not link collection to hub. Perhaps you're not the admin of this hub?")
-        console.log(error);
-      }
+      showInfoDialog('question', '', 'By selecting “Proceed” below, you will link the selected collection to your hub. ', 'Cancel', 'Proceed', async () => {
+        try {
+          let result = await useLoadingSymbol(async () => {
+            return getJSON(
+              `/api/fusiondata/${hubId}/collections`,
+              "POST",
+              JSON.stringify({ collectionId })
+            );
+          });
+          item.classList.remove("dimmed");
+
+          // Update links in tree control
+          showInfoDialog('success', '', 'Collection successfully linked to hub.', '', 'Continue', () => {
+            showLinkIconForHubsWithLinkedCollections();
+          })
+        } catch (error) {
+          showInfoDialog('error', 'Operation not allowed', 'Only hub administrators are allowed to link collections to a hub.', '', 'OK')
+          console.log(error);
+        }
+      }) 
     };
   }
 }

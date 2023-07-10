@@ -36,7 +36,6 @@ class App {
     return response;
   }
 
-// <getThumbnail>
   async getThumbnail(projectId, fileVersionId) {  
     let response = await this.sendQuery(
       `query GetThumbnail($projectId: String!, $fileVersionId: String!) {
@@ -81,605 +80,514 @@ class App {
 
     return resp.data;
   }
-// </getThumbnail>
 
-async getVersionId(projectId, fileVersionId) {  
-  let response = await this.sendQuery(
-    `query GetVersionId($projectId: String!, $fileVersionId: String!) {
-      fileVersion(projectId: $projectId, versionId: $fileVersionId) {
-        ... on DesignFileVersion {
-          rootComponentVersion {
-            id
-          }
-        }
-        ... on DrawingFileVersion {
-          drawingVersion {
-            id
-          }
-        }
-      }
-    }`,
-    {
-      projectId,
-      fileVersionId
-    }
-  )
-
-  const fileVersion = response.data.data.fileVersion;
-  const id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
-  const type = fileVersion.rootComponentVersion ? 'component' : 'drawing';
-
-  return { id, type };
-}
-
-async getItemId(projectId, fileItemId) {  
-  let response = await this.sendQuery(
-    `query GetVersionId($projectId: String!, $fileItemId: String!) {
-      item(projectId: $projectId, itemId: $fileItemId) {
-        ... on DesignFile {
-          rootComponent {
-            id
-          }
-        }
-      }
-    }`,
-    {
-      projectId,
-      fileItemId
-    }
-  )
-
-  let item = response.data.data.item;
-  let id = item.rootComponent.id;
-
-  return { id };
-}
-
-async getCollections() { 
-  let res = [];
-  let cursor = null;
-  do {
+  async getVersionId(projectId, fileVersionId) {  
     let response = await this.sendQuery(
-      `query propertyDefinitionCollections {
-        propertyDefinitionCollections ${cursor ? `(pagination : { cursor: "${cursor}" })` : "" } {
-          pagination {
-            cursor
-            pageSize
+      `query GetVersionId($projectId: String!, $fileVersionId: String!) {
+        fileVersion(projectId: $projectId, versionId: $fileVersionId) {
+          ... on DesignFileVersion {
+            rootComponentVersion {
+              id
+            }
           }
-          results {
-            id
-            name
-          }
-        }
-      }`,
-      {
-      }
-    )
-    cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
-    console.log({cursor});
-    cursor = null;
-
-    res = res.concat(response?.data?.data?.propertyDefinitionCollections?.results);
-  } while (cursor)
-
-  return res;
-}
-
-async getCollectionsByHubId(hubId, isMinimal) { 
-  let res = [];
-  let cursor = null;
-  do {
-    let response = await this.sendQuery(
-      `query propertyDefinitionCollections ($hubId: ID!) {
-        propertyDefinitionCollectionsByHubId (hubId: $hubId${cursor ? `, pagination : { cursor: "${cursor}" }` : `${isMinimal ? ', pagination : { limit: 1 }' : ''}` }) {
-          pagination {
-            cursor
-            pageSize
-          }
-          results {
-            id
-            name
-            propertyDefinitions {
-              results {
-                id
-                name
-                propertyBehavior
-                isArchived
-                readOnly
-                type
-              }
+          ... on DrawingFileVersion {
+            drawingVersion {
+              id
             }
           }
         }
       }`,
       {
-        hubId
+        projectId,
+        fileVersionId
       }
     )
-    cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
-    console.log({cursor});
-    cursor = null;
 
-    res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
-  } while (cursor)
+    const fileVersion = response.data.data.fileVersion;
+    const id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+    const type = fileVersion.rootComponentVersion ? 'component' : 'drawing';
 
-  return res;
-}
+    return { id, type };
+  }
 
-async linkCollectionToHub(hubId, collectionId) { 
-  let res = [];
-  let cursor = null;
-  do {
+  async getItemId(projectId, fileItemId) {  
     let response = await this.sendQuery(
-      `mutation linkPropertyDefinitionCollection ($propertyDefinitionCollectionId: ID!, $targetHubId: ID!) {
-        linkPropertyDefinitionCollection (input: { propertyDefinitionCollectionId: $propertyDefinitionCollectionId, targetHubId: $targetHubId }) {
-          hub {
-            id
-            name
+      `query GetVersionId($projectId: String!, $fileItemId: String!) {
+        item(projectId: $projectId, itemId: $fileItemId) {
+          ... on DesignFile {
+            rootComponent {
+              id
+            }
           }
         }
       }`,
       {
-        targetHubId: hubId,
-        propertyDefinitionCollectionId: collectionId
+        projectId,
+        fileItemId
       }
     )
-    cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
-    console.log({cursor});
-    cursor = null;
 
-    res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
-  } while (cursor)
+    let item = response.data.data.item;
+    let id = item.rootComponent.id;
 
-  return res;
-}
+    return { id };
+  }
 
-async createCollection(name, isPublic) { 
-
-    let response = await this.sendQuery(
-      `mutation createPropertyDefinitionCollection($propertyDefinitionCollectionName: String!) {
-        createPropertyDefinitionCollection(
-          input: {name: $propertyDefinitionCollectionName}
-        ) {
-          propertyDefinitionCollection {
-            id
-            name
-          }
-        }
-      }`,
-      {
-        propertyDefinitionCollectionName: name
-      }
-    );
-    
-
-  return response?.data?.data?.createPropertyDefinitionCollection?.propertyDefinitionCollection;
-}
-
-async getDefinitions(collectionId) { 
-  let res = [];
-  let cursor = null;
-  do {
-    let response = await this.sendQuery(
-      `query propertyDefinitions($propertyDefinitionCollectionId: ID!) {
-        propertyDefinitions(
-          propertyDefinitionCollectionId: $propertyDefinitionCollectionId
-        ) {
-          pagination {
-            cursor
-            pageSize
-          }
-          results {
-            id
-            name
-            type
-            units {
+  async getCollections() { 
+    let res = [];
+    let cursor = null;
+    do {
+      let response = await this.sendQuery(
+        `query propertyDefinitionCollections {
+          propertyDefinitionCollections ${cursor ? `(pagination : { cursor: "${cursor}" })` : "" } {
+            pagination {
+              cursor
+              pageSize
+            }
+            results {
               id
               name
             }
-            isArchived
+          }
+        }`,
+        {
+        }
+      )
+      cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+      console.log({cursor});
+      cursor = null;
+
+      res = res.concat(response?.data?.data?.propertyDefinitionCollections?.results);
+    } while (cursor)
+
+    return res;
+  }
+
+  async getCollectionsByHubId(hubId, isMinimal) { 
+    let res = [];
+    let cursor = null;
+    do {
+      let response = await this.sendQuery(
+        `query propertyDefinitionCollections ($hubId: ID!) {
+          propertyDefinitionCollectionsByHubId (hubId: $hubId${cursor ? `, pagination : { cursor: "${cursor}" }` : `${isMinimal ? ', pagination : { limit: 1 }' : ''}` }) {
+            pagination {
+              cursor
+              pageSize
+            }
+            results {
+              id
+              name
+              propertyDefinitions {
+                results {
+                  id
+                  name
+                  propertyBehavior
+                  isArchived
+                  readOnly
+                  type
+                }
+              }
+            }
+          }
+        }`,
+        {
+          hubId
+        }
+      )
+      cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+      console.log({cursor});
+      cursor = null;
+
+      res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
+    } while (cursor)
+
+    return res;
+  }
+
+  async linkCollectionToHub(hubId, collectionId) { 
+    let res = [];
+    let cursor = null;
+    do {
+      let response = await this.sendQuery(
+        `mutation linkPropertyDefinitionCollection ($propertyDefinitionCollectionId: ID!, $targetHubId: ID!) {
+          linkPropertyDefinitionCollection (input: { propertyDefinitionCollectionId: $propertyDefinitionCollectionId, targetHubId: $targetHubId }) {
+            hub {
+              id
+              name
+            }
+          }
+        }`,
+        {
+          targetHubId: hubId,
+          propertyDefinitionCollectionId: collectionId
+        }
+      )
+      cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+      console.log({cursor});
+      cursor = null;
+
+      res = res.concat(response?.data?.data?.propertyDefinitionCollectionsByHubId?.results);
+    } while (cursor)
+
+    return res;
+  }
+
+  async createCollection(name, isPublic) { 
+
+      let response = await this.sendQuery(
+        `mutation createPropertyDefinitionCollection($propertyDefinitionCollectionName: String!) {
+          createPropertyDefinitionCollection(
+            input: {name: $propertyDefinitionCollectionName}
+          ) {
+            propertyDefinitionCollection {
+              id
+              name
+            }
+          }
+        }`,
+        {
+          propertyDefinitionCollectionName: name
+        }
+      );
+      
+
+    return response?.data?.data?.createPropertyDefinitionCollection?.propertyDefinitionCollection;
+  }
+
+  async getDefinitions(collectionId) { 
+    let res = [];
+    let cursor = null;
+    do {
+      let response = await this.sendQuery(
+        `query propertyDefinitions($propertyDefinitionCollectionId: ID!) {
+          propertyDefinitions(
+            propertyDefinitionCollectionId: $propertyDefinitionCollectionId
+          ) {
+            pagination {
+              cursor
+              pageSize
+            }
+            results {
+              id
+              name
+              type
+              units {
+                id
+                name
+              }
+              isArchived
+              isHidden
+              readOnly
+              description
+              propertyBehavior
+            }
+          }
+        }`,
+        {
+          propertyDefinitionCollectionId: collectionId
+        }
+      )
+      cursor = response?.data?.data?.propertyDefinitions?.pagination?.cursor;
+      console.log({cursor});
+      cursor = null;
+
+      res = res.concat(response?.data?.data?.propertyDefinitions?.results);
+    } while (cursor)
+
+    return res;
+  }
+
+
+  async createDefinition(collectionId, name, type, description, isHidden, propertyBehavior) { 
+
+    let response = await this.sendQuery(
+      `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $propertyBehavior: PropertyBehavior!) {
+        createPropertyDefinition(
+          input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, propertyBehavior: $propertyBehavior}
+        ) {
+          propertyDefinition {
+            id
+            name
+            type
             isHidden
-            readOnly
+            isArchived
             description
+            readOnly
             propertyBehavior
           }
         }
       }`,
       {
-        propertyDefinitionCollectionId: collectionId
+        propertyDefinitionCollectionId: collectionId,
+        propertyDefinitionName: name,
+        propertyType: type,
+        description: description,
+        isHidden: isHidden,
+        propertyBehavior: propertyBehavior
       }
-    )
-    cursor = response?.data?.data?.propertyDefinitions?.pagination?.cursor;
-    console.log({cursor});
-    cursor = null;
+    );
+    
+    return response?.data?.data?.createPropertyDefinition?.propertyDefinition;
+  }
 
-    res = res.concat(response?.data?.data?.propertyDefinitions?.results);
-  } while (cursor)
+  async getDefinition(definitionId) { 
 
-  return res;
-}
-
-
-async createDefinition(collectionId, name, type, description, isHidden, propertyBehavior) { 
-
-  let response = await this.sendQuery(
-    `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $propertyBehavior: PropertyBehavior!) {
-      createPropertyDefinition(
-        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, propertyBehavior: $propertyBehavior}
-      ) {
-        propertyDefinition {
-          id
-          name
-          type
-          isHidden
-          isArchived
-          description
-          readOnly
-          propertyBehavior
-        }
-      }
-    }`,
-    {
-      propertyDefinitionCollectionId: collectionId,
-      propertyDefinitionName: name,
-      propertyType: type,
-      description: description,
-      isHidden: isHidden,
-      propertyBehavior: propertyBehavior
-    }
-  );
-  
-  return response?.data?.data?.createPropertyDefinition?.propertyDefinition;
-}
-
-async getDefinition(definitionId) { 
-
-  let response = await this.sendQuery(
-    `query propertyDefinition($propertyDefinitionId: ID!) {
-      propertyDefinition(propertyDefinitionId: $propertyDefinitionId) {
-        id
-        name
-        type
-        isArchived
-        isHidden
-        readOnly
-        description
-        propertyBehavior
-      }
-    }`,
-    {
-      propertyDefinitionId: definitionId
-    }
-  );
-  
-  return response?.data?.data?.propertyDefinition;
-}
-
-async updateDefinition(definitionId, description, isHidden) { 
-
-  let response = await this.sendQuery(
-    `mutation updatePropertyDefinition($propertyDefinitionId: ID!, $description: String!, $isHidden: Boolean!) {
-      updatePropertyDefinition(
-        input: {propertyDefinitionId: $propertyDefinitionId, description: $description, isHidden: $isHidden}
-      ) {
-        propertyDefinition {
-          id
-          description
-          isHidden
-        }
-      }
-    }`,
-    {
-      propertyDefinitionId: definitionId,
-      description: description,
-      isHidden: isHidden
-    }
-  );
-  
-  return response?.data?.data?.updatePropertyDefinition;
-}
-
-async deleteDefinition(collectionId, name, type) { 
-
-  let response = await this.sendQuery(
-    `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!) {
-      createPropertyDefinition(
-        input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: "desc", propertyBehavior: DEFAULT}
-      ) {
-        propertyDefinition {
-          id
-          name
-          type
-          isHidden
-          isArchived
-          description
-          readOnly
-          propertyBehavior
-        }
-      }
-    }`,
-    {
-      propertyDefinitionCollectionId: collectionId,
-      propertyDefinitionName: name,
-      propertyType: type
-    }
-  );
-  
-  return response?.data?.data?.createPropertyDefinition?.propertyDefinition;
-}
-
-async getGeneralProperties(versionId) {  
-  let response = await this.sendQuery(
-    `query GetProperties($componentVersionId: String!) {
-      componentVersion(componentVersionId: $componentVersionId) {
-        partNumber
-        name
-        partDescription
-        materialName
-
-        itemNumber
-        lifeCycle
-        revision
-        changeOrder
-        changeOrderURN
-
-        physicalProperties {
-          mass {
-            value
-          }
-          volume {
-            value
-          }
-          density {
-            value
-          }
-          area {
-            value
-          }
-          boundingBox {
-            length {
-              value
-            }
-            width {
-              value
-            }
-            height {
-              value
-            }
-          }
-        }
-      }
-    }`,
-    {
-      componentVersionId: versionId
-    }
-  )
-
-  return response.data.data.componentVersion;
-}
-
-async getPropertiesForExtendable(extendableId) {  
-  let response = await this.sendQuery(
-    `query getAllProperties($extendableId: ID!) {
-      properties(
-        extendableId: $extendableId
-      ) {
-        results {
-            value
-            propertyDefinition {
-                id
-                name
-                type
-                isHidden
-                description
-                propertyBehavior
-            }
-        }
-      }
-    }`,
-    {
-      extendableId
-    }
-  )
-
-  return response.data.data.properties.results;
-}
-
-async setProperties(extendableId, properties) {  
-  let response = await this.sendQuery(
-    `mutation SetProperties($input: SetPropertiesInput!) {
-      setProperties(input: $input) {
-        extendableId
-      }
-    }`,
-    {
-      input: {
-        extendableId,
-        propertyInputs: properties
-      }
-    }
-  )
-
-  return response.data.data.setProperties;
-}
-
-async deleteProperty(extendableId, propertyDefinitionId) {  
-  let response = await this.sendQuery(
-    `mutation DeleteProperty($extendableId: ID!, $propertyDefinitionId: ID!) {
-      clearProperty(input: {extendableId: $extendableId, propertyDefinitionId: $propertyDefinitionId}) {
-        extendableId
-      }
-    }`,
-    {
-      extendableId,
-      propertyDefinitionId
-    }
-  )
-
-  return response.data.data.deleteProperty;
-}
-
-/*
-// <getProperties>
-async getProperties(projectId, fileVersionId) {  
-  let response = await this.sendQuery(
-    `query GetProperties($projectId: String!, $fileVersionId: String!) {
-      fileVersion(projectId: $projectId, versionId: $fileVersionId) {
-        ... on DesignFileVersion {
-          rootComponentVersion {
-            id
-            __typename
-            properties {
-              results {
-                __typename
-                value
-                propertyDefinition {
-                  name
-                }
-              }
-            }
-          }
-        }
-        ... on DrawingFileVersion {
-          drawingVersion {
-            id
-            __typename
-            
-          }
-        }
-      }
-    }`,
-    {
-      projectId,
-      fileVersionId
-    }
-  )
-
-  let fileVersion = response.data.data.fileVersion;
-  let properties = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion : fileVersion.drawingVersion;
-
-  return properties;
-}
-// </getProperties>
-
-
-
-// <getModelOccurrences>
-async getModelOccurrences(componentVersionId) {
-  let cursor = null;
-  let result = []; 
-  while (true) {
     let response = await this.sendQuery(
-      `query GetModelOccurrences($componentVersionId: String!${cursor ? ', $cursor: String!' : ''}) {
-        componentVersion(componentVersionId: $componentVersionId) {
-          modelOccurrences${cursor ? '(pagination: {cursor: $cursor})' : ''} {
-            results {
-              componentVersion {
-                id
-                name
-              }
-            }
-            pagination {
-              cursor
-            }
-          }
+      `query propertyDefinition($propertyDefinitionId: ID!) {
+        propertyDefinition(propertyDefinitionId: $propertyDefinitionId) {
+          id
+          name
+          type
+          isArchived
+          isHidden
+          readOnly
+          description
+          propertyBehavior
         }
       }`,
       {
-        componentVersionId,
-        cursor
+        propertyDefinitionId: definitionId
       }
-    )
-
-    result = result.concat(response.data.data.componentVersion.modelOccurrences.results);
-
-    cursor = response.data.data.componentVersion.modelOccurrences.pagination.cursor;
-    if (!cursor)
-      break;
+    );
+    
+    return response?.data?.data?.propertyDefinition;
   }
 
-  return result;
-}
-// </getModelOccurrences>
-
-// <createProperty>
-  async createProperty(extendableId, definitionId, value) {  
+  async updateDefinition(definitionId, description, isHidden) { 
 
     let response = await this.sendQuery(
-      `mutation setProperty($extendableId: ID!, $propertyDefinitionId: ID!, $value: PropertyValue!) {
-        setProperty(
-          input: {extendableId: $extendableId, propertyDefinitionId: $propertyDefinitionId, value: $value}
+      `mutation updatePropertyDefinition($propertyDefinitionId: ID!, $description: String!, $isHidden: Boolean!) {
+        updatePropertyDefinition(
+          input: {propertyDefinitionId: $propertyDefinitionId, description: $description, isHidden: $isHidden}
         ) {
-          property {
-            value
+          propertyDefinition {
+            id
+            description
+            isHidden
           }
         }
       }`,
       {
-        extendableId: extendableId,
         propertyDefinitionId: definitionId,
-        value: value
+        description: description,
+        isHidden: isHidden
       }
-    )
-
-    return response.data.data.setProperty.property;
+    );
+    
+    return response?.data?.data?.updatePropertyDefinition;
   }
-// </createProperty>
 
-// <updateProperty>
-  async updateProperty(propertyGroupId, property) {  
-    const valueTypes = {
-      'Integer': 'Int',
-      'Cost': 'Float',
-      'Length': 'Float',
-      'String': 'String',
-      'Boolean': 'Boolean'
-    }
-    if (['Integer', 'Cost', 'Length'].includes(property.type)) {
-      property.value = parseFloat(property.value);
-    }
+  async deleteDefinition(collectionId, name, type) { 
 
     let response = await this.sendQuery(
-      `mutation UpdateProperty($propertyGroupId: ID!, $name: String!, $value: ${valueTypes[property.type]}!) {
-        update${property.type}Property(input: {propertyGroupId: $propertyGroupId, name: $name, value: $value}) {
-          property {
+      `mutation createPropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!) {
+        createPropertyDefinition(
+          input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: "desc", propertyBehavior: DEFAULT}
+        ) {
+          propertyDefinition {
+            id
             name
-            value
-            displayValue
+            type
+            isHidden
+            isArchived
+            description
+            readOnly
+            propertyBehavior
           }
         }
       }`,
       {
-        propertyGroupId,
-        name: property.name,
-        value: property.value
+        propertyDefinitionCollectionId: collectionId,
+        propertyDefinitionName: name,
+        propertyType: type
       }
-    )
-
-    return response.data.data[`update${property.type}Property`].property;
+    );
+    
+    return response?.data?.data?.createPropertyDefinition?.propertyDefinition;
   }
-// </updateProperty>
 
-// <deleteProperty>
-  async deleteProperty(propertyGroupId, property) {  
+  async getGeneralProperties(versionId) {  
     let response = await this.sendQuery(
-      `mutation DeleteProperty($propertyGroupId: ID!, $name: String!) {
-        deleteProperty(input: {propertyGroupId: $propertyGroupId, name: $name}) {
+      `query GetProperties($componentVersionId: String!) {
+        componentVersion(componentVersionId: $componentVersionId) {
+          partNumber
           name
+          partDescription
+          materialName
+
+          itemNumber
+          lifeCycle
+          revision
+          changeOrder
+          changeOrderURN
+
+          physicalProperties {
+            mass {
+              value
+            }
+            volume {
+              value
+            }
+            density {
+              value
+            }
+            area {
+              value
+            }
+            boundingBox {
+              length {
+                value
+              }
+              width {
+                value
+              }
+              height {
+                value
+              }
+            }
+          }
         }
       }`,
       {
-        propertyGroupId,
-        name: property.name
+        componentVersionId: versionId
+      }
+    )
+
+    return response.data.data.componentVersion;
+  }
+
+  async getPropertiesForExtendable(extendableId) {  
+    let response = await this.sendQuery(
+      `query getAllProperties($extendableId: ID!) {
+        properties(
+          extendableId: $extendableId
+        ) {
+          results {
+              value
+              propertyDefinition {
+                  id
+                  name
+                  type
+                  isHidden
+                  description
+                  propertyBehavior
+              }
+          }
+        }
+      }`,
+      {
+        extendableId
+      }
+    )
+
+    return response.data.data.properties.results;
+  }
+
+  async setProperties(extendableId, properties) {  
+    let response = await this.sendQuery(
+      `mutation SetProperties($input: SetPropertiesInput!) {
+        setProperties(input: $input) {
+          extendableId
+        }
+      }`,
+      {
+        input: {
+          extendableId,
+          propertyInputs: properties
+        }
+      }
+    )
+
+    return response.data.data.setProperties;
+  }
+
+  async deleteProperty(extendableId, propertyDefinitionId) {  
+    let response = await this.sendQuery(
+      `mutation DeleteProperty($extendableId: ID!, $propertyDefinitionId: ID!) {
+        clearProperty(input: {extendableId: $extendableId, propertyDefinitionId: $propertyDefinitionId}) {
+          extendableId
+        }
+      }`,
+      {
+        extendableId,
+        propertyDefinitionId
       }
     )
 
     return response.data.data.deleteProperty;
   }
-// </deleteProperty>
-*/
 
+  async getModelOccurrences(componentVersionId) {
+    let cursor = null;
+    let result = []; 
+    while (true) {
+      let response = await this.sendQuery(
+        `query GetModelOccurrences($componentVersionId: String!${cursor ? ', $cursor: String!' : ''}) {
+          componentVersion(componentVersionId: $componentVersionId) {
+            modelOccurrences${cursor ? '(pagination: {cursor: $cursor})' : ''} {
+              results {
+                componentVersion {
+                  id
+                  name
+                }
+              }
+              pagination {
+                cursor
+              }
+            }
+          }
+        }`,
+        {
+          componentVersionId,
+          cursor
+        }
+      )
+
+      result = result.concat(response.data.data.componentVersion.modelOccurrences.results);
+
+      cursor = response.data.data.componentVersion.modelOccurrences.pagination.cursor;
+      if (!cursor)
+        break;
+    }
+
+    return result;
+  }
+
+  async getAllModelOccurrences(componentVersionId) {
+    let cursor = null;
+    let result = []; 
+    while (true) {
+      let response = await this.sendQuery(
+        `query GetAllModelOccurrences($componentVersionId: String!${cursor ? ', $cursor: String!' : ''}) {
+          componentVersion(componentVersionId: $componentVersionId) {
+            allModelOccurrences${cursor ? '(pagination: {cursor: $cursor})' : ''} {
+              results {
+                componentVersion {
+                  id
+                  name
+                }
+              }
+              pagination {
+                cursor
+              }
+            }
+          }
+        }`,
+        {
+          componentVersionId,
+          cursor
+        }
+      )
+
+      result = result.concat(response.data.data.componentVersion.allModelOccurrences.results);
+
+      //cursor = response.data.data.componentVersion.allModelOccurrences.pagination.cursor;
+      if (!cursor)
+        break;
+    }
+
+    return result;
+  }
 }
-
 
 module.exports = App;

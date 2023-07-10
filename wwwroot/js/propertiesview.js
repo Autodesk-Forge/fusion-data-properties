@@ -1,4 +1,4 @@
-import { getJSON, abortJSON, useLoadingSymbol } from "./utils.js";
+import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog } from "./utils.js";
 import { initTreeControl } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
@@ -167,34 +167,37 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
 
   for (let item of thead.getElementsByClassName("bi-save clickable")) {
     item.onclick = async (event) => {
-      // Swap active buttons
-      for (const button of event.target.parentElement.children)   
-        button.classList.toggle("hidden");
+      showInfoDialog('question', 'Save changes?', 'Are you sure you want to save these changes? This action can’t be undone. ', 'Cancel', 'Save', async () => {
+        // Swap active buttons
+        for (const button of event.target.parentElement.children)   
+          button.classList.toggle("hidden");
 
-      let properties = [];
-      for (const input of getInputElements(event.target)) {
-        const [oldValue, value] = getInputValues(input);
-        const definitionId = input.getAttribute("definitionId");
-        if (value !== oldValue) 
-          properties.push({
-            propertyDefinitionId: definitionId,
-            value
-          })
+        let properties = [];
+        for (const input of getInputElements(event.target)) {
+          const [oldValue, value] = getInputValues(input);
+          const definitionId = input.getAttribute("definitionId");
+          if (value !== oldValue) 
+            properties.push({
+              propertyDefinitionId: definitionId,
+              value
+            })
 
-        input.toggleAttribute("disabled");
-      }
+          input.toggleAttribute("disabled");
+        }
 
-      if (properties.length < 1)
-        return;
+        if (properties.length < 1)
+          return;
 
-      let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
-      await useLoadingSymbol(async () => {
-        return await Promise.allSettled([
-          getJSON(`/api/fusiondata/${extendableId}/properties`, 'PUT', JSON.stringify({properties})),
-        ])
-      }); 
+        let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
+        await useLoadingSymbol(async () => {
+          return await Promise.allSettled([
+            getJSON(`/api/fusiondata/${extendableId}/properties`, 'PUT', JSON.stringify({properties})),
+          ])
+        }); 
+        
+        updateView(isComponentLevel);
+      })
       
-      updateView(isComponentLevel);
     }
   }
 
