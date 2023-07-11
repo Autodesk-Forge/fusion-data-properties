@@ -71,11 +71,11 @@ export async function showLinkIconForHubsWithLinkedCollections() {
 
         const link = hub.querySelector(`span.link-icon`);
         if (collections.length < 1) {
-          link.classList.add("hidden");
+          link.classList.toggle("hidden", true);
           continue;
         }
   
-        link.classList.remove("hidden");
+        link.classList.toggle("hidden", false);
       }
     } catch (error) {
       console.log(error);

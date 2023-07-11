@@ -11,7 +11,6 @@ export async function showHubCollectionsDialog(hubId) {
   const collectionsDialogEmpty = document.getElementById(
     "collectionsDialogEmpty"
   );
-  collectionsDialogEmpty.classList.remove("hidden");
 
   const dialogButton = document.getElementById("collectionsDialogButton");
   dialogButton.click();
@@ -30,7 +29,11 @@ export async function showHubCollectionsDialog(hubId) {
   // If getting lkinked collections failed 
   // then you don't have anything linked yet 
 
-  if (collections?.value?.length < 1) return;
+  if (collections?.value?.length < 1) {
+    collectionsDialogEmpty.classList.toggle("hidden", false);
+    return;
+  }
+ 
 
   const isLinked = (collectionId) => {
     if (!linkedCollections.value)
@@ -43,7 +46,7 @@ export async function showHubCollectionsDialog(hubId) {
     return !!result;
   };
 
-  collectionsDialogEmpty.classList.add("hidden");
+  collectionsDialogEmpty.classList.toggle("hidden", true);
 
   for (let collection of collections.value) {
     const linkIcon = isLinked(collection.id)
@@ -68,7 +71,7 @@ export async function showHubCollectionsDialog(hubId) {
               JSON.stringify({ collectionId })
             );
           });
-          item.classList.remove("dimmed");
+          item.classList.toggle("dimmed", false);
 
           // Update links in tree control
           showInfoDialog('success', '', 'Collection successfully linked to hub.', '', 'Continue', () => {

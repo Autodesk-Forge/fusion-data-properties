@@ -59,11 +59,11 @@ export async function getJSON(url, verb = "GET", body) {
 
 export async function useLoadingSymbol(func) {
   const element = document.getElementById("loadingSign");
-  element.classList.remove("hidden");
+  element.classList.toggle("hidden", false);
   try {
     return await func();
   } finally {
-    element.classList.add("hidden");
+    element.classList.toggle("hidden", true);
   }
 }
 
@@ -90,13 +90,13 @@ export function showView(viewId, breadcrumbText, breadcrumbCallback) {
   for (let view of views) {
     if (!view.classList.contains("hidden")) {
       oldViewId = view.id;
-      view.classList.add("hidden");
+      view.classList.toggle("hidden", true);
       break;
     }
   }
 
   let view = document.getElementById(viewId);
-  view.classList.remove("hidden");
+  view.classList.toggle("hidden", false);
 
   if (oldViewId !== viewId) {
     // if we are chaning view then any data load it triggered should be cancelled

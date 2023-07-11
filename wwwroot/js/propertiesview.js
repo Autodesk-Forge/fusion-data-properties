@@ -248,7 +248,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
 
 function addCollectionTableToPane(propertiesPane, collection, versionProperties) {
   const table = document.createElement("table");
-  table.classList.add("table");
+  table.classList.toggle("table", true);
   table.innerHTML = `
     <thead>
       <tr>
@@ -266,7 +266,7 @@ function addCollectionTableToPane(propertiesPane, collection, versionProperties)
 
 function addComponentsTableToPane(componentsPane, componentVersions) {
   const table = document.createElement("table");
-  table.classList.add("table");
+  table.classList.toggle("table", true);
   table.innerHTML = `
     <thead>
       <tr>
@@ -448,7 +448,7 @@ async function listVersions() {
 
   _versionList.onchange();
 
-  document.getElementById("versionInfo").classList.remove("hidden");
+  document.getElementById("versionInfo").classList.toggle("hidden", false);
 }
 
 export async function onSelectionChanged(
@@ -462,7 +462,7 @@ export async function onSelectionChanged(
 
   updateBreadcrumbs(node);
 
-  document.getElementById("versionInfo").classList.add("hidden");
+  document.getElementById("versionInfo").classList.toggle("hidden", true);
 
   clearGeneralProperties();
 
