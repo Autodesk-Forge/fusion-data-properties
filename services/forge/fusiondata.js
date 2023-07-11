@@ -185,6 +185,9 @@ class App {
                   isArchived
                   readOnly
                   type
+                  units {
+                    name
+                  }
                 }
               }
             }
@@ -343,6 +346,9 @@ class App {
           readOnly
           description
           propertyBehavior
+          units {
+            name
+          }
         }
       }`,
       {
@@ -424,25 +430,60 @@ class App {
           physicalProperties {
             mass {
               value
+              propertyDefinition {
+                units {
+                  name
+                }
+              }
             }
             volume {
               value
+              propertyDefinition {
+                units {
+                  name
+                }
+              }
             }
             density {
               value
+              propertyDefinition {
+                units {
+                  name
+                }
+              }
             }
             area {
               value
+              propertyDefinition {
+                units {
+                  name
+                }
+              }
             }
             boundingBox {
               length {
                 value
+                propertyDefinition {
+                  units {
+                    name
+                  }
+                }
               }
               width {
                 value
+                propertyDefinition {
+                  units {
+                    name
+                  }
+                }
               }
               height {
                 value
+                propertyDefinition {
+                  units {
+                    name
+                  }
+                }
               }
             }
           }
@@ -471,6 +512,9 @@ class App {
                   isHidden
                   description
                   propertyBehavior
+                  units {
+                    name
+                  }
               }
           }
         }

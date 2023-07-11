@@ -1,4 +1,4 @@
-import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog } from "./utils.js";
+import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber } from "./utils.js";
 import { initTreeControl } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
@@ -125,7 +125,7 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
   row.innerHTML = `
     <td style="padding-left: 25px;">${definition.name} ${info}</td>
     <td class="prop-value"><input disabled class="border-0 bg-transparent" type="${inputType}" definitionId="${definition.id}" /></td>
-    <td>unit</td>
+    <td>${definition?.units?.name || ""}</td>
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
 
   const button = row.querySelector(".bi-eraser.clickable");
@@ -160,7 +160,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
       <th colspan="3">
         <span class="bi-pencil clickable ${!isPropertyEditable ? "hidden" : ""}" title="Edit property values"></span>
         <span class="bi-x-circle clickable hidden" title="Cancel changes"></span>
-        <span class="bi-save clickable hidden" title="Save changes"></span>
+        <span class="bi-floppy clickable hidden" title="Save changes"><img src="images/save.svg" width="16px" height="16px" /></span>
       </th>
     </tr>
     <tr style="border-block-color: transparent;">
@@ -179,7 +179,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
     addRowToBody(tbody, definition, versionProperties, isComponentLevel);
   }
 
-  for (let item of thead.getElementsByClassName("bi-save clickable")) {
+  for (let item of thead.getElementsByClassName("bi-floppy clickable")) {
     item.onclick = async (event) => {
       showInfoDialog('question', 'Save changes?', 'Are you sure you want to save these changes? This action can’t be undone. ', 'Cancel', 'Save', async () => {
         // Swap active buttons
@@ -353,14 +353,24 @@ async function showVersionProperties() {
       );
       const props = values.physicalProperties;
       physicalPropertiesTable.children[0].children[1].textContent =
-        props.mass?.value;
+        formatNumber(props.mass?.value);
+      physicalPropertiesTable.children[0].children[2].textContent =
+        props.mass?.propertyDefinition?.units?.name || "";
       physicalPropertiesTable.children[1].children[1].textContent =
-        props.volume?.value;
+        formatNumber(props.volume?.value);
+      physicalPropertiesTable.children[1].children[2].textContent =
+        props.volume?.propertyDefinition?.units?.name || "";
       physicalPropertiesTable.children[2].children[1].textContent =
-        props.density?.value;
+        formatNumber(props.density?.value);
+      physicalPropertiesTable.children[2].children[2].textContent =
+        props.density?.propertyDefinition?.units?.name || "";
       physicalPropertiesTable.children[3].children[1].textContent =
-        props.area?.value;
-      physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox?.length?.value} x ${props.boundingBox?.width?.value} x ${props.boundingBox?.height?.value}`;
+        formatNumber(props.area?.value);
+      physicalPropertiesTable.children[3].children[2].textContent =
+        props.area?.propertyDefinition?.units?.name || "";
+      physicalPropertiesTable.children[4].children[1].textContent = `${formatNumber(props.boundingBox?.width?.value)} x ${formatNumber(props.boundingBox?.length?.value)} x ${formatNumber(props.boundingBox?.height?.value)}`;
+      physicalPropertiesTable.children[4].children[2].textContent =
+        props.boundingBox?.width?.propertyDefinition?.units.name + " x " + props.boundingBox?.length?.propertyDefinition?.units.name + " x " + props.boundingBox?.height?.propertyDefinition?.units.name;
     }
 
     // Components

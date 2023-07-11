@@ -11,6 +11,10 @@ export function formatString(text) {
   return (text.charAt(0) + text.slice(1).toLowerCase()).replaceAll("_", " ");
 }
 
+export function formatNumber(num) {
+  return num.toFixed(2);
+}
+
 export function disableElements(ids, disable) {
   for (let id of ids) {
     const elem = document.getElementById(id);
