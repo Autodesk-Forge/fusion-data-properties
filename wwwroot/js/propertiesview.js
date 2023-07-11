@@ -67,8 +67,7 @@ async function storeId(type, projectId, fileItemOrVersionId) {
   }
 }
 
-function getInputElements(span) {
-  const tbody = span.parentElement.parentElement.parentElement.nextElementSibling;
+function getInputElements(tbody) {
   return tbody.querySelectorAll("input");
 }
 
@@ -179,69 +178,65 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
     addRowToBody(tbody, definition, versionProperties, isComponentLevel);
   }
 
-  for (let item of thead.getElementsByClassName("bi-floppy clickable")) {
-    item.onclick = async (event) => {
-      showInfoDialog('question', 'Save changes?', 'Are you sure you want to save these changes? This action can’t be undone. ', 'Cancel', 'Save', async () => {
-        // Swap active buttons
-        for (const button of event.target.parentElement.children)   
-          button.classList.toggle("hidden");
+  const saveButton = thead.querySelector(".bi-floppy.clickable");
+  saveButton.onclick = async (event) => {
+    showInfoDialog('question', 'Save changes?', 'Are you sure you want to save these changes? This action can’t be undone. ', 'Cancel', 'Save', async () => {
+      // Swap active buttons
+      for (const button of saveButton.parentElement.children)   
+        button.classList.toggle("hidden");
 
-        let properties = [];
-        for (const input of getInputElements(event.target)) {
-          const [oldValue, value] = getInputValues(input);
-          const definitionId = input.getAttribute("definitionId");
-          if (value !== oldValue) 
-            properties.push({
-              propertyDefinitionId: definitionId,
-              value
-            })
+      let properties = [];
+      for (const input of getInputElements(tbody)) {
+        const [oldValue, value] = getInputValues(input);
+        const definitionId = input.getAttribute("definitionId");
+        if (value !== oldValue) 
+          properties.push({
+            propertyDefinitionId: definitionId,
+            value
+          })
 
-          input.toggleAttribute("disabled");
-        }
+        input.toggleAttribute("disabled", true);
+      }
 
-        if (properties.length < 1)
-          return;
+      if (properties.length < 1)
+        return;
 
-        let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
-        await useLoadingSymbol(async () => {
-          return await Promise.allSettled([
-            getJSON(`/api/fusiondata/${extendableId}/properties`, 'PUT', JSON.stringify({properties})),
-          ])
-        }); 
-        
-        updateView(isComponentLevel);
-      })
+      let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
+      await useLoadingSymbol(async () => {
+        return await Promise.allSettled([
+          getJSON(`/api/fusiondata/${extendableId}/properties`, 'PUT', JSON.stringify({properties})),
+        ])
+      }); 
       
+      updateView(isComponentLevel);
+    })
+  }
+  
+  const editButton = thead.querySelector(".bi-pencil.clickable");
+  editButton.onclick = async (event) => {
+    // Swap active buttons
+    for (const button of editButton.parentElement.children)   
+      button.classList.toggle("hidden");
+
+    for (const input of getInputElements(tbody)) {
+      input.toggleAttribute("disabled", false);
     }
   }
 
-  for (let item of thead.getElementsByClassName("bi-pencil clickable")) {
-    item.onclick = async (event) => {
-      // Swap active buttons
-      for (const button of event.target.parentElement.children)   
-        button.classList.toggle("hidden");
-
-      for (const input of getInputElements(event.target)) {
-        input.toggleAttribute("disabled");
-      }
+  const cancelButton = thead.querySelector(".bi-x-circle.clickable");
+  cancelButton.onclick = async (event) => {
+    // Clear modifications
+    for (const input of getInputElements(tbody)) {
+      const [oldValue] = getInputValues(input);
+      setInputValues(input, oldValue);
+      input.toggleAttribute("disabled", true);
     }
+
+    // Swap active buttons
+    for (const button of cancelButton.parentElement.children)   
+      button.classList.toggle("hidden");
   }
-
-  for (let item of thead.getElementsByClassName("bi-x-circle clickable")) {
-    item.onclick = async (event) => {
-      // Clear modifications
-      for (const input of getInputElements(event.target)) {
-        const [oldValue] = getInputValues(input);
-        setInputValues(input, oldValue);
-        input.toggleAttribute("disabled");
-      }
-
-      // Swap active buttons
-      for (const button of event.target.parentElement.children)   
-        button.classList.toggle("hidden");
-    }
-  }
-
+  
   table.appendChild(thead);
   table.appendChild(tbody);
 }

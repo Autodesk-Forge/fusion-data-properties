@@ -18,11 +18,7 @@ export function formatNumber(num) {
 export function disableElements(ids, disable) {
   for (let id of ids) {
     const elem = document.getElementById(id);
-    if (elem.hasAttribute("disabled") && !disable) {
-      elem.removeAttribute("disabled");
-    } else if (!elem.hasAttribute("disabled") && disable) {
-      elem.setAttribute("disabled", "");
-    }
+    elem.toggleAttribute("disabled", disable);
   }
 }
 
