@@ -279,6 +279,18 @@
               </button>
               <button
                 class="nav-link"
+                id="componentsTab"
+                data-bs-toggle="tab"
+                data-bs-target="#componentsPane"
+                type="button"
+                role="tab"
+                aria-controls="componentsPane"
+                aria-selected="false"
+              >
+                Components
+              </button>
+              <button
+                class="nav-link"
                 id="propertiesTab"
                 data-bs-toggle="tab"
                 data-bs-target="#propertiesPane"
@@ -414,6 +426,13 @@
                   id="propertiesPane"
                   role="tabpanel"
                   aria-labelledby="propertiesTab"
+                >
+                </div>
+                <div
+                class="tab-pane"
+                id="componentsPane"
+                role="tabpanel"
+                aria-labelledby="componentsTab"
                 >
                 </div>
               </div>

@@ -97,7 +97,7 @@ function setInputValues(input, value) {
 
 function updateView(isComponentLevel) {
   if (isComponentLevel)
-    // Since a new vrsoni was generated we have to list all th available
+    // Since a new version was generated we have to list all the available
     // versions again
     listVersions();
   else
@@ -147,6 +147,10 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
 }
 
 function addPropertiesToTable(table, collection, versionProperties, isComponentLevel, title) {
+  // Component properties should only be editable when the latest
+  // version is selected
+  const isPropertyEditable = isComponentLevel ? (_versionList.options[0].value === _versionList.value) : true;
+
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
     <tr>
@@ -154,7 +158,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
         ${title}
       </th>
       <th colspan="3">
-        <span class="bi-pencil clickable" title="Edit property values"></span>
+        <span class="bi-pencil clickable ${!isPropertyEditable ? "hidden" : ""}" title="Edit property values"></span>
         <span class="bi-x-circle clickable hidden" title="Cancel changes"></span>
         <span class="bi-save clickable hidden" title="Save changes"></span>
       </th>
@@ -260,15 +264,57 @@ function addCollectionTableToPane(propertiesPane, collection, versionProperties)
   propertiesPane.appendChild(table);
 }
 
+function addComponentsTableToPane(componentsPane, componentVersions) {
+  const table = document.createElement("table");
+  table.classList.add("table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th class="name-column" scope="col">Part Name</th>
+        <th>Part Number</th>
+        <th>Material - Default</th>
+      </tr>
+    </thead>
+    <tbody></tbody>`;
+
+  const tbody = table.querySelector("tbody");
+
+    const addRow = (indent, componentVersion) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td style="padding-left: ${indent}px;">${componentVersion.name}</td>
+        <td>${componentVersion.partNumber}</td>
+        <td>${componentVersion.materialName}</td>`;
+
+      tbody.appendChild(row);
+    }
+  
+    const iterate = (componentVersions, componentVersionId, indent) => {
+      //console.log(indent + componentVersion.name);
+      //addRow(indent, componentVersion)
+      let subOccurrences = componentVersions.filter(
+        item => item.parentComponentVersion.id === componentVersionId);
+      for (let occurrence of subOccurrences) {
+        addRow(indent, occurrence.componentVersion);
+        iterate(componentVersions, occurrence.componentVersion.id, indent + 20);
+      }
+    }
+
+    iterate(componentVersions, _extendableVersionId, 10);
+
+    componentsPane.appendChild(table);  
+}
+
 async function showVersionProperties() {
   try {
     console.log("requesting properties for", _extendableItemId, _extendableVersionId);
 
-    const [generalProperties, versionProperties, hubCollections] = await useLoadingSymbol(async () => {
+    const [generalProperties, versionProperties, hubCollections, occurrences] = await useLoadingSymbol(async () => {
       return await Promise.allSettled([
         getJSON(`/api/fusiondata/${_extendableVersionId}/generalproperties`),
         getJSON(`/api/fusiondata/${_extendableVersionId}/properties`),
-        getJSON(`/api/fusiondata/${_hubId}/collections`)
+        getJSON(`/api/fusiondata/${_hubId}/collections`),
+        getJSON(`/api/fusiondata/${_extendableVersionId}/occurrences`)
       ])
     });
  
@@ -317,6 +363,14 @@ async function showVersionProperties() {
       physicalPropertiesTable.children[4].children[1].textContent = `${props.boundingBox?.length?.value} x ${props.boundingBox?.width?.value} x ${props.boundingBox?.height?.value}`;
     }
 
+    // Components
+
+    if (occurrences.value) {
+      const componentsPane = document.getElementById("componentsPane");
+      componentsPane.innerHTML = '';
+      addComponentsTableToPane(componentsPane, occurrences.value);
+    }
+
     // Custom Properties tab
 
     console.log(hubCollections.value);
@@ -347,7 +401,7 @@ function onHubButtonClicked(event) {
 }
 
 function updateBreadcrumbs(node) {
-  const breadCrumbs = _propertiesView.getElementsByClassName("breadcrumb")[0];
+  const breadCrumbs = _propertiesView.querySelector(".breadcrumb");
   breadCrumbs.innerHTML = `<li class="breadcrumb-item">
       <a class="link-body-emphasis" href="#">
         <span class="bi bi-house-door-fill"></span>

@@ -112,7 +112,7 @@ router.put('/definitions/:definition_id', async function (req, res) {
 router.get('/:version_id/occurrences', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const occurrences = await fd.getModelOccurrences(req.params.version_id);
+    const occurrences = await fd.getAllModelOccurrences(req.params.version_id);
     res.json(occurrences);
   } catch (err) {
     res.status(400).json(err);

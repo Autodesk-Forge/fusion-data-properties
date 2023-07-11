@@ -562,9 +562,14 @@ class App {
           componentVersion(componentVersionId: $componentVersionId) {
             allModelOccurrences${cursor ? '(pagination: {cursor: $cursor})' : ''} {
               results {
+                parentComponentVersion {
+                  id 
+                }
                 componentVersion {
                   id
                   name
+                  partNumber
+                  materialName
                 }
               }
               pagination {
@@ -581,7 +586,7 @@ class App {
 
       result = result.concat(response.data.data.componentVersion.allModelOccurrences.results);
 
-      //cursor = response.data.data.componentVersion.allModelOccurrences.pagination.cursor;
+      cursor = response.data.data.componentVersion.allModelOccurrences.pagination.cursor;
       if (!cursor)
         break;
     }
