@@ -12,6 +12,9 @@ export function formatString(text) {
 }
 
 export function formatNumber(num) {
+  if (!num)
+    return "";
+    
   return num.toFixed(2);
 }
 

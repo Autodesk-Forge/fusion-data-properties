@@ -20,6 +20,7 @@ _propertiesView.onload = () => {
 _versionList.onchange = () => {
   abortJSON();
   clearGeneralProperties();
+  removeSubcomponentFromBreadcrumbs();
 
   const versionUrn = _versionList.value;
   const selectedVersion = _versionList.selectedOptions[0];
@@ -274,30 +275,41 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
 
   const tbody = table.querySelector("tbody");
 
-    const addRow = (indent, componentVersion) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td style="padding-left: ${indent}px;">${componentVersion.name}</td>
-        <td>${componentVersion.partNumber}</td>
-        <td>${componentVersion.materialName}</td>`;
+  const addRow = (indent, componentVersion) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td style="padding-left: ${indent}px;">${componentVersion.name}</td>
+      <td>${componentVersion.partNumber}</td>
+      <td>${componentVersion.materialName}</td>`;
 
-      tbody.appendChild(row);
-    }
-  
-    const iterate = (componentVersions, componentVersionId, indent) => {
-      //console.log(indent + componentVersion.name);
-      //addRow(indent, componentVersion)
-      let subOccurrences = componentVersions.filter(
-        item => item.parentComponentVersion.id === componentVersionId);
-      for (let occurrence of subOccurrences) {
-        addRow(indent, occurrence.componentVersion);
-        iterate(componentVersions, occurrence.componentVersion.id, indent + 20);
-      }
+    row.classList = "clickable";
+    row.componentId = componentVersion.component.id;
+    row.componentVersionId = componentVersion.id
+
+    row.onclick = () => {
+      addSubcomponentToBreadcrumbs(row.children[0].textContent);
+      _extendableItemId = row.componentId;
+      _extendableVersionId = row.componentVersionId;
+      showVersionProperties();
     }
 
-    iterate(componentVersions, _extendableVersionId, 10);
+    tbody.appendChild(row);
+  }
 
-    componentsPane.appendChild(table);  
+  const iterate = (componentVersions, componentVersionId, indent) => {
+    //console.log(indent + componentVersion.name);
+    //addRow(indent, componentVersion)
+    let subOccurrences = componentVersions.filter(
+      item => item.parentComponentVersion.id === componentVersionId);
+    for (let occurrence of subOccurrences) {
+      addRow(indent, occurrence.componentVersion);
+      iterate(componentVersions, occurrence.componentVersion.id, indent + 20);
+    }
+  }
+
+  iterate(componentVersions, _extendableVersionId, 10);
+
+  componentsPane.appendChild(table);  
 }
 
 async function showVersionProperties() {
@@ -312,6 +324,11 @@ async function showVersionProperties() {
         getJSON(`/api/fusiondata/${_extendableVersionId}/occurrences`)
       ])
     });
+
+    console.log(hubCollections.value);
+    console.log(versionProperties.value);
+    console.log(generalProperties.value);
+    console.log(occurrences.value);
  
     // Overview tab
 
@@ -378,8 +395,6 @@ async function showVersionProperties() {
 
     // Custom Properties tab
 
-    console.log(hubCollections.value);
-    console.log(versionProperties.value);
     if (!Array.isArray(versionProperties.value))
       versionProperties.value = [];
 
@@ -451,6 +466,14 @@ function addSubcomponentToBreadcrumbs(subcomponentName) {
     class="link-body-emphasis fw-semibold text-decoration-none"
     >${subcomponentName}</a
   >`;
+}
+
+function removeSubcomponentFromBreadcrumbs() {
+  const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
+  let breadcrumb = breadcrumbs.querySelector(".subcomponent");
+  if (breadcrumb) {
+    breadcrumb.remove();
+  }
 }
 
 async function listVersions() {

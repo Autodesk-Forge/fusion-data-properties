@@ -614,6 +614,9 @@ class App {
                   name
                   partNumber
                   materialName
+                  component {
+                    id
+                  }
                 }
               }
               pagination {
