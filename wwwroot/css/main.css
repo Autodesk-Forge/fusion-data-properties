@@ -104,14 +104,6 @@ tbody>tr:nth-child(odd) {
   overflow: auto;
 }
 
-/*
-#header,
-#hubstree,
-#preview {
-  position: absolute;
-}
-*/
-
 #header {
   height: 3em;
   width: 100%;
