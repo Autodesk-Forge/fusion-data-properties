@@ -108,7 +108,7 @@
     <div id="emptyCollectionsView" class="view">
       <div class="container pt-3 center">
         <h3>Welcome to the Property Definition Manager</h3>
-        <img src="./images/emptybox.svg" />
+        <img title="no collections" src="./images/emptybox.svg" />
         <h4>You haven't created any property collections yet.</h4>
         <p>Start creating a new collectinon</p>
         <button id="createCollection" type="button" class="btn btn-primary">
@@ -174,7 +174,7 @@
       </header>
       <div class="container pt-3 center">
         <h3>There are no properties in this collection yet.</h3>
-        <img src="./images/emptybox.svg" />
+        <img title="empty collection" src="./images/emptybox.svg" />
         <p>Start adding properties to your collection.</p>
         <button
           id="createDefinition"
@@ -241,7 +241,7 @@
             <div id="tree"></div>
           </div>
         </div>
-        <div class="col-sm-9 full-height" style="overflow: scroll;">
+        <div class="col-sm-9 full-height" style="overflow: auto;">
           <header class="p-1">
             <div class="container pl-ml-0">
               <nav aria-label="breadcrumb">
@@ -308,7 +308,7 @@
               <div id="preview">
                 <div id="info">
                   <div class="row">
-                    <img id="thumbnail" src="/images/box-200x200.png" />
+                    <img title="thumbnail" id="thumbnail" src="/images/box-200x200.png" />
                   </div>
                   <div id="versionInfo" class="hidden">
                     <div class="row">
@@ -316,7 +316,7 @@
                     </div>
                     <div id="versionInfo" class="row display-block">
                       <span class="pr-0">Component Version <span class="bi bi-info-circle" title="Component Version info"></span></span>
-                      <select id="versionList" class="form-select">
+                      <select title="versions" id="versionList" class="form-select">
                         <option>v1</option>
                       </select>
                     </div>
@@ -485,7 +485,7 @@
                   aria-describedby="basic-addon3 basic-addon4"
                 />
               </div>
-              <div class="form-text" id="basic-addon4">
+              <div class="form-text">
                 Only alphanumeric characters allowed - Limit 64v characters
               </div>
             </div>
@@ -502,7 +502,7 @@
                   aria-describedby="basic-addon3 basic-addon4"
                 />
               </div>
-              <div class="form-text" id="basic-addon4">
+              <div class="form-text">
                 Only alphanumeric characters allowed - Limit 64 characters
               </div>
             </div>
@@ -567,7 +567,7 @@
                     id="definitionName"
                     aria-describedby="basic-addon3 basic-addon4"
                   />
-                  <div class="form-text" id="basic-addon4">
+                  <div class="form-text">
                     Only alphanumeric characters allowed - Limit 64 characters
                   </div>
                 </div>
@@ -768,7 +768,7 @@
           </div>
           <div class="modal-body">
             <div id="collectionsDialogEmpty" class="container pt-3 center hidden">
-              <img src="./images/emptybox.svg" />
+              <img title="empty" src="./images/emptybox.svg" />
               <h4>You haven't created any property collections yet.</h4>
               <p>Start creating a new collectinon</p>
               <button id="showCollectionsView" type="button" class="btn btn-primary">
@@ -798,7 +798,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <div>
-              <p><img id="infoDialogImage" src="images/error.svg"></img></p>
+              <p><img title="error" id="infoDialogImage" src="images/error.svg"></img></p>
               <h5 id="infoDialogTitle" class="modal-title">Operation not allowed</h5>
             </div>
             <button
