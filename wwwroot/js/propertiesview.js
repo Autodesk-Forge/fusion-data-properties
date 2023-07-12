@@ -179,7 +179,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
   }
 
   const saveButton = thead.querySelector(".bi-floppy.clickable");
-  saveButton.onclick = async (event) => {
+  saveButton.onclick = async () => {
     showInfoDialog('question', 'Save changes?', 'Are you sure you want to save these changes? This action can’t be undone. ', 'Cancel', 'Save', async () => {
       // Swap active buttons
       for (const button of saveButton.parentElement.children)   
@@ -213,7 +213,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
   }
   
   const editButton = thead.querySelector(".bi-pencil.clickable");
-  editButton.onclick = async (event) => {
+  editButton.onclick = async () => {
     // Swap active buttons
     for (const button of editButton.parentElement.children)   
       button.classList.toggle("hidden");
@@ -224,7 +224,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
   }
 
   const cancelButton = thead.querySelector(".bi-x-circle.clickable");
-  cancelButton.onclick = async (event) => {
+  cancelButton.onclick = async () => {
     // Clear modifications
     for (const input of getInputElements(tbody)) {
       const [oldValue] = getInputValues(input);
@@ -297,8 +297,6 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
   }
 
   const iterate = (componentVersions, componentVersionId, indent) => {
-    //console.log(indent + componentVersion.name);
-    //addRow(indent, componentVersion)
     let subOccurrences = componentVersions.filter(
       item => item.parentComponentVersion.id === componentVersionId);
     for (let occurrence of subOccurrences) {
