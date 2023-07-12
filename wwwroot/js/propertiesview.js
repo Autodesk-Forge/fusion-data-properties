@@ -438,6 +438,21 @@ function updateBreadcrumbs(node) {
   }
 }
 
+function addSubcomponentToBreadcrumbs(subcomponentName) {
+  const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
+  let breadcrumb = breadcrumbs.querySelector(".subcomponent");
+  if (!breadcrumb) {
+    breadcrumb = document.createElement("li");
+    breadcrumb.classList = "breadcrumb-item subcomponent";
+    breadcrumbs.appendChild(breadcrumb);
+  }
+
+  breadcrumb.innerHTML = `<a
+    class="link-body-emphasis fw-semibold text-decoration-none"
+    >${subcomponentName}</a
+  >`;
+}
+
 async function listVersions() {
   await storeId('item', _projectId, _itemUrn);
 
