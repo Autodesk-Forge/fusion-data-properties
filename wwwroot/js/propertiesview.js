@@ -5,6 +5,7 @@ import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 let _tree;
 let _extendableItemId;
 let _extendableVersionId;
+let _extendableVersionType;
 let _hubId;
 let _projectId;
 let _itemUrn;
@@ -27,7 +28,6 @@ _versionList.onchange = () => {
   const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
   document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
 
-  showThumbnail(_projectId, versionUrn);
   storeId("version", _projectId, versionUrn).then(() => {
     showVersionProperties();
   });
@@ -39,12 +39,10 @@ function clearGeneralProperties() {
   }
 }
 
-async function showThumbnail(projectId, fileVersionId) {
+async function showThumbnail() {
   document.getElementById(
     "thumbnail"
-  ).src = `/api/fusiondata/${projectId}/${encodeURIComponent(
-    fileVersionId
-  )}/thumbnail`;
+  ).src = `/api/fusiondata/${_extendableVersionType}/${_extendableVersionId}/thumbnail`;
 }
 
 async function storeId(type, projectId, fileItemOrVersionId) {
@@ -61,6 +59,7 @@ async function storeId(type, projectId, fileItemOrVersionId) {
       console.log(`Selected item's ID: ${response.id}`);
     } else {
       _extendableVersionId = response.id;
+      _extendableVersionType = response.type;
       console.log(`Selected version's ID: ${response.id}`);
     }
   } catch (error) {
@@ -290,6 +289,7 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
       addSubcomponentToBreadcrumbs(row.children[0].textContent);
       _extendableItemId = row.componentId;
       _extendableVersionId = row.componentVersionId;
+      _extendableVersionType = 'component';
       showVersionProperties();
     }
 
@@ -313,6 +313,8 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
 }
 
 async function showVersionProperties() {
+  showThumbnail();
+
   try {
     console.log("requesting properties for", _extendableItemId, _extendableVersionId);
 

@@ -108,6 +108,27 @@ router.put('/definitions/:definition_id', async function (req, res) {
   }
 });
 
+router.get('/component/:version_id/thumbnail', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnail = await fd.getComponentVersionThumbnail(req.params.version_id);
+      
+    res.end(thumbnail);
+  } catch (err) {
+    res.redirect('/images/box-200x200.png');
+  }
+});
+
+router.get('/drawing/:version_id/thumbnail', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnail = await fd.getDrawingVersionThumbnail(req.params.version_id);
+      
+    res.end(thumbnail);
+  } catch (err) {
+    res.redirect('/images/box-200x200.png');
+  }
+});
 
 router.get('/:version_id/occurrences', async function (req, res) {
   try {
@@ -176,9 +197,9 @@ router.get('/:project_id/:file_version_id/thumbnail', async function (req, res) 
 router.get('/:project_id/:file_version_id/versionid', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const id = await fd.getVersionId(req.params.project_id, req.params.file_version_id);
+    const idAndType = await fd.getVersionId(req.params.project_id, req.params.file_version_id);
       
-    res.json(id);
+    res.json(idAndType);
   } catch (err) {
     res.status(400).json(err);
   }
