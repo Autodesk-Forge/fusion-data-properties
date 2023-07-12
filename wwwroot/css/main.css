@@ -101,7 +101,7 @@ tbody>tr:nth-child(odd) {
 
 .modal-body {
   max-height: 80vh;
-  overflow: scroll;
+  overflow: auto;
 }
 
 /*
