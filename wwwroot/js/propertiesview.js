@@ -1,4 +1,4 @@
-import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber } from "./utils.js";
+import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, wait } from "./utils.js";
 import { initTreeControl } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
@@ -40,9 +40,30 @@ function clearGeneralProperties() {
 }
 
 async function showThumbnail() {
-  document.getElementById(
-    "thumbnail"
-  ).src = `/api/fusiondata/${_extendableVersionType}/${_extendableVersionId}/thumbnail`;
+  const thumbnail = document.getElementById("thumbnail");
+  try {
+    while (true) {
+      const response = await getJSON(
+        `/api/fusiondata/${_extendableVersionType}/${_extendableVersionId}/thumbnailUrl`,
+        "GET"
+      );
+
+      if (!['PENDING', 'IN_PROGRESS'].includes(response.status)) {
+        if (response.status !== 'SUCCESS')
+          throw "Could not generate thumbnail";
+  
+        thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.largeImageUrl)}`;
+
+        break;
+      }
+
+      await wait(1);
+    }
+  }
+  catch (error) {
+    console.log(error);
+    thumbnail.src = "/images/box-200x200.png";
+  }
 }
 
 async function storeId(type, projectId, fileItemOrVersionId) {

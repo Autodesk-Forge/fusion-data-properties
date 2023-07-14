@@ -108,6 +108,39 @@ router.put('/definitions/:definition_id', async function (req, res) {
   }
 });
 
+router.get('/component/:version_id/thumbnailUrl', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnailUrl = await fd.getComponentVersionThumbnailUrl(req.params.version_id);
+      
+    res.json(thumbnailUrl);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/drawing/:version_id/thumbnailUrl', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnailUrl = await fd.getDrawingVersionThumbnailUrl(req.params.version_id);
+      
+    res.json(thumbnailUrl);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/thumbnail/:url', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnail = await fd.getThumbnailForUrl(req.params.url);
+      
+    res.end(thumbnail);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
 router.get('/component/:version_id/thumbnail', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
@@ -180,6 +213,17 @@ router.delete('/:extendable_id/properties/:definition_id', async function (req, 
     res.json(property);
   } catch (err) {
     res.status(400).json(err);
+  }
+});
+
+router.get('/:project_id/:file_version_id/thumbnailUrl', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnailUrl = await fd.getThumbnailUrl(req.params.project_id, req.params.file_version_id);
+      
+    res.json(thumbnailUrl);
+  } catch (err) {
+    res.redirect('/images/box-200x200.png');
   }
 });
 

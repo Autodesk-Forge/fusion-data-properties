@@ -36,6 +36,60 @@ class App {
     return response;
   }
 
+  async getComponentVersionThumbnailUrl(componentVersionId) {  
+    let response = await this.sendQuery(
+      `query GetThumbnail($componentVersionId: String!) {
+        componentVersion(componentVersionId: $componentVersionId) {
+          id
+          thumbnail {
+            status
+            largeImageUrl
+          }
+        }
+      }`,
+      {
+        componentVersionId
+      }
+    )
+
+    let thumbnail = response.data.data.componentVersion.thumbnail;
+
+    return thumbnail;
+  }
+
+  async getDrawingVersionThumbnailUrl(drawingVersionId) {  
+    let response = await this.sendQuery(
+      `query GetThumbnail($drawingVersionId: String!) {
+        drawingVersion(drawingVersionId: $drawingVersionId) {
+          id
+          thumbnail {
+            status
+            largeImageUrl
+          }
+        }
+      }`,
+      {
+        drawingVersionId
+      }
+    )
+
+    let thumbnail = response.data.data.drawingVersion.thumbnail;
+
+    return thumbnail;
+  }
+
+  async getThumbnailForUrl(thumbnailUrl) {  
+    let resp = await axios({
+      method: 'GET',
+      url: thumbnailUrl,
+      headers: this.getRequestHeaders(),
+      responseType: 'arraybuffer',
+      responseEncoding: 'binary'
+    })
+
+    return resp.data;
+  }
+
   async getComponentVersionThumbnail(componentVersionId) {  
     let response = await this.sendQuery(
       `query GetThumbnail($componentVersionId: String!) {
