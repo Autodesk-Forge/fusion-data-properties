@@ -58,7 +58,7 @@ async function getContents(hubUrn, projectUrn, folderId = null, onSelectionChang
     } else {
       const dataUid = `item|${hubUrn}|${projectUrn}|${item.id}`;
 
-      addVersionDropdown(dataUid, hubUrn, projectUrn, item.id);
+      addVersionDropdown(dataUid, hubUrn, projectUrn, item.id, onSelectionChanged);
 
       return createTreeNode(
         dataUid,
@@ -109,6 +109,7 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
     );
 
     const item = document.querySelector(`a[data-uid="${dataUid}"]`);
+    const itemNode = _tree._tree.node(dataUid);
     const versionsList = document.createElement("select");
     versionsList.classList = "float-right version-list";
     versionsList.setAttribute("data-uid", dataUid);
@@ -120,7 +121,15 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
     });
     versionsList.innerHTML = listItems.join();
 
+    versionsList.onclick = async (event) => {
+      console.log("versionsList.onclick")
+
+      event.stopPropagation();
+    }
+
     versionsList.onchange = async (event) => {
+      console.log("versionsList.onchange")
+
       const selectedVersion = versionsList.selectedOptions[0];
       if (!selectedVersion.versionId) {
         const versionInfo = await getJSON(
@@ -133,8 +142,19 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
         selectedVersion.versionId = versionInfo.versionId;
       }
 
-      //onSelectionChanged("version", )
       console.log("versionsList.onchange: " + selectedVersion.versionId);
+
+      // Reload if it already has children
+      if (itemNode.getChildren().length > 0)
+        itemNode.reload();
+
+      // Have we changed the version on the selected node?
+      const selectedNode = _tree._tree.selected()[0]
+      if (selectedNode?.id === dataUid) {
+        // Notify properties page 
+        const isTipVersion = versionsList.options[0].value === versionsList.value;
+        onSelectionChanged(selectedNode, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, "2023-03-03"); 
+      }
     }
 
     item.appendChild(versionsList);
@@ -142,8 +162,6 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
     versionsList.onchange();
   } finally {
     // Unhide the tree node
-    //const node = document.querySelector(`li[data-uid="${dataUid}"]`);
-    //node.classList.toggle("hidden", false);
     const node = _tree._tree.node(dataUid);
     node.show();
   }
@@ -216,6 +234,8 @@ export function initTreeControl(
   });
 
   tree.on("node.click", function (event, node) {
+    node.select();
+
     event.preventTreeDefault();
     const [type, hubUrn, projectUrn, itemUrn, itemId, versionId] = node.id.split("|");
     if (type === "item") {
