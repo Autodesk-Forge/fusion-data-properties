@@ -30,11 +30,11 @@ async function getHubs() {
   );
 }
 
-async function getProjects(hubId) {
-  const projects = await getJSON(`/api/hubs/${hubId}/projects`);
+async function getProjects(hubUrn) {
+  const projects = await getJSON(`/api/hubs/${hubUrn}/projects`);
   return projects.map((project) =>
     createTreeNode(
-      `project|${hubId}|${project.id}`,
+      `project|${hubUrn}|${project.id}`,
       project.attributes.name,
       "icon-project",
       true
@@ -42,23 +42,23 @@ async function getProjects(hubId) {
   );
 }
 
-async function getContents(hubId, projectId, folderId = null, onSelectionChanged) {
+async function getContents(hubUrn, projectUrn, folderId = null, onSelectionChanged) {
   const contents = await getJSON(
-    `/api/hubs/${hubId}/projects/${projectId}/contents` +
+    `/api/hubs/${hubUrn}/projects/${projectUrn}/contents` +
       (folderId ? `?folder_id=${folderId}` : "")
   );
   return contents.map((item) => {
     if (item.type === "folders") {
       return createTreeNode(
-        `folder|${hubId}|${projectId}|${item.id}`,
+        `folder|${hubUrn}|${projectUrn}|${item.id}`,
         item.attributes.displayName,
         "icon-my-folder",
         true
       );
     } else {
-      const dataUid = `item|${hubId}|${projectId}|${item.id}`;
+      const dataUid = `item|${hubUrn}|${projectUrn}|${item.id}`;
 
-      addVersionDropdown(dataUid, hubId, projectId, item.id);
+      addVersionDropdown(dataUid, hubUrn, projectUrn, item.id);
 
       return createTreeNode(
         dataUid,
@@ -71,26 +71,15 @@ async function getContents(hubId, projectId, folderId = null, onSelectionChanged
   });
 }
 
-async function getComponents(hubId, projectId, itemId, dataUid) {
+async function getComponents(hubUrn, projectUrn, itemUrn, dataUid) {
   // which version is selected
   const versionsList = document.querySelector(`select[data-uid="${dataUid}"]`);
-  const versionUrn = versionsList.value;
+  const selectedVersion = versionsList.selectedOptions[0];
 
-  const versionInfo = await getJSON(
-    `/api/fusiondata/${projectId}/${encodeURIComponent(
-      versionUrn
-    )}/versionid`,
-    "GET"
-  );
-
-  _extendableItemId = versionInfo.itemId;
-  _extendableVersionId = versionInfo.versionId;
-  _extendableVersionType = versionInfo.type;
-
-  return getSubComponents(_extendableVersionId);
+  return getSubComponents(hubUrn, projectUrn, itemUrn, selectedVersion.versionId);
 }
 
-async function getSubComponents(versionId) {
+async function getSubComponents(hubUrn, projectUrn, itemUrn, versionId) {
   const response = await getJSON(
     `/api/fusiondata/${versionId}/occurrences`,
     "GET"
@@ -98,7 +87,7 @@ async function getSubComponents(versionId) {
 
   return response.map(item => {
     return createTreeNode(
-      `component|${item.componentVersion.id}`,
+      `component|${hubUrn}|${projectUrn}|${itemUrn}|${item.componentVersion.component.id}|${item.componentVersion.id}`,
       item.componentVersion.name,
       "icon-item",
       true
@@ -106,24 +95,24 @@ async function getSubComponents(versionId) {
   })  
 }
 
-async function addVersionDropdown(dataUid, hubId, projectId, itemId, onSelectionChanged) {
+async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelectionChanged) {
   try {
     const response = await getJSON(
-      `/api/fusiondata/${projectId}/${encodeURIComponent(
-        itemId
+      `/api/fusiondata/${projectUrn}/${encodeURIComponent(
+        itemUrn
       )}/itemid`,
       "GET"
     );
     
     const versions = await getJSON(
-      `/api/hubs/${hubId}/projects/${projectId}/contents/${itemId}/versions`
+      `/api/hubs/${hubUrn}/projects/${projectUrn}/contents/${itemUrn}/versions`
     );
 
     const item = document.querySelector(`a[data-uid="${dataUid}"]`);
     const versionsList = document.createElement("select");
     versionsList.classList = "float-right version-list";
     versionsList.setAttribute("data-uid", dataUid);
-    versionsList.componentId = response.id;
+    versionsList.itemId = response.id;
 
     const listItems = versions.map((version) => {
       const lastModifiedOn = version.attributes.lastModifiedTime.split("T")[0];
@@ -131,9 +120,21 @@ async function addVersionDropdown(dataUid, hubId, projectId, itemId, onSelection
     });
     versionsList.innerHTML = listItems.join();
 
-    versionsList.onchange = (event) => {
+    versionsList.onchange = async (event) => {
+      const selectedVersion = versionsList.selectedOptions[0];
+      if (!selectedVersion.versionId) {
+        const versionInfo = await getJSON(
+          `/api/fusiondata/${projectUrn}/${encodeURIComponent(
+            versionsList.value
+          )}/versionid`,
+          "GET"
+        );
+
+        selectedVersion.versionId = versionInfo.versionId;
+      }
+
       //onSelectionChanged("version", )
-      console.log("versionsList.onchange: " + versionsList.value);
+      console.log("versionsList.onchange: " + selectedVersion.versionId);
     }
 
     item.appendChild(versionsList);
@@ -152,8 +153,8 @@ export async function showLinkIconForHubsWithLinkedCollections() {
     try {
       const hubs = document.querySelectorAll(`a.icon-hub`);
       for (let hub of hubs) {
-        const hubId = hub.getAttribute('data-uid').split('|')[1];
-        const collections = await getJSON(`/api/fusiondata/${hubId}/collections?minimal=true`);
+        const hubUrn = hub.getAttribute('data-uid').split('|')[1];
+        const collections = await getJSON(`/api/fusiondata/${hubUrn}/collections?minimal=true`);
 
         const link = hub.querySelector(`span.link-icon`);
         if (collections.length < 1) {
@@ -179,18 +180,18 @@ export function initTreeControl(
       if (!node || !node.id) {
         return getHubs();
       } else {
-        const tokens = node.id.split("|");
-        switch (tokens[0]) {
+        const [type, hubUrn, projectUrn, itemUrn, itemId, versionId] = node.id.split("|");
+        switch (type) {
           case "hub":
-            return getProjects(tokens[1]);
+            return getProjects(hubUrn);
           case "project":
-            return getContents(tokens[1], tokens[2], null, onSelectionChanged);
+            return getContents(hubUrn, projectUrn, null, onSelectionChanged);
           case "folder":
-            return getContents(tokens[1], tokens[2], tokens[3], onSelectionChanged);
+            return getContents(hubUrn, projectUrn, itemUrn, onSelectionChanged);
           case "item":
-              return getComponents(tokens[1], tokens[2], tokens[3], node.id);
+              return getComponents(hubUrn, projectUrn, itemUrn, node.id);
           case "component":
-              return getSubComponents(tokens[1]);
+              return getSubComponents(hubUrn, projectUrn, itemUrn, versionId);
           default:
             return [];
         }
@@ -216,44 +217,22 @@ export function initTreeControl(
 
   tree.on("node.click", function (event, node) {
     event.preventTreeDefault();
-    const tokens = node.id.split("|");
-    if (tokens[0] === "version") {
-      for (
-        var projectNode = node;
-        !projectNode.id.startsWith("project");
-        projectNode = projectNode.itree.parent
-      ) {}
-      const tokens2 = projectNode.id.split("|");
-      onSelectionChanged(
-        node,
-        tokens[0],
-        tokens2[1],
-        tokens2[2],
-        tokens[1]
-      );
-    } else if (tokens[0] === "item") {
-      const versionList = document.querySelector(`select[data-uid="${node.id}"]`);
-      console.log(versionList.value);
-      //versionList.onchange();
-      /*
-      for (
-        var projectNode = node;
-        !projectNode.id.startsWith("project");
-        projectNode = projectNode.itree.parent
-      );
-      const tokens2 = projectNode.id.split("|");
-      onSelectionChanged(
-        node,
-        tokens[0],
-        tokens2[1],
-        tokens2[2],
-        tokens[3]
-      );
-      */
-    } else if (tokens[0] === "hub") {
-      onSelectionChanged(node, tokens[0], tokens[1]);
+    const [type, hubUrn, projectUrn, itemUrn, itemId, versionId] = node.id.split("|");
+    if (type === "item") {
+      const versionsList = document.querySelector(`select[data-uid="${node.id}"]`);
+      const isTipVersion = versionsList.options[0].value === versionsList.value;
+      const selectedVersion = versionsList.selectedOptions[0];
+      console.log(versionsList.value);
+      //versionsList.onchange();
+      onSelectionChanged(node, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, "2023-03-03"); 
+    } else if (type === "component") {
+      //versionsList.onchange();
+      const itemNodeId = `item|${hubUrn}|${projectUrn}|${itemUrn}`; 
+      const versionsList = document.querySelector(`select[data-uid="${itemNodeId}"]`);
+      const isTipVersion = versionsList.options[0].value === versionsList.value;
+      onSelectionChanged(node, "component", hubUrn, itemId, versionId, isTipVersion, "2023-03-03"); 
     } else {
-      onSelectionChanged(node, tokens[0]);
+      onSelectionChanged(node, type);
     }
   });
 

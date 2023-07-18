@@ -692,6 +692,9 @@ class App {
                 componentVersion {
                   id
                   name
+                  component {
+                    id
+                  }
                 }
               }
               pagination {

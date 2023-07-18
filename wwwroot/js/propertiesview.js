@@ -6,9 +6,8 @@ let _tree;
 let _extendableItemId;
 let _extendableVersionId;
 let _extendableVersionType;
-let _hubId;
-let _projectId;
-let _itemUrn;
+let _hubUrn;
+let _isTipVersion;
 
 const _propertiesView = document.getElementById("propertiesView");
 
@@ -16,23 +15,6 @@ _propertiesView.onload = () => {
   if (!_tree)
     _tree = initTreeControl("#tree", onSelectionChanged, onHubButtonClicked);
 };
-
-/*
-_versionsList.onchange = () => {
-  abortJSON();
-  clearGeneralProperties();
-  removeSubcomponentFromBreadcrumbs();
-
-  const versionUrn = _versionsList.value;
-  const selectedVersion = _versionsList.selectedOptions[0];
-  const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
-  document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
-
-  storeId("version", _projectId, versionUrn).then(() => {
-    showVersionProperties();
-  });
-};
-*/
 
 function clearGeneralProperties() {
   for (let item of document.getElementsByClassName("prop-value")) {
@@ -170,7 +152,7 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
 function addPropertiesToTable(table, collection, versionProperties, isComponentLevel, title) {
   // Component properties should only be editable when the latest
   // version is selected
-  const isPropertyEditable = isComponentLevel ? (_versionsList.options[0].value === _versionsList.value) : true;
+  const isPropertyEditable = isComponentLevel ? _isTipVersion : true;
 
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
@@ -342,8 +324,8 @@ async function showVersionProperties() {
       return await Promise.allSettled([
         getJSON(`/api/fusiondata/${_extendableVersionId}/generalproperties`),
         getJSON(`/api/fusiondata/${_extendableVersionId}/properties`),
-        getJSON(`/api/fusiondata/${_hubId}/collections`),
-        getJSON(`/api/fusiondata/${_extendableVersionId}/occurrences`)
+        getJSON(`/api/fusiondata/${_hubUrn}/collections`),
+        getJSON(`/api/fusiondata/${_extendableVersionId}/alloccurrences`)
       ])
     });
 
@@ -501,9 +483,11 @@ function removeSubcomponentFromBreadcrumbs() {
 export async function onSelectionChanged(
   node,
   type,
-  hubId,
-  projectId,
-  fileItemVersionId
+  hubUrn,
+  itemId,
+  versionId,
+  isTipVersion,
+  lastModifiedOn
 ) {
   abortJSON();
 
@@ -513,11 +497,19 @@ export async function onSelectionChanged(
 
   clearGeneralProperties();
 
-  if (type === "item") {
-    _itemUrn = fileItemVersionId;
-    _hubId = hubId;
-    _projectId = projectId;
-    listVersions();
+  if (type === "component") {
+    _hubUrn = hubUrn;
+    _extendableItemId = itemId;
+    _extendableVersionId = versionId;
+    _extendableVersionType = type;
+    _isTipVersion = isTipVersion;
+
+
+    abortJSON();
+    clearGeneralProperties();
+    removeSubcomponentFromBreadcrumbs();
+    document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
+    showVersionProperties();
   } else {
     _extendableItemId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
