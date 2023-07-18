@@ -166,6 +166,16 @@ router.get('/drawing/:version_id/thumbnail', async function (req, res) {
 router.get('/:version_id/occurrences', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
+    const occurrences = await fd.getModelOccurrences(req.params.version_id);
+    res.json(occurrences);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/:version_id/alloccurrences', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
     const occurrences = await fd.getAllModelOccurrences(req.params.version_id);
     res.json(occurrences);
   } catch (err) {

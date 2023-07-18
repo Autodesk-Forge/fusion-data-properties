@@ -11,20 +11,20 @@ let _projectId;
 let _itemUrn;
 
 const _propertiesView = document.getElementById("propertiesView");
-const _versionList = document.getElementById("versionList");
 
 _propertiesView.onload = () => {
   if (!_tree)
     _tree = initTreeControl("#tree", onSelectionChanged, onHubButtonClicked);
 };
 
-_versionList.onchange = () => {
+/*
+_versionsList.onchange = () => {
   abortJSON();
   clearGeneralProperties();
   removeSubcomponentFromBreadcrumbs();
 
-  const versionUrn = _versionList.value;
-  const selectedVersion = _versionList.selectedOptions[0];
+  const versionUrn = _versionsList.value;
+  const selectedVersion = _versionsList.selectedOptions[0];
   const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
   document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
 
@@ -32,6 +32,7 @@ _versionList.onchange = () => {
     showVersionProperties();
   });
 };
+*/
 
 function clearGeneralProperties() {
   for (let item of document.getElementsByClassName("prop-value")) {
@@ -169,7 +170,7 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
 function addPropertiesToTable(table, collection, versionProperties, isComponentLevel, title) {
   // Component properties should only be editable when the latest
   // version is selected
-  const isPropertyEditable = isComponentLevel ? (_versionList.options[0].value === _versionList.value) : true;
+  const isPropertyEditable = isComponentLevel ? (_versionsList.options[0].value === _versionsList.value) : true;
 
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
@@ -495,24 +496,6 @@ function removeSubcomponentFromBreadcrumbs() {
   if (breadcrumb) {
     breadcrumb.remove();
   }
-}
-
-async function listVersions() {
-  await storeId('item', _projectId, _itemUrn);
-
-  _versionList.innerHTML = "";
-  const versions = await getJSON(
-    `/api/hubs/${_hubId}/projects/${_projectId}/contents/${_itemUrn}/versions`
-  );
-  const listItems = versions.map((version) => {
-    const lastModifiedOn = version.attributes.lastModifiedTime.split("T")[0];
-    return `<option value="${version.id}" lastModifiedOn="${lastModifiedOn}">v${version.attributes.versionNumber}</option>`;
-  });
-  _versionList.innerHTML = listItems.join();
-
-  _versionList.onchange();
-
-  document.getElementById("versionInfo").classList.toggle("hidden", false);
 }
 
 export async function onSelectionChanged(

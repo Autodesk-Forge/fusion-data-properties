@@ -200,11 +200,17 @@ class App {
           ... on DesignFileVersion {
             rootComponentVersion {
               id
+              component {
+                id
+              }
             }
           }
           ... on DrawingFileVersion {
             drawingVersion {
               id
+              drawing {
+                id
+              }
             }
           }
         }
@@ -216,10 +222,11 @@ class App {
     )
 
     const fileVersion = response.data.data.fileVersion;
-    const id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+    const versionId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+    const itemId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.component.id : fileVersion.drawingVersion.drawing.id;
     const type = fileVersion.rootComponentVersion ? 'component' : 'drawing';
 
-    return { id, type };
+    return { itemId, versionId, type };
   }
 
   async getItemId(projectId, fileItemId) {  
