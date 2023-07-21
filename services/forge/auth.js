@@ -1,14 +1,14 @@
 const { AuthClientThreeLegged, UserProfileApi, ApiClient, AuthClientTwoLegged } = require('forge-apis');
-const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES, BASE_URL } = require('../../config.js');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES, BASE_URL } = require('../../config.js');
 
 function internalAuthClient(req) {
-  const client = new AuthClientThreeLegged(req.session.clientId, req.session.clientSecret, FORGE_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
+  const client = new AuthClientThreeLegged(req.session.clientId, req.session.clientSecret, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }
 
 function publicAuthClient(req) {
-  const client = new AuthClientThreeLegged(req.session.clientId, req.session.clientSecret, FORGE_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
+  const client = new AuthClientThreeLegged(req.session.clientId, req.session.clientSecret, APS_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }

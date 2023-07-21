@@ -44,7 +44,7 @@ try {
 
     _login.innerText = `Log out`;
     _login.onclick = () => {
-      // Log the user out (see https://forge.autodesk.com/blog/log-out-forge)
+      // Log the user out (see https://aps.autodesk.com/blog/log-out-forge)
       const iframe = document.createElement("iframe");
       iframe.style.visibility = "hidden";
       iframe.src = "https://accounts.autodesk.com/Authentication/LogOut";
@@ -55,10 +55,10 @@ try {
       };
     };
   } else {
-    _login.innerText = "Log in";
-    _login.onclick = () => window.location.replace("/api/auth/login");
+    throw "Could not get profile / 3-legged tokenn is not valid"
   }
-  _login.style.visibility = "visible";
 } catch (err) {
   console.error(err);
+  _login.innerText = "Log in";
+  _login.onclick = () => window.location.replace("/api/auth/login");
 }

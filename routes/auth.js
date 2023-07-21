@@ -1,6 +1,6 @@
 const express = require('express');
 const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile, get2LO } = require('../services/forge/auth.js');
-const { FORGE_CALLBACK_URL } = require('../config.js');
+const { APS_CALLBACK_URL } = require('../config.js');
 
 let router = express.Router();
 
@@ -15,7 +15,7 @@ router.get('/credentials', async function (req, res) {
   } catch { }
 
   res.json({
-    callbackUrl: FORGE_CALLBACK_URL,
+    callbackUrl: APS_CALLBACK_URL,
     hasCredentials: !!(req.session.clientId && req.session.clientSecret),
     isValid: isValid 
   })
