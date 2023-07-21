@@ -1,5 +1,5 @@
-let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, SERVER_SESSION_SECRET, BASE_URL, GRAPHQL_URL, PORT } = process.env;
-if (!APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SERVER_SESSION_SECRET) {
+let { APS_CALLBACK_URL, SERVER_SESSION_SECRET, BASE_URL, GRAPHQL_URL, PORT } = process.env;
+if (!APS_CALLBACK_URL || !SERVER_SESSION_SECRET) {
     console.warn('Missing some of the environment variables.');
     process.exit(1);
 }
