@@ -1,25 +1,43 @@
-import { showView, getJSON } from "./utils.js";
+import { showView, showInfoDialog } from "./utils.js";
 
-document.getElementById("menuitemPropertiesView").onclick = () =>
-  showView("propertiesView");
+const _menuitemPropertiesView = document.getElementById("menuitemPropertiesView")
+_menuitemPropertiesView.onclick = () => showView("propertiesView");
 
-document.getElementById("menuitemCollectionsView").onclick = () =>
-  showView("collectionsView");
+const _menuitemCollectionsView = document.getElementById("menuitemCollectionsView");
+_menuitemCollectionsView.onclick = () => showView("collectionsView");
+
+const _menuitemCredentialsView = document.getElementById("menuitemCredentialsView");
+_menuitemCredentialsView.onclick = () => showView("credentialsView");
 
 const _avatarImage = document.getElementById("avatarImage");
 const _userName = document.getElementById("userName");
 
-/*
-getJSON("/api/auth/credentials", "POST", JSON.stringify({
-  clientId: "CfXoaC4K53STwb6TnIrXXZTAIEddG9Ar",
-  clientSecret: ""
-}));
-*/
-
 const _login = document.getElementById("menuitemLogin");
 try {
+  const credentialsResponse = await fetch("/api/auth/credentials");
+  const credentials = await credentialsResponse.json();
+
+  const callbackUrl = document.getElementById("callbackUrl");
+  callbackUrl.src = callbackUrl.textContent = credentials.callbackUrl;
+
+  if (!credentials.hasCredentials) {
+    showView("credentialsView");
+    throw "No credentials were provided"
+  }
+  
+  if (!credentials.isValid) {
+    showView("credentialsView");
+    showInfoDialog('error', "Invalid Credentials", "Please verify that the provided credentials are correct", null, "Close");
+    throw "Credentials are not valid"
+  }
+
+  _menuitemCollectionsView.classList.toggle('hidden', false);
+  showView("collectionsView");
+
   const resp = await fetch("/api/auth/profile");
   if (resp.ok) {
+    _menuitemPropertiesView.classList.toggle('hidden', false);
+
     const user = await resp.json();
     _userName.textContent = user.name;
     _avatarImage.src = user.picture;
@@ -36,14 +54,11 @@ try {
         document.body.removeChild(iframe);
       };
     };
-
-    showView("collectionsView");
   } else {
     _login.innerText = "Log in";
     _login.onclick = () => window.location.replace("/api/auth/login");
   }
   _login.style.visibility = "visible";
 } catch (err) {
-  alert("Could not initialize the application. See console for more details.");
   console.error(err);
 }

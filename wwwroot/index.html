@@ -69,6 +69,11 @@
               <li id="userName" class="dropdown-item">Not logged in</li>
               <li><hr class="dropdown-divider" /></li>
               <li>
+                <a id="menuitemCredentialsView" class="dropdown-item" href="#"
+                  >Credentials</a
+                >
+              </li>
+              <li>
                 <a id="menuitemCollectionsView" class="dropdown-item hidden" href="#"
                   >Manage property definitions</a
                 >
@@ -93,9 +98,14 @@
       </div>
     </header>
 
+    <!-- Emtpty View -->
+
+    <div id="emptyView" class="view">
+    </div>
+
     <!-- Credentials View -->
 
-    <div id="credentialsView" class="view">
+    <div id="credentialsView" class="view hidden">
       <div class="container pt-3">
         <div class="center p-3">
           <h3>Welcome to the Property Definition Manager</h3>
@@ -103,7 +113,7 @@
         <div class="pt-3 w-50 mx-auto">
           <p>Please provide your APS app's credentials to use with this demo</p>
           <p>Make sure that on <a href="https://aps.autodesk.com/myapps/">https://aps.autodesk.com/myapps/</a> in your app's settings the <b>Callback URL</b> is set exactly to this:</p>
-          <p><a href="http://localhost:3000/api/auth/callback">http://localhost:3000/api/auth/callback</a></p>
+          <p><a id="callbackUrl" href="http://localhost:3000/api/auth/callback-test">http://localhost:3000/api/auth/callback-test</a></p>
           <form action="/api/auth/credentials" method="post">
             <div class="modal-content">
               <label for="clientId" class="form-label"

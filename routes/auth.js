@@ -1,10 +1,25 @@
 const express = require('express');
-const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/forge/auth.js');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile, get2LO } = require('../services/forge/auth.js');
+const { FORGE_CALLBACK_URL } = require('../config.js');
 
 let router = express.Router();
 
 const bodyParser = require('body-parser')
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+router.get('/credentials', async function (req, res) {
+  let isValid = false;
+  try {
+    await get2LO(req);
+    isValid = true;
+  } catch { }
+
+  res.json({
+    callbackUrl: FORGE_CALLBACK_URL,
+    hasCredentials: !!(req.session.clientId && req.session.clientSecret),
+    isValid: isValid 
+  })
+});
 
 router.post('/credentials', urlencodedParser, function (req, res) {
   req.session.clientId = req.body.clientId;
