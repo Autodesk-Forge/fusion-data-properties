@@ -8,8 +8,6 @@ const PUBLIC_TOKEN_SCOPES = ['viewables:read'];
 PORT = PORT || 3000;
 
 module.exports = {
-    APS_CLIENT_ID,
-    APS_CLIENT_SECRET,
     APS_CALLBACK_URL,
     SERVER_SESSION_SECRET,
     INTERNAL_TOKEN_SCOPES,
