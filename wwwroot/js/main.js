@@ -11,7 +11,7 @@ const _userName = document.getElementById("userName");
 
 getJSON("/api/auth/credentials", "POST", JSON.stringify({
   clientId: "CfXoaC4K53STwb6TnIrXXZTAIEddG9Ar",
-  clientSecret: "8E2lyjW3xI8rNRG4"
+  clientSecret: ""
 }));
 
 const _login = document.getElementById("menuitemLogin");
