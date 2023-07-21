@@ -31,12 +31,13 @@ try {
     throw "Credentials are not valid"
   }
 
-  _menuitemCollectionsView.classList.toggle('hidden', false);
+  _login.classList.toggle('disabled', false);
+  _menuitemCollectionsView.classList.toggle('disabled', false);
   showView("collectionsView");
 
   const resp = await fetch("/api/auth/profile");
   if (resp.ok) {
-    _menuitemPropertiesView.classList.toggle('hidden', false);
+    _menuitemPropertiesView.classList.toggle('disabled', false);
 
     const user = await resp.json();
     _userName.textContent = user.name;
