@@ -19,8 +19,7 @@ router.get('/:version_id/generalproperties', async function (req, res) {
 
 router.get('/collections', async function (req, res, next) {
   try {
-    let hubId = req.query.hub_id;
-    let token = await get2LO();
+    let token = await get2LO(req);
     let fd = new fusionData(token);
     const response = await fd.getCollections();
     res.json(response);
@@ -31,7 +30,7 @@ router.get('/collections', async function (req, res, next) {
 
 router.post('/collections', async function (req, res, next) {
   try {
-    let fd = new fusionData(await get2LO());
+    let fd = new fusionData(await get2LO(req));
     const response = await fd.createCollection(req.body.collectionName, true);
     res.json(response);
   } catch (err) {
@@ -66,7 +65,7 @@ router.post('/:hub_id/collections', async function (req, res, next) {
 
 router.get('/collections/:collection_id/definitions', async function (req, res, next) {
   try {
-    let fd = new fusionData(await get2LO());// req.internalOAuthToken.access_token);
+    let fd = new fusionData(await get2LO(req));// req.internalOAuthToken.access_token);
     const response = await fd.getDefinitions(req.params.collection_id);
     res.json(response);
   } catch (err) {
@@ -76,7 +75,7 @@ router.get('/collections/:collection_id/definitions', async function (req, res, 
 
 router.post('/collections/:collection_id/definitions', async function (req, res) {
   try {
-    let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
+    let fd = new fusionData(await get2LO(req));//req.internalOAuthToken.access_token);
     const response = await fd.createDefinition(
       req.params.collection_id, req.body.definitionName, req.body.definitionType,
       req.body.definitionDescription, req.body.isHidden, req.body.propertyBehavior 
@@ -89,7 +88,7 @@ router.post('/collections/:collection_id/definitions', async function (req, res)
 
 router.get('/definitions/:definition_id', async function (req, res) {
   try {
-    let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
+    let fd = new fusionData(await get2LO(req));//req.internalOAuthToken.access_token);
     const response = await fd.getDefinition(req.params.definition_id);
     res.json(response);
   } catch (err) {
@@ -100,7 +99,7 @@ router.get('/definitions/:definition_id', async function (req, res) {
 
 router.put('/definitions/:definition_id', async function (req, res) {
   try {
-    let fd = new fusionData(await get2LO());//req.internalOAuthToken.access_token);
+    let fd = new fusionData(await get2LO(req));//req.internalOAuthToken.access_token);
     const response = await fd.updateDefinition(req.params.definition_id, req.body.definitionDescription, req.body.isHidden);
     res.json(response);
   } catch (err) {

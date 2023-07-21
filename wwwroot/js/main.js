@@ -1,4 +1,4 @@
-import { showView } from "./utils.js";
+import { showView, getJSON } from "./utils.js";
 
 document.getElementById("menuitemPropertiesView").onclick = () =>
   showView("propertiesView");
@@ -8,6 +8,11 @@ document.getElementById("menuitemCollectionsView").onclick = () =>
 
 const _avatarImage = document.getElementById("avatarImage");
 const _userName = document.getElementById("userName");
+
+getJSON("/api/auth/credentials", "POST", JSON.stringify({
+  clientId: "CfXoaC4K53STwb6TnIrXXZTAIEddG9Ar",
+  clientSecret: "8E2lyjW3xI8rNRG4"
+}));
 
 const _login = document.getElementById("menuitemLogin");
 try {

@@ -3,8 +3,14 @@ const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getU
 
 let router = express.Router();
 
+router.post('/credentials', function (req, res) {
+  req.session.clientId = req.body.clientId;
+  req.session.clientSecret = req.body.clientSecret;
+  res.json({});
+});
+
 router.get('/login', function (req, res) {
-    res.redirect(getAuthorizationUrl());
+    res.redirect(getAuthorizationUrl(req));
 });
 
 router.get('/logout', function (req, res) {
@@ -22,7 +28,7 @@ router.get('/token', authRefreshMiddleware, function (req, res) {
 
 router.get('/profile', authRefreshMiddleware, async function (req, res, next) {
     try {
-        const profile = await getUserProfile(req.internalOAuthToken);
+        const profile = await getUserProfile(req, req.internalOAuthToken);
         res.json({ 
           name: `${profile.firstName} ${profile.lastName}`,
           picture: profile.profileImages.sizeX40
