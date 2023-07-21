@@ -6,16 +6,7 @@ let router = express.Router();
 
 router.use(authRefreshMiddleware);
 
-router.get('/:version_id/generalproperties', async function (req, res) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const props = await fd.getGeneralProperties(req.params.version_id);
-      
-    res.json(props);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-});
+// Collection functions
 
 router.get('/collections', async function (req, res, next) {
   try {
@@ -63,6 +54,8 @@ router.post('/:hub_id/collections', async function (req, res, next) {
   }
 });
 
+// Definition functions
+
 router.get('/collections/:collection_id/definitions', async function (req, res, next) {
   try {
     let fd = new fusionData(await get2LO(req));// req.internalOAuthToken.access_token);
@@ -107,6 +100,19 @@ router.put('/definitions/:definition_id', async function (req, res) {
   }
 });
 
+// ComponentVersion / DrawingVersion functions
+
+router.get('/component/:version_id/generalproperties', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const props = await fd.getGeneralProperties(req.params.version_id);
+      
+    res.json(props);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
 router.get('/component/:version_id/thumbnailUrl', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
@@ -129,39 +135,6 @@ router.get('/drawing/:version_id/thumbnailUrl', async function (req, res) {
   }
 });
 
-router.get('/thumbnail/:url', async function (req, res) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const thumbnail = await fd.getThumbnailForUrl(req.params.url);
-      
-    res.end(thumbnail);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-});
-
-router.get('/component/:version_id/thumbnail', async function (req, res) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const thumbnail = await fd.getComponentVersionThumbnail(req.params.version_id);
-      
-    res.end(thumbnail);
-  } catch (err) {
-    res.redirect('/images/box-200x200.png');
-  }
-});
-
-router.get('/drawing/:version_id/thumbnail', async function (req, res) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const thumbnail = await fd.getDrawingVersionThumbnail(req.params.version_id);
-      
-    res.end(thumbnail);
-  } catch (err) {
-    res.redirect('/images/box-200x200.png');
-  }
-});
-
 router.get('/:version_id/occurrences', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
@@ -181,6 +154,8 @@ router.get('/:version_id/alloccurrences', async function (req, res) {
     res.status(400).json(err);
   }
 });
+
+// Extendable functions related to properties 
 
 router.get('/:extendable_id/properties', async function (req, res) {
   try {
@@ -225,27 +200,7 @@ router.delete('/:extendable_id/properties/:definition_id', async function (req, 
   }
 });
 
-router.get('/:project_id/:file_version_id/thumbnailUrl', async function (req, res) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const thumbnailUrl = await fd.getThumbnailUrl(req.params.project_id, req.params.file_version_id);
-      
-    res.json(thumbnailUrl);
-  } catch (err) {
-    res.redirect('/images/box-200x200.png');
-  }
-});
-
-router.get('/:project_id/:file_version_id/thumbnail', async function (req, res) {
-  try {
-    let fd = new fusionData(req.internalOAuthToken.access_token);
-    const thumbnail = await fd.getThumbnail(req.params.project_id, req.params.file_version_id);
-      
-    res.end(thumbnail);
-  } catch (err) {
-    res.redirect('/images/box-200x200.png');
-  }
-});
+// CoponentVersion / DrawingVersion id based on file version urn
 
 router.get('/:project_id/:file_version_id/versionid', async function (req, res) {
   try {
@@ -258,6 +213,8 @@ router.get('/:project_id/:file_version_id/versionid', async function (req, res) 
   }
 });
 
+// Component / Drawing id based on file item urn
+
 router.get('/:project_id/:file_item_id/itemid', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
@@ -266,6 +223,32 @@ router.get('/:project_id/:file_item_id/itemid', async function (req, res) {
     res.json(id);
   } catch (err) {
     res.status(400).json(err);
+  }
+});
+
+// Helper - fetch thumbnail from derivativ by providing access token in header
+
+router.get('/thumbnail/:url', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnail = await fd.getThumbnailForUrl(req.params.url);
+      
+    res.end(thumbnail);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+// Thumbnail for non-Fusion files
+
+router.get('/:project_id/:file_version_id/thumbnailUrl', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const thumbnailUrl = await fd.getThumbnailUrl(req.params.project_id, req.params.file_version_id);
+      
+    res.json(thumbnailUrl);
+  } catch (err) {
+    res.redirect('/images/box-200x200.png');
   }
 });
 

@@ -3,9 +3,9 @@ import { initTreeControl, updateVersionsList } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
 let _tree;
-let _extendableItemId;
-let _extendableVersionId;
-let _extendableVersionType;
+let _itemId;
+let _versionId;
+let _itemType;
 let _hubUrn;
 let _isTipVersion;
 
@@ -27,7 +27,7 @@ async function showThumbnail() {
   try {
     while (true) {
       const response = await getJSON(
-        `/api/fusiondata/${_extendableVersionType}/${_extendableVersionId}/thumbnailUrl`,
+        `/api/fusiondata/${_itemType}/${_versionId}/thumbnailUrl`,
         "GET"
       );
 
@@ -127,7 +127,7 @@ function addRowToBody(tbody, definition, versionProperties) {
 
   const button = row.querySelector(".bi-eraser.clickable");
   button.onclick = async () => {
-    let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
+    let extendableId = isComponentLevel ? _itemId : _versionId;
     await useLoadingSymbol(async () => {
       return await Promise.allSettled([
         getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
@@ -211,10 +211,10 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
 
       let promises = [];
       if (componentProperties.length > 0)
-        promises.push(getJSON(`/api/fusiondata/${_extendableItemId}/properties`, 'PUT', JSON.stringify({properties: componentProperties})));
+        promises.push(getJSON(`/api/fusiondata/${_itemId}/properties`, 'PUT', JSON.stringify({properties: componentProperties})));
 
       if (versionProperties.length > 0)
-        promises.push(getJSON(`/api/fusiondata/${_extendableVersionId}/properties`, 'PUT', JSON.stringify({properties: versionProperties})));
+        promises.push(getJSON(`/api/fusiondata/${_versionId}/properties`, 'PUT', JSON.stringify({properties: versionProperties})));
   
       await useLoadingSymbol(async () => {
         return await Promise.allSettled(promises)
@@ -302,9 +302,9 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
     /*
     row.onclick = () => {
       addSubcomponentToBreadcrumbs(row.children[0].textContent);
-      _extendableItemId = row.componentId;
-      _extendableVersionId = row.componentVersionId;
-      _extendableVersionType = 'component';
+      _itemId = row.componentId;
+      _versionId = row.componentVersionId;
+      _itemType = 'component';
       showVersionProperties();
     }
     */
@@ -321,7 +321,7 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
     }
   }
 
-  iterate(componentVersions, _extendableVersionId, 10);
+  iterate(componentVersions, _versionId, 10);
 
   componentsPane.appendChild(table);  
 }
@@ -330,14 +330,14 @@ async function showVersionProperties() {
   showThumbnail();
 
   try {
-    console.log("requesting properties for", _extendableItemId, _extendableVersionId);
+    console.log("requesting properties for", _itemId, _versionId);
 
     const [generalProperties, versionProperties, hubCollections, occurrences] = await useLoadingSymbol(async () => {
       return await Promise.allSettled([
-        getJSON(`/api/fusiondata/${_extendableVersionId}/generalproperties`),
-        getJSON(`/api/fusiondata/${_extendableVersionId}/properties`),
+        getJSON(`/api/fusiondata/component/${_versionId}/generalproperties`),
+        getJSON(`/api/fusiondata/${_versionId}/properties`),
         getJSON(`/api/fusiondata/${_hubUrn}/collections`),
-        getJSON(`/api/fusiondata/${_extendableVersionId}/alloccurrences`)
+        getJSON(`/api/fusiondata/${_versionId}/alloccurrences`)
       ])
     });
 
@@ -469,23 +469,6 @@ function updateBreadcrumbs(node) {
   }
 }
 
-/*
-function addSubcomponentToBreadcrumbs(subcomponentName) {
-  const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
-  let breadcrumb = breadcrumbs.querySelector(".subcomponent");
-  if (!breadcrumb) {
-    breadcrumb = document.createElement("li");
-    breadcrumb.classList = "breadcrumb-item subcomponent";
-    breadcrumbs.appendChild(breadcrumb);
-  }
-
-  breadcrumb.innerHTML = `<a
-    class="link-body-emphasis fw-semibold text-decoration-none"
-    >${subcomponentName}</a
-  >`;
-}
-*/
-
 function removeSubcomponentFromBreadcrumbs() {
   const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
   let breadcrumb = breadcrumbs.querySelector(".subcomponent");
@@ -503,7 +486,10 @@ export async function onSelectionChanged(
   isTipVersion,
   lastModifiedOn
 ) {
-  console.log({lastModifiedOn, isTipVersion});
+  console.log({lastModifiedOn, isTipVersion, versionId});
+
+  if (!versionId)
+    debugger;
 
   abortJSON();
 
@@ -515,9 +501,9 @@ export async function onSelectionChanged(
 
   if (type === "component") {
     _hubUrn = hubUrn;
-    _extendableItemId = itemId;
-    _extendableVersionId = versionId;
-    _extendableVersionType = type;
+    _itemId = itemId;
+    _versionId = versionId;
+    _itemType = type;
     _isTipVersion = isTipVersion;
 
 
@@ -530,7 +516,7 @@ export async function onSelectionChanged(
     }
     showVersionProperties();
   } else {
-    _extendableItemId = null;
+    _itemId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
   }
 }

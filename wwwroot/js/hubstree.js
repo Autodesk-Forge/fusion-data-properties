@@ -127,6 +127,15 @@ async function getSubComponents(hubUrn, projectUrn, itemUrn, versionId) {
   })  
 }
 
+async function preventSelection(node, callback) {
+  try {
+    node.state('selectable', false);
+    await callback();
+  } finally {
+    node.state('selectable', true);
+  }
+}
+
 async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelectionChanged) {
 
   const item = document.querySelector(`a[data-uid="${dataUid}"]`);
@@ -156,8 +165,9 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
     const selectedNode = _tree._tree.selected()[0];
     const selectedVersion = versionsList.selectedOptions[0];
     if (!selectedVersion.versionId) {
-      //itemNode.state('selectable', false);
-      
+      console.log("fetching versionId");
+
+      await preventSelection(itemNode, async () => {
         const versionInfo = await getJSON(
           `/api/fusiondata/${projectUrn}/${encodeURIComponent(
             versionsList.value
@@ -167,8 +177,7 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
 
         selectedVersion.versionId = versionInfo.versionId;
         selectedVersion.tipVersionId = versionInfo.tipVersionId;
-
-      //itemNode.state('selectable', true);
+      })
     }
 
     console.log("versionsList.onchange: " + selectedVersion.versionId);
@@ -315,6 +324,9 @@ export function initTreeControl(
   })
 
   tree.on("node.click", function (event, node) {
+    if (!node.itree.state.selectable)
+      return;
+
     node.select();
 
     event.preventTreeDefault();
