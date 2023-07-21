@@ -9,10 +9,12 @@ document.getElementById("menuitemCollectionsView").onclick = () =>
 const _avatarImage = document.getElementById("avatarImage");
 const _userName = document.getElementById("userName");
 
+/*
 getJSON("/api/auth/credentials", "POST", JSON.stringify({
   clientId: "CfXoaC4K53STwb6TnIrXXZTAIEddG9Ar",
   clientSecret: ""
 }));
+*/
 
 const _login = document.getElementById("menuitemLogin");
 try {

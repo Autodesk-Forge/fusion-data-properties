@@ -31,7 +31,7 @@
     <header class="p-3 border-bottom bg-dark">
       <div>
         <div>
-          <a href="https://www.autodesk.com">
+          <a title="Autodesk" href="https://www.autodesk.com">
             <svg
               width="176"
               height="30"
@@ -69,12 +69,12 @@
               <li id="userName" class="dropdown-item">Not logged in</li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <a id="menuitemCollectionsView" class="dropdown-item" href="#"
+                <a id="menuitemCollectionsView" class="dropdown-item hidden" href="#"
                   >Manage property definitions</a
                 >
               </li>
               <li>
-                <a id="menuitemPropertiesView" class="dropdown-item" href="#"
+                <a id="menuitemPropertiesView" class="dropdown-item hidden" href="#"
                   >Hubs browser</a
                 >
               </li>
@@ -93,9 +93,55 @@
       </div>
     </header>
 
+    <!-- Credentials View -->
+
+    <div id="credentialsView" class="view">
+      <div class="container pt-3">
+        <div class="center p-3">
+          <h3>Welcome to the Property Definition Manager</h3>
+        </div>
+        <div class="pt-3 w-50 mx-auto">
+          <p>Please provide your APS app's credentials to use with this demo</p>
+          <p>Make sure that on <a href="https://aps.autodesk.com/myapps/">https://aps.autodesk.com/myapps/</a> in your app's settings the <b>Callback URL</b> is set exactly to this:</p>
+          <p><a href="http://localhost:3000/api/auth/callback">http://localhost:3000/api/auth/callback</a></p>
+          <form action="/api/auth/credentials" method="post">
+            <div class="modal-content">
+              <label for="clientId" class="form-label"
+                >Client ID</label
+              >
+              <div class="input-group">
+                <input
+                  type="text"
+                  name="clientId"
+                  class="form-control"
+                  id="clientId"
+                  required
+                />
+              </div>
+              <label for="clientSecret" class="form-label pt-3"
+                >Client Secret</label
+              >
+              <div class="input-group">
+                <input
+                  type="password"
+                  name="clientSecret"
+                  class="form-control"
+                  id="clientSecret"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer pt-3">
+              <input id="storeCredentials" type="submit" value="Store Credentials" class="btn btn-primary" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- Empty Collections View -->
 
-    <div id="emptyCollectionsView" class="view">
+    <div id="emptyCollectionsView" class="view hidden">
       <div class="container pt-3 center">
         <h3>Welcome to the Property Definition Manager</h3>
         <img title="no collections" src="./images/emptybox.svg" />
@@ -466,7 +512,6 @@
                   type="text"
                   class="form-control"
                   id="collectionName"
-                  aria-describedby="basic-addon3 basic-addon4"
                 />
               </div>
               <div class="form-text">
@@ -483,7 +528,6 @@
                   type="text"
                   class="form-control"
                   id="collectionDescription"
-                  aria-describedby="basic-addon3 basic-addon4"
                 />
               </div>
               <div class="form-text">
@@ -549,7 +593,6 @@
                     type="text"
                     class="form-control"
                     id="definitionName"
-                    aria-describedby="basic-addon3 basic-addon4"
                   />
                   <div class="form-text">
                     Only alphanumeric characters allowed - Limit 64 characters
@@ -581,7 +624,6 @@
                       type="text"
                       class="form-control"
                       id="definitionDescription"
-                      aria-describedby="basic-addon3 basic-addon4"
                     />
                   </div>
                   <div class="form-text" id="basic-addon4">

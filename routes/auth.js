@@ -3,10 +3,13 @@ const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getU
 
 let router = express.Router();
 
-router.post('/credentials', function (req, res) {
+const bodyParser = require('body-parser')
+const urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+router.post('/credentials', urlencodedParser, function (req, res) {
   req.session.clientId = req.body.clientId;
   req.session.clientSecret = req.body.clientSecret;
-  res.json({});
+  res.redirect('/');
 });
 
 router.get('/login', function (req, res) {
