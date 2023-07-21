@@ -1,5 +1,5 @@
 import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, wait } from "./utils.js";
-import { initTreeControl } from "./hubstree.js";
+import { initTreeControl, updateVersionsList } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
 let _tree;
@@ -49,34 +49,12 @@ async function showThumbnail() {
   }
 }
 
-async function storeId(type, projectId, fileItemOrVersionId) {
-  try {
-    const response = await getJSON(
-      `/api/fusiondata/${projectId}/${encodeURIComponent(
-        fileItemOrVersionId
-      )}/${type}id`,
-      "GET"
-    );
-
-    if (type === 'item') {
-      _extendableItemId = response.id;
-      console.log(`Selected item's ID: ${response.id}`);
-    } else {
-      _extendableVersionId = response.id;
-      _extendableVersionType = response.type;
-      console.log(`Selected version's ID: ${response.id}`);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 function getInputElements(tbody) {
   return tbody.querySelectorAll("input");
 }
 
 function isComponentLevelProperty(propertyBehavior) {
-  return (propertyBehavior === 'STANDARD' || propertyBehavior === 'TIMELESS');
+  return (['STANDARD', 'TIMELESS'].includes(propertyBehavior));
 }
 
 function getInputValues(input) {
@@ -102,18 +80,28 @@ function updateView(isComponentLevel) {
   if (isComponentLevel)
     // Since a new version was generated we have to list all the available
     // versions again
-    listVersions();
+    updateVersionsList();
   else
     // Just update the properties
     showVersionProperties();
 }
 
-function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
+function addRowToBody(tbody, definition, versionProperties) {
   let info = '';
+  const isComponentLevel = isComponentLevelProperty(definition.propertyBehavior);
+  const behaviors = {
+    'DYNAMIC': 'D',
+    'DYNAMIC_AT_VERSION': 'DV',
+    'TIMELESS': 'T',
+    'STANDARD': 'S'
+  }
+  const behaviorSign = `[${behaviors[definition.propertyBehavior]}]`
+  /*
   if (definition.propertyBehavior === 'TIMELESS')
     info = `<span class="bi bi-info-circle" title="Applied to the lineage and only one value exists at any given time for ALL versions/revisions" />`
   else if (definition.propertyBehavior === 'DYNAMIC_AT_VERSION')
     info = `<span class="bi bi-info-circle" title="Property value is only applied to this component version" />`
+    */
 
   const property = versionProperties.find(item => item.propertyDefinition.id === definition.id);
   const value = (property) ? property.value : '';
@@ -126,8 +114,14 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
 
   const row = document.createElement("tr");
   row.innerHTML = `
-    <td style="padding-left: 25px;">${definition.name} ${info}</td>
-    <td class="prop-value"><input disabled class="border-0 bg-transparent" type="${inputType}" definitionId="${definition.id}" /></td>
+    <td style="padding-left: 25px;">${definition.name} ${info} ${behaviorSign}</td>
+    <td class="prop-value">
+      <input disabled class="border-0 bg-transparent" 
+        type="${inputType}" 
+        definitionId="${definition.id}" 
+        propertyBehavior="${definition.propertyBehavior}" 
+      />
+    </td>
     <td>${definition?.units?.name || ""}</td>
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
 
@@ -149,16 +143,16 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
   tbody.appendChild(row); 
 }
 
-function addPropertiesToTable(table, collection, versionProperties, isComponentLevel, title) {
+function addPropertiesToTable(table, collection, versionProperties, collectionName) {
   // Component properties should only be editable when the latest
   // version is selected
-  const isPropertyEditable = isComponentLevel ? _isTipVersion : true;
+  const isPropertyEditable = _isTipVersion;
 
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
     <tr>
       <th class="name-column" scope="col">
-        ${title}
+        ${collectionName}
       </th>
       <th colspan="3">
         <span class="bi-pencil clickable ${!isPropertyEditable ? "hidden" : ""}" title="Edit property values"></span>
@@ -174,12 +168,12 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
     </tr>`
   const tbody = document.createElement("tbody");
 
-  const definitions = collection.propertyDefinitions.results.filter(item => isComponentLevel === isComponentLevelProperty(item.propertyBehavior))
+  const definitions = collection.propertyDefinitions.results;//.filter(item => isComponentLevel === isComponentLevelProperty(item.propertyBehavior))
   if (definitions.length < 1)
     return;
 
   for (let definition of definitions) {
-    addRowToBody(tbody, definition, versionProperties, isComponentLevel);
+    addRowToBody(tbody, definition, versionProperties);
   }
 
   const saveButton = thead.querySelector(".bi-floppy.clickable");
@@ -189,30 +183,44 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
       for (const button of saveButton.parentElement.children)   
         button.classList.toggle("hidden");
 
-      let properties = [];
+      let componentProperties = [];
+      let versionProperties = [];
       for (const input of getInputElements(tbody)) {
         const [oldValue, value] = getInputValues(input);
         const definitionId = input.getAttribute("definitionId");
-        if (value !== oldValue) 
-          properties.push({
-            propertyDefinitionId: definitionId,
-            value
-          })
+        const propertyBehavior = input.getAttribute("propertyBehavior");
+        if (value !== oldValue) {
+          if (isComponentLevelProperty(propertyBehavior)) {
+            componentProperties.push({
+              propertyDefinitionId: definitionId,
+              value
+            })
+          } else {
+            versionProperties.push({
+              propertyDefinitionId: definitionId,
+              value
+            })
+          }
+        }
 
         input.toggleAttribute("disabled", true);
       }
 
-      if (properties.length < 1)
+      if (componentProperties.length < 1 && versionProperties.length < 1)
         return;
 
-      let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
+      let promises = [];
+      if (componentProperties.length > 0)
+        promises.push(getJSON(`/api/fusiondata/${_extendableItemId}/properties`, 'PUT', JSON.stringify({properties: componentProperties})));
+
+      if (versionProperties.length > 0)
+        promises.push(getJSON(`/api/fusiondata/${_extendableVersionId}/properties`, 'PUT', JSON.stringify({properties: versionProperties})));
+  
       await useLoadingSymbol(async () => {
-        return await Promise.allSettled([
-          getJSON(`/api/fusiondata/${extendableId}/properties`, 'PUT', JSON.stringify({properties})),
-        ])
+        return await Promise.allSettled(promises)
       }); 
       
-      updateView(isComponentLevel);
+      updateView(componentProperties.length > 0);
     })
   }
   
@@ -248,6 +256,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
 function addCollectionTableToPane(propertiesPane, collection, versionProperties) {
   const table = document.createElement("table");
   table.classList.toggle("table", true);
+  /*
   table.innerHTML = `
     <thead>
       <tr>
@@ -256,9 +265,10 @@ function addCollectionTableToPane(propertiesPane, collection, versionProperties)
         </th>
       </tr>
     </thead>`;
+    */
 
-  addPropertiesToTable(table, collection, versionProperties, true, 'Component level properties');
-  addPropertiesToTable(table, collection, versionProperties, false, 'Component version properties');
+  addPropertiesToTable(table, collection, versionProperties, collection.name);
+  //addPropertiesToTable(table, collection, versionProperties);
 
   propertiesPane.appendChild(table);
 }
@@ -285,10 +295,11 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
       <td>${componentVersion.partNumber}</td>
       <td>${componentVersion.materialName}</td>`;
 
-    row.classList = "clickable";
+    //row.classList = "clickable";
     row.componentId = componentVersion.component.id;
     row.componentVersionId = componentVersion.id
 
+    /*
     row.onclick = () => {
       addSubcomponentToBreadcrumbs(row.children[0].textContent);
       _extendableItemId = row.componentId;
@@ -296,6 +307,7 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
       _extendableVersionType = 'component';
       showVersionProperties();
     }
+    */
 
     tbody.appendChild(row);
   }
@@ -457,6 +469,7 @@ function updateBreadcrumbs(node) {
   }
 }
 
+/*
 function addSubcomponentToBreadcrumbs(subcomponentName) {
   const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
   let breadcrumb = breadcrumbs.querySelector(".subcomponent");
@@ -471,6 +484,7 @@ function addSubcomponentToBreadcrumbs(subcomponentName) {
     >${subcomponentName}</a
   >`;
 }
+*/
 
 function removeSubcomponentFromBreadcrumbs() {
   const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
@@ -489,6 +503,8 @@ export async function onSelectionChanged(
   isTipVersion,
   lastModifiedOn
 ) {
+  console.log({lastModifiedOn, isTipVersion});
+
   abortJSON();
 
   updateBreadcrumbs(node);
@@ -508,7 +524,10 @@ export async function onSelectionChanged(
     abortJSON();
     clearGeneralProperties();
     removeSubcomponentFromBreadcrumbs();
-    document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
+    if (lastModifiedOn) {
+      document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
+      document.getElementById("versionInfo").classList.toggle("hidden", false);
+    }
     showVersionProperties();
   } else {
     _extendableItemId = null;

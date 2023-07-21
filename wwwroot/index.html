@@ -29,14 +29,9 @@
     <!-- Main Header -->
 
     <header class="p-3 border-bottom bg-dark">
-      <div class="container">
-        <div
-          class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
-        >
-          <a
-            href="/"
-            class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none"
-          >
+      <div>
+        <div>
+          <a href="https://www.autodesk.com">
             <svg
               width="176"
               height="30"
@@ -53,12 +48,7 @@
             </svg>
           </a>
 
-          <!-- just to keep the avatar dropdown on the right -->
-          <ul
-            class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-          ></ul>
-
-          <div id="avatar" class="dropdown text-end">
+          <div id="avatar" class="dropdown text-end float-right">
             <a
               href="#"
               class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -96,7 +86,7 @@
           </div>
         </div>
       </div>
-      <div class="container">
+      <div>
         <span class="text-small text-light"
           >MFG Data Model APIs • Demo Application</span
         >
@@ -110,7 +100,7 @@
         <h3>Welcome to the Property Definition Manager</h3>
         <img title="no collections" src="./images/emptybox.svg" />
         <h4>You haven't created any property collections yet.</h4>
-        <p>Start creating a new collectinon</p>
+        <p>Start creating a new collection</p>
         <button id="createCollection" type="button" class="btn btn-primary">
           Create property collection
         </button>
@@ -120,8 +110,8 @@
     <!-- Collections View -->
 
     <div id="collectionsView" class="view full-height hidden">
-      <header class="shadow-sm p-1">
-        <div class="container">
+      <header class="shadow-sm sub-header">
+        <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
               <li class="breadcrumb-item active" aria-current="page">
@@ -135,7 +125,7 @@
               ></ul>
 
               <li>
-                <button id="newCollection" type="button" class="btn btn-dark">
+                <button id="newCollection" type="button" class="btn btn-dark float-right">
                   Add new collection
                 </button>
               </li>
@@ -143,7 +133,7 @@
           </nav>
         </div>
       </header>
-      <div class="container pt-3">
+      <div class="p-3">
         <table class="table">
           <thead>
             <tr>
@@ -159,8 +149,8 @@
     <!-- Empty Definitions View -->
 
     <div id="emptyDefinitionsView" class="view hidden">
-      <header class="shadow-sm p-1">
-        <div class="container">
+      <header class="shadow-sm sub-header">
+        <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
               <li class="breadcrumb-item active" aria-current="page">
@@ -190,8 +180,8 @@
     <!-- Definitions View -->
 
     <div id="definitionsView" class="view hidden">
-      <header class="shadow-sm p-1">
-        <div class="container">
+      <header class="shadow-sm sub-header">
+        <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
               <li class="breadcrumb-item active" aria-current="page">
@@ -213,7 +203,7 @@
           </nav>
         </div>
       </header>
-      <div class="container pt-3">
+      <div class="p-3">
         <table class="table">
           <thead>
             <tr>
@@ -480,7 +470,7 @@
                 />
               </div>
               <div class="form-text">
-                Only alphanumeric characters allowed - Limit 64v characters
+                Only alphanumeric characters allowed - Limit 64 characters
               </div>
             </div>
             <br />
@@ -616,7 +606,7 @@
             </div>
             <br />
             <div class="row">
-              <div class="col-sm-2">
+              <div class="col-sm-3">
                 <label class="form-label">Hidden</label>
                 <div class="form-check">
                   <input
@@ -648,7 +638,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-sm-2">
+              <div class="col-sm-3">
                 <label class="form-label">Read-only</label>
                 <div class="form-check">
                   <input
@@ -680,7 +670,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-4">
                 <label class="form-label">Include if copied</label>
                 <div class="form-check">
                   <input

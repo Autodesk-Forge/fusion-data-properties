@@ -104,6 +104,10 @@ tbody>tr:nth-child(odd) {
   overflow: auto;
 }
 
+.sub-header {
+  padding: .5rem 1rem .5rem 1rem;
+}
+
 #header {
   height: 3em;
   width: 100%;
@@ -281,7 +285,7 @@ tbody>tr:nth-child(odd) {
 /* Bootstrap Overrides */
 
 .form-label {
-  font-size: x-small;
+  font-size: small;
 }
 
 .form-text {

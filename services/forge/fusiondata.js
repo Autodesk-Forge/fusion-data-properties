@@ -1,11 +1,11 @@
 // Axios is a promise-based HTTP client for the browser and node.js. 
 const axios = require("axios");
-const { BASE_URL } = require('../../config.js');
+const { GRAPHQL_URL } = require('../../config.js');
 
 // Application constructor 
 class App {
   constructor(accessToken) {
-    this.graphAPI = `${BASE_URL}/fusiondata/2022-04/graphql`;
+    this.graphAPI = GRAPHQL_URL;
     this.accessToken = accessToken;
   }
 
@@ -200,6 +200,7 @@ class App {
           ... on DesignFileVersion {
             rootComponentVersion {
               id
+              lastModifiedOn
               component {
                 id
                 tipVersion {
@@ -211,6 +212,7 @@ class App {
           ... on DrawingFileVersion {
             drawingVersion {
               id
+              lastModifiedOn
               drawing {
                 id
                 tipVersion {
@@ -231,9 +233,10 @@ class App {
     const versionId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
     const tipVersionId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.component.tipVersion.id : fileVersion.drawingVersion.drawing.tipVersion.id;
     const itemId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.component.id : fileVersion.drawingVersion.drawing.id;
+    const lastModifiedOn = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.lastModifiedOn : fileVersion.drawingVersion.lastModifiedOn;
     const type = fileVersion.rootComponentVersion ? 'component' : 'drawing';
 
-    return { itemId, versionId, tipVersionId, type };
+    return { itemId, versionId, tipVersionId, lastModifiedOn, type };
   }
 
   async getItemId(projectId, fileItemId) {  
@@ -323,7 +326,7 @@ class App {
           hubId
         }
       )
-      cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+      cursor = response?.data?.data?.propertyDefinitionCollectionsByHubId?.pagination?.cursor;
       console.log({cursor});
       cursor = null;
 
@@ -699,6 +702,7 @@ class App {
                 componentVersion {
                   id
                   name
+                  lastModifiedOn
                   component {
                     id
                     tipVersion {
