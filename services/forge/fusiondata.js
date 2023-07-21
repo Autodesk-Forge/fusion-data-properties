@@ -545,6 +545,8 @@ class App {
     let response = await this.sendQuery(
       `query GetProperties($componentVersionId: String!) {
         componentVersion(componentVersionId: $componentVersionId) {
+          lastModifiedOn
+
           partNumber
           name
           partDescription
