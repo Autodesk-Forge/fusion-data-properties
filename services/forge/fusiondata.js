@@ -7,6 +7,7 @@ class App {
   constructor(accessToken) {
     this.graphAPI = GRAPHQL_URL;
     this.accessToken = accessToken;
+    console.log(accessToken);
   }
 
   getRequestHeaders() {

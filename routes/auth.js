@@ -24,6 +24,7 @@ router.get('/credentials', async function (req, res) {
 router.post('/credentials', urlencodedParser, function (req, res) {
   req.session.clientId = req.body.clientId;
   req.session.clientSecret = req.body.clientSecret;
+  console.log(req.session.clientId + " / " + req.session.clientSecret);
   res.redirect('/');
 });
 
