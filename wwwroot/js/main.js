@@ -19,6 +19,9 @@ try {
 
   const callbackUrl = document.getElementById("callbackUrl");
   callbackUrl.src = callbackUrl.textContent = credentials.callbackUrl;
+  const myAppsUrl = document.getElementById("myAppsUrl");
+  myAppsUrl.href = myAppsUrl.textContent = `${credentials.apsUrl}/myapps/`;
+  const accountsUrl = credentials.accountsUrl;
 
   if (!credentials.hasCredentials) {
     showView("credentialsView");
@@ -48,7 +51,7 @@ try {
       // Log the user out (see https://aps.autodesk.com/blog/log-out-forge)
       const iframe = document.createElement("iframe");
       iframe.style.visibility = "hidden";
-      iframe.src = "https://accounts.autodesk.com/Authentication/LogOut";
+      iframe.src = `${accountsUrl}/Authentication/LogOut`;
       document.body.appendChild(iframe);
       iframe.onload = () => {
         window.location.replace("/api/auth/logout");
