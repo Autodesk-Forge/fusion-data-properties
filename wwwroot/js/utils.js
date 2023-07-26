@@ -1,4 +1,5 @@
 let _controllers = new Set();
+let _useLoadingSymbolCounter = 0;
 
 export function wait(seconds) {
   return new Promise((resolve, reject) => {
@@ -48,7 +49,6 @@ export async function getJSON(url, verb = "GET", body) {
       },
     });
 
-
     if (!resp.ok) {
       const err = await resp.text();
       console.log(`failed request: ${verb} ${url}`, err);
@@ -61,12 +61,16 @@ export async function getJSON(url, verb = "GET", body) {
 }
 
 export async function useLoadingSymbol(func) {
+  console.log("useLoadingSymbol")
   const element = document.getElementById("loadingSign");
+  _useLoadingSymbolCounter++;
   element.classList.toggle("hidden", false);
   try {
     return await func();
   } finally {
-    element.classList.toggle("hidden", true);
+    console.log("useLoadingSymbol -> finally")
+    _useLoadingSymbolCounter--;
+    element.classList.toggle("hidden", _useLoadingSymbolCounter < 1);
   }
 }
 

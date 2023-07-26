@@ -29,14 +29,9 @@
     <!-- Main Header -->
 
     <header class="p-3 border-bottom bg-dark">
-      <div class="container">
-        <div
-          class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
-        >
-          <a
-            href="/"
-            class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none"
-          >
+      <div>
+        <div>
+          <a title="Autodesk" href="https://www.autodesk.com">
             <svg
               width="176"
               height="30"
@@ -53,12 +48,7 @@
             </svg>
           </a>
 
-          <!-- just to keep the avatar dropdown on the right -->
-          <ul
-            class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-          ></ul>
-
-          <div id="avatar" class="dropdown text-end">
+          <div id="avatar" class="dropdown text-end float-right">
             <a
               href="#"
               class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -79,38 +69,94 @@
               <li id="userName" class="dropdown-item">Not logged in</li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <a id="menuitemCollectionsView" class="dropdown-item" href="#"
+                <a id="menuitemCredentialsView" class="dropdown-item" href="#"
+                  >Credentials</a
+                >
+              </li>
+              <li>
+                <a id="menuitemCollectionsView" class="dropdown-item disabled" href="#"
                   >Manage property definitions</a
                 >
               </li>
               <li>
-                <a id="menuitemPropertiesView" class="dropdown-item" href="#"
+                <a id="menuitemPropertiesView" class="dropdown-item disabled" href="#"
                   >Hubs browser</a
                 >
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <a id="menuitemLogin" class="dropdown-item" href="#">Log out</a>
+                <a id="menuitemLogin" class="dropdown-item disabled" href="#">Log out</a>
               </li>
             </ul>
           </div>
         </div>
       </div>
-      <div class="container">
+      <div>
         <span class="text-small text-light"
           >MFG Data Model APIs • Demo Application</span
         >
       </div>
     </header>
 
+    <!-- Emtpty View -->
+
+    <div id="emptyView" class="view">
+    </div>
+
+    <!-- Credentials View -->
+
+    <div id="credentialsView" class="view hidden">
+      <div class="container pt-3">
+        <div class="center p-3">
+          <h3>Welcome to the Property Definition Manager</h3>
+        </div>
+        <div class="pt-3 w-50 mx-auto">
+          <p>Please provide your APS app's credentials to use with this demo</p>
+          <p>Make sure that on <a id="myAppsUrl" href="https://aps.autodesk.com/myapps/">https://aps.autodesk.com/myapps/</a> in your app's settings the <b>Callback URL</b> is set exactly to this:</p>
+          <p><a id="callbackUrl" href="http://localhost:3000/api/auth/callback-test">http://localhost:3000/api/auth/callback-test</a></p>
+          <form action="/api/auth/credentials" method="post">
+            <div class="modal-content">
+              <label for="clientId" class="form-label"
+                >Client ID</label
+              >
+              <div class="input-group">
+                <input
+                  type="text"
+                  name="clientId"
+                  class="form-control"
+                  id="clientId"
+                  required
+                />
+              </div>
+              <label for="clientSecret" class="form-label pt-3"
+                >Client Secret</label
+              >
+              <div class="input-group">
+                <input
+                  type="password"
+                  name="clientSecret"
+                  class="form-control"
+                  id="clientSecret"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer pt-3">
+              <input id="storeCredentials" type="submit" value="Store Credentials" class="btn btn-primary" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- Empty Collections View -->
 
-    <div id="emptyCollectionsView" class="view">
+    <div id="emptyCollectionsView" class="view hidden">
       <div class="container pt-3 center">
         <h3>Welcome to the Property Definition Manager</h3>
         <img title="no collections" src="./images/emptybox.svg" />
         <h4>You haven't created any property collections yet.</h4>
-        <p>Start creating a new collectinon</p>
+        <p>Start creating a new collection</p>
         <button id="createCollection" type="button" class="btn btn-primary">
           Create property collection
         </button>
@@ -120,8 +166,8 @@
     <!-- Collections View -->
 
     <div id="collectionsView" class="view full-height hidden">
-      <header class="shadow-sm p-1">
-        <div class="container">
+      <header class="shadow-sm sub-header">
+        <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
               <li class="breadcrumb-item active" aria-current="page">
@@ -135,7 +181,7 @@
               ></ul>
 
               <li>
-                <button id="newCollection" type="button" class="btn btn-dark">
+                <button id="newCollection" type="button" class="btn btn-dark float-right">
                   Add new collection
                 </button>
               </li>
@@ -143,7 +189,7 @@
           </nav>
         </div>
       </header>
-      <div class="container pt-3">
+      <div class="p-3">
         <table class="table">
           <thead>
             <tr>
@@ -159,8 +205,8 @@
     <!-- Empty Definitions View -->
 
     <div id="emptyDefinitionsView" class="view hidden">
-      <header class="shadow-sm p-1">
-        <div class="container">
+      <header class="shadow-sm sub-header">
+        <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
               <li class="breadcrumb-item active" aria-current="page">
@@ -190,8 +236,8 @@
     <!-- Definitions View -->
 
     <div id="definitionsView" class="view hidden">
-      <header class="shadow-sm p-1">
-        <div class="container">
+      <header class="shadow-sm sub-header">
+        <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-chevron mb-0 rounded-3">
               <li class="breadcrumb-item active" aria-current="page">
@@ -213,7 +259,7 @@
           </nav>
         </div>
       </header>
-      <div class="container pt-3">
+      <div class="p-3">
         <table class="table">
           <thead>
             <tr>
@@ -236,12 +282,12 @@
 
     <div id="propertiesView" class="view hidden">
       <div class="row full-height">
-        <div class="grey-border-right col-sm-3 full-height">
+        <div class="grey-border-right col-sm-4 full-height">
           <div id="hubstree" class="full-height">
             <div id="tree"></div>
           </div>
         </div>
-        <div class="col-sm-9 full-height" style="overflow: auto;">
+        <div class="col-sm-8 full-height" style="overflow: auto;">
           <header class="p-1">
             <div class="container pl-ml-0">
               <nav aria-label="breadcrumb">
@@ -312,13 +358,7 @@
                   </div>
                   <div id="versionInfo" class="hidden">
                     <div class="row">
-                      <span id="title">Last Modified on:&nbsp;<span id="lastModifiedOn">01/01/2023</span></span>
-                    </div>
-                    <div id="versionInfo" class="row display-block">
-                      <span class="pr-0">Component Version <span class="bi bi-info-circle" title="Component Version info"></span></span>
-                      <select title="versions" id="versionList" class="form-select">
-                        <option>v1</option>
-                      </select>
+                      <span id="title">Last Modified on:&nbsp;<br /><span id="lastModifiedOn">01/01/2023</span></span>
                     </div>
                   </div>
                 </div>
@@ -482,11 +522,10 @@
                   type="text"
                   class="form-control"
                   id="collectionName"
-                  aria-describedby="basic-addon3 basic-addon4"
                 />
               </div>
               <div class="form-text">
-                Only alphanumeric characters allowed - Limit 64v characters
+                Only alphanumeric characters allowed - Limit 64 characters
               </div>
             </div>
             <br />
@@ -499,7 +538,6 @@
                   type="text"
                   class="form-control"
                   id="collectionDescription"
-                  aria-describedby="basic-addon3 basic-addon4"
                 />
               </div>
               <div class="form-text">
@@ -565,7 +603,6 @@
                     type="text"
                     class="form-control"
                     id="definitionName"
-                    aria-describedby="basic-addon3 basic-addon4"
                   />
                   <div class="form-text">
                     Only alphanumeric characters allowed - Limit 64 characters
@@ -597,7 +634,6 @@
                       type="text"
                       class="form-control"
                       id="definitionDescription"
-                      aria-describedby="basic-addon3 basic-addon4"
                     />
                   </div>
                   <div class="form-text" id="basic-addon4">
@@ -622,7 +658,7 @@
             </div>
             <br />
             <div class="row">
-              <div class="col-sm-2">
+              <div class="col-sm-3">
                 <label class="form-label">Hidden</label>
                 <div class="form-check">
                   <input
@@ -654,7 +690,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-sm-2">
+              <div class="col-sm-3">
                 <label class="form-label">Read-only</label>
                 <div class="form-check">
                   <input
@@ -686,7 +722,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-4">
                 <label class="form-label">Include if copied</label>
                 <div class="form-check">
                   <input
@@ -850,7 +886,7 @@
       crossorigin="anonymous"
     ></script>
     <script src="/js/main.js" type="module"></script>
-    <script src="/js/collectionsView.js" type="module"></script>
-    <script src="/js/propertiesView.js" type="module"></script>
+    <script src="/js/collectionsview.js" type="module"></script>
+    <script src="/js/propertiesview.js" type="module"></script>
   </body>
 </html>

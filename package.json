@@ -1,7 +1,7 @@
 {
-  "name": "forge-hubs-browser-nodejs",
+  "name": "mfg-model-data-demo",
   "version": "1.0.0",
-  "description": "Autodesk Forge sample app showing the basic viewing capabilities.",
+  "description": "APS sample app showing the capabilities of MFG Data Model API.",
   "scripts": {
     "start": "node server.js"
   },
@@ -9,7 +9,7 @@
     "autodesk",
     "forge"
   ],
-  "author": "Petr Broz <petr.broz@autodesk.com>",
+  "author": "Adam Nagy <adam.nagy@autodesk.com>",
   "license": "MIT",
   "dependencies": {
     "cookie-session": "^1.4.0",

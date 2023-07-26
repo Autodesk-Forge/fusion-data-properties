@@ -1,10 +1,37 @@
 const express = require('express');
-const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/forge/auth.js');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile, get2LO } = require('../services/forge/auth.js');
+const { APS_CALLBACK_URL, APS_URL, ACCOUNTS_URL } = require('../config.js');
 
 let router = express.Router();
 
+const bodyParser = require('body-parser')
+const urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+router.get('/credentials', async function (req, res) {
+  let isValid = false;
+  try {
+    await get2LO(req);
+    isValid = true;
+  } catch { }
+
+  res.json({
+    callbackUrl: APS_CALLBACK_URL,
+    apsUrl: APS_URL,
+    accountsUrl: ACCOUNTS_URL,
+    hasCredentials: !!(req.session.clientId && req.session.clientSecret),
+    isValid: isValid 
+  })
+});
+
+router.post('/credentials', urlencodedParser, function (req, res) {
+  req.session.clientId = req.body.clientId;
+  req.session.clientSecret = req.body.clientSecret;
+  console.log(req.session.clientId + " / " + req.session.clientSecret);
+  res.redirect('/');
+});
+
 router.get('/login', function (req, res) {
-    res.redirect(getAuthorizationUrl());
+    res.redirect(getAuthorizationUrl(req));
 });
 
 router.get('/logout', function (req, res) {
@@ -22,7 +49,7 @@ router.get('/token', authRefreshMiddleware, function (req, res) {
 
 router.get('/profile', authRefreshMiddleware, async function (req, res, next) {
     try {
-        const profile = await getUserProfile(req.internalOAuthToken);
+        const profile = await getUserProfile(req, req.internalOAuthToken);
         res.json({ 
           name: `${profile.firstName} ${profile.lastName}`,
           picture: profile.profileImages.sizeX40

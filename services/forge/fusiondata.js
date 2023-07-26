@@ -1,12 +1,13 @@
 // Axios is a promise-based HTTP client for the browser and node.js. 
 const axios = require("axios");
-const { BASE_URL } = require('../../config.js');
+const { GRAPHQL_URL } = require('../../config.js');
 
 // Application constructor 
 class App {
   constructor(accessToken) {
-    this.graphAPI = `${BASE_URL}/fusiondata/2022-04/graphql`;
+    this.graphAPI = GRAPHQL_URL;
     this.accessToken = accessToken;
+    console.log(accessToken);
   }
 
   getRequestHeaders() {
@@ -90,64 +91,6 @@ class App {
     return resp.data;
   }
 
-  async getComponentVersionThumbnail(componentVersionId) {  
-    let response = await this.sendQuery(
-      `query GetThumbnail($componentVersionId: String!) {
-        componentVersion(componentVersionId: $componentVersionId) {
-          id
-          thumbnail {
-            status
-            largeImageUrl
-          }
-        }
-      }`,
-      {
-        componentVersionId
-      }
-    )
-
-    let thumbnail = response.data.data.componentVersion.thumbnail;
-
-    let resp = await axios({
-      method: 'GET',
-      url: thumbnail.largeImageUrl,
-      headers: this.getRequestHeaders(),
-      responseType: 'arraybuffer',
-      responseEncoding: 'binary'
-    })
-
-    return resp.data;
-  }
-
-  async getDrawingVersionThumbnail(drawingVersionId) {  
-    let response = await this.sendQuery(
-      `query GetThumbnail($drawingVersionId: String!) {
-        drawingVersion(drawingVersionId: $drawingVersionId) {
-          id
-          thumbnail {
-            status
-            largeImageUrl
-          }
-        }
-      }`,
-      {
-        drawingVersionId
-      }
-    )
-
-    let thumbnail = response.data.data.drawingVersion.thumbnail;
-
-    let resp = await axios({
-      method: 'GET',
-      url: thumbnail.largeImageUrl,
-      headers: this.getRequestHeaders(),
-      responseType: 'arraybuffer',
-      responseEncoding: 'binary'
-    })
-
-    return resp.data;
-  }
-
   async getThumbnail(projectId, fileVersionId) {  
     let response = await this.sendQuery(
       `query GetThumbnail($projectId: String!, $fileVersionId: String!) {
@@ -200,11 +143,25 @@ class App {
           ... on DesignFileVersion {
             rootComponentVersion {
               id
+              lastModifiedOn
+              component {
+                id
+                tipVersion {
+                  id
+                }
+              }
             }
           }
           ... on DrawingFileVersion {
             drawingVersion {
               id
+              lastModifiedOn
+              drawing {
+                id
+                tipVersion {
+                  id
+                }
+              }
             }
           }
         }
@@ -216,10 +173,13 @@ class App {
     )
 
     const fileVersion = response.data.data.fileVersion;
-    const id = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+    const versionId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.id : fileVersion.drawingVersion.id;
+    const tipVersionId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.component.tipVersion.id : fileVersion.drawingVersion.drawing.tipVersion.id;
+    const itemId = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.component.id : fileVersion.drawingVersion.drawing.id;
+    const lastModifiedOn = fileVersion.rootComponentVersion ? fileVersion.rootComponentVersion.lastModifiedOn : fileVersion.drawingVersion.lastModifiedOn;
     const type = fileVersion.rootComponentVersion ? 'component' : 'drawing';
 
-    return { id, type };
+    return { itemId, versionId, tipVersionId, lastModifiedOn, type };
   }
 
   async getItemId(projectId, fileItemId) {  
@@ -309,7 +269,7 @@ class App {
           hubId
         }
       )
-      cursor = response?.data?.data?.propertyDefinitionCollections?.pagination?.cursor;
+      cursor = response?.data?.data?.propertyDefinitionCollectionsByHubId?.pagination?.cursor;
       console.log({cursor});
       cursor = null;
 
@@ -528,6 +488,8 @@ class App {
     let response = await this.sendQuery(
       `query GetProperties($componentVersionId: String!) {
         componentVersion(componentVersionId: $componentVersionId) {
+          lastModifiedOn
+
           partNumber
           name
           partDescription
@@ -685,6 +647,13 @@ class App {
                 componentVersion {
                   id
                   name
+                  lastModifiedOn
+                  component {
+                    id
+                    tipVersion {
+                      id
+                    }
+                  }
                 }
               }
               pagination {

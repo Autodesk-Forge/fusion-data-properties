@@ -104,6 +104,10 @@ tbody>tr:nth-child(odd) {
   overflow: auto;
 }
 
+.sub-header {
+  padding: .5rem 1rem .5rem 1rem;
+}
+
 #header {
   height: 3em;
   width: 100%;
@@ -203,10 +207,11 @@ tbody>tr:nth-child(odd) {
   margin: 0.5em;
 }
 
-#versionList {
+.version-list {
   width: fit-content;
   display: inline-block;
   border: none;
+  background: transparent;
 }
 
 @media (max-width: 768px) {
@@ -226,14 +231,14 @@ tbody>tr:nth-child(odd) {
 
 .inspire-tree .icon-expand:before {
   background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22currentColor%22%20class%3D%22bi%20bi-chevron-right%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%2F%3E%0A%3C%2Fsvg%3E);
-  background-color: #fff;
+  background-color: transparent;
   border-radius: 3px;
   margin-left: -1px;
 }
 
 .inspire-tree .icon-collapse:before {
   background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22currentColor%22%20class%3D%22bi%20bi-chevron-down%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708z%22%2F%3E%0A%3C%2Fsvg%3E);
-  background-color: #fff;
+  background-color: transparent;
   border-radius: 3px;
   margin-left: -1px;
 }
@@ -251,10 +256,36 @@ tbody>tr:nth-child(odd) {
   background-image: none !important;
 }
 
+.icon-hub:before {
+  background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/apps-16.svg); /* or https://raw.githubusercontent.com/primer/octicons/main/icons/stack-16.svg */
+  background-size: cover;
+}
+
+.icon-project:before {
+  
+  background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/project-16.svg); /* or https://raw.githubusercontent.com/primer/octicons/main/icons/organization-16.svg */
+  background-size: cover;
+}
+
+.icon-my-folder:before {
+  background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/file-directory-16.svg);
+  background-size: cover;
+}
+
+.icon-item:before {
+  background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/file-16.svg);
+  background-size: cover;
+}
+
+.icon-version:before {
+  background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/clock-16.svg);
+  background-size: cover;
+}
+
 /* Bootstrap Overrides */
 
 .form-label {
-  font-size: x-small;
+  font-size: small;
 }
 
 .form-text {

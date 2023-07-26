@@ -1,5 +1,7 @@
 import { wait } from "./utils.js";
 
+let _tree = null;
+
 async function getJSON(url) {
   try {
     const resp = await fetch(url);
@@ -14,23 +16,31 @@ async function getJSON(url) {
   }
 }
 
+function createTreeNode(id, text, icon, children = false, hidden = false, data = null) {
+  let node = { id, text, children, itree: { icon, state: { hidden } } };
 
-function createTreeNode(id, text, icon, children = false) {
-  return { id, text, children, itree: { icon } };
+  if (data) {
+    node = {
+      ...node,
+      ...data
+    }
+  }
+
+  return node;
 }
 
 async function getHubs() {
   const hubs = await getJSON("/api/hubs");
   return hubs.map((hub) =>
-    createTreeNode(`hub|${hub.id}`, hub.attributes.name, "icon-hub", true)
+    createTreeNode(`hub|${hub.id}`, hub.attributes.name, "icon-hub", true, false, { customData: "blabla" })
   );
 }
 
-async function getProjects(hubId) {
-  const projects = await getJSON(`/api/hubs/${hubId}/projects`);
+async function getProjects(hubUrn) {
+  const projects = await getJSON(`/api/hubs/${hubUrn}/projects`);
   return projects.map((project) =>
     createTreeNode(
-      `project|${hubId}|${project.id}`,
+      `project|${hubUrn}|${project.id}`,
       project.attributes.name,
       "icon-project",
       true
@@ -38,36 +48,196 @@ async function getProjects(hubId) {
   );
 }
 
-async function getContents(hubId, projectId, folderId = null) {
-  const contents = await getJSON(
-    `/api/hubs/${hubId}/projects/${projectId}/contents` +
-      (folderId ? `?folder_id=${folderId}` : "")
-  );
-  return contents.map((item) => {
+async function fetchDataForItemNode(item, hubUrn, projectUrn) {
+  return new Promise(async (resolve) => {
     if (item.type === "folders") {
-      return createTreeNode(
-        `folder|${hubId}|${projectId}|${item.id}`,
+      resolve(createTreeNode(
+        `folder|${hubUrn}|${projectUrn}|${item.id}`,
         item.attributes.displayName,
         "icon-my-folder",
         true
-      );
-    } else {
-      return createTreeNode(
-        `item|${hubId}|${projectId}|${item.id}`,
-        item.attributes.displayName,
-        "icon-item",
-        false
-      );
-    }
-  });
+      ));
+      return;
+    } 
+
+    const [itemJson, versionsJson] = await Promise.all([
+      getJSON(
+        `/api/fusiondata/${projectUrn}/${encodeURIComponent(
+          item.id
+        )}/itemid`,
+        "GET"
+      ),
+      getJSON(
+        `/api/hubs/${hubUrn}/projects/${projectUrn}/contents/${item.id}/versions`
+      )
+    ]);
+
+    resolve(createTreeNode(
+      `item|${hubUrn}|${projectUrn}|${item.id}`,
+      item.attributes.displayName,
+      "icon-item",
+      true,
+      false, //true // keep it hidden until the version dropdown is added
+      {
+        itemId: itemJson.id,
+        versions: versionsJson
+      }
+    ));
+  })
 }
+
+async function getContents(hubUrn, projectUrn, folderUrn = null, onSelectionChanged) {
+  const contents = await getJSON(
+    `/api/hubs/${hubUrn}/projects/${projectUrn}/contents` +
+      (folderUrn ? `?folder_id=${folderUrn}` : "")
+  );
+
+  const res = await Promise.all(contents.map((item) => {
+    return fetchDataForItemNode(item, hubUrn, projectUrn);
+  }));
+
+  return res;
+}
+
+async function getComponents(hubUrn, projectUrn, itemUrn, dataUid) {
+  // which version is selected
+  const versionsList = document.querySelector(`select[data-uid="${dataUid}"]`);
+  const selectedVersion = versionsList.selectedOptions[0];
+
+  return getSubComponents(hubUrn, projectUrn, itemUrn, selectedVersion.versionId);
+}
+
+async function getSubComponents(hubUrn, projectUrn, itemUrn, versionId) {
+  const response = await getJSON(
+    `/api/fusiondata/${versionId}/occurrences`,
+    "GET"
+  );
+
+  return response.map(item => {
+    return createTreeNode(
+      `component|${hubUrn}|${projectUrn}|${itemUrn}|${item.componentVersion.component.id}|${item.componentVersion.id}|${item.componentVersion.component.tipVersion.id}`,
+      item.componentVersion.name,
+      "icon-item",
+      true,
+      false,
+      {
+        lastModifiedOn: item.componentVersion.lastModifiedOn
+      }
+    );  
+  })  
+}
+
+async function preventSelection(node, callback) {
+  try {
+    node.state('selectable', false);
+    await callback();
+  } finally {
+    node.state('selectable', true);
+  }
+}
+
+async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelectionChanged) {
+
+  const item = document.querySelector(`a[data-uid="${dataUid}"]`);
+  const itemNode = _tree._tree.node(dataUid);
+
+  const versionsList = document.createElement("select");
+  versionsList.classList = "float-right version-list";
+  versionsList.setAttribute("data-uid", dataUid);
+  versionsList.itemId = itemNode.itemId;
+  versionsList.onSelectionChanged = onSelectionChanged;
+
+  const listItems = itemNode.versions.map((version) => {
+    const lastModifiedOn = version.attributes.lastModifiedTime.split("T")[0];
+    return `<option value="${version.id}" lastModifiedOn="${lastModifiedOn}">v${version.attributes.versionNumber}</option>`;
+  });
+  versionsList.innerHTML = listItems.join();
+
+  versionsList.onclick = async (event) => {
+    console.log("versionsList.onclick")
+
+    event.stopPropagation();
+  }
+
+  versionsList.onchange = async (event) => {
+    console.log("versionsList.onchange")
+
+    const selectedNode = _tree._tree.selected()[0];
+    const selectedVersion = versionsList.selectedOptions[0];
+    if (!selectedVersion.versionId) {
+      console.log("fetching versionId");
+
+      await preventSelection(itemNode, async () => {
+        const versionInfo = await getJSON(
+          `/api/fusiondata/${projectUrn}/${encodeURIComponent(
+            versionsList.value
+          )}/versionid`,
+          "GET"
+        );
+
+        selectedVersion.versionId = versionInfo.versionId;
+        selectedVersion.tipVersionId = versionInfo.tipVersionId;
+      })
+    }
+
+    console.log("versionsList.onchange: " + selectedVersion.versionId);
+
+    // Reload if it already has children
+    if (itemNode.hasChildren())
+      await itemNode.reload();
+
+    // Have we changed the version on the selected node or its "item" parent?
+    if (!selectedNode)
+      return;
+
+    const [selType, , , selItemUrn, selItemId] = selectedNode?.id?.split("|");
+    if (itemUrn === selItemUrn) {
+      // If the selected node is a component
+      if (selType === 'component') {
+        //const newSelectedNode = await _tree._tree.search(`/|${selItemId}|/g`);
+        let s = "sadd";
+      }
+
+      // Notify properties page 
+      const isTipVersion = (selectedVersion.versionId === selectedVersion.tipVersionId);  //versionsList.options[0].value === versionsList.value;
+      const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
+      onSelectionChanged(selectedNode, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
+    }
+  }
+
+  item.appendChild(versionsList);
+
+  versionsList.onchange();
+}
+
+export async function updateVersionsList() {
+  const selectedNode = _tree._tree.selected()[0];
+  let itemNode = selectedNode;
+  const [, hubUrn, projectUrn, itemUrn] = selectedNode.id.split("|");
+  let dataUid = selectedNode.id;
+
+  if (selectedNode.id.startsWith("component")) {
+    dataUid = `item|${hubUrn}|${projectUrn}|${itemUrn}`;
+    itemNode = _tree._tree.node(dataUid);
+  }
+
+  itemNode.versions = await getJSON(
+    `/api/hubs/${hubUrn}/projects/${projectUrn}/contents/${itemUrn}/versions`
+  );
+
+  const versionsList = document.querySelector(`select[data-uid="${dataUid}"]`);
+  const onSelectionChanged = versionsList.onSelectionChanged;
+  versionsList.remove();
+
+  addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelectionChanged);
+} 
 
 export async function showLinkIconForHubsWithLinkedCollections() {
     try {
-      const hubs = document.querySelectorAll(`a[data-uid]`);
+      const hubs = document.querySelectorAll(`a.icon-hub`);
       for (let hub of hubs) {
-        const hubId = hub.getAttribute('data-uid').split('|')[1];
-        const collections = await getJSON(`/api/fusiondata/${hubId}/collections?minimal=true`);
+        const hubUrn = hub.getAttribute('data-uid').split('|')[1];
+        const collections = await getJSON(`/api/fusiondata/${hubUrn}/collections?minimal=true`);
 
         const link = hub.querySelector(`span.link-icon`);
         if (collections.length < 1) {
@@ -87,20 +257,53 @@ export function initTreeControl(
   onSelectionChanged,
   onHubButtonClicked
 ) {
+  // Waiting for the hubs to appear to we can add button and link icon to them
+  const observer = new MutationObserver((mutationList, observer) => {
+    console.log("observer")
+
+    const hubNodes = document.getElementsByClassName("title icon icon-hub");
+
+    if (hubNodes.length > 1) {
+      for (let item of hubNodes) {
+        item.innerHTML +=
+          '<span class="bi-link-45deg link-icon hidden" title="Hub has linked property collections"></span><span class="float-right bi-three-dots clickable"></span>';
+        item.getElementsByClassName("float-right")[0].onclick = (event) => {
+          onHubButtonClicked(event);
+        };
+      }
+  
+      showLinkIconForHubsWithLinkedCollections();
+  
+      observer.disconnect();
+    }
+  });
+
+  const treeElement = document.querySelector(selector);
+  observer.observe(treeElement, {
+    childList: true, 
+    subtree: true
+  })
+
+
+
   // See http://inspire-tree.com
   const tree = new InspireTree({
     data: function (node) {
       if (!node || !node.id) {
         return getHubs();
       } else {
-        const tokens = node.id.split("|");
-        switch (tokens[0]) {
+        const [type, hubUrn, projectUrn, itemUrn, itemId, versionId] = node.id.split("|");
+        switch (type) {
           case "hub":
-            return getProjects(tokens[1]);
+            return getProjects(hubUrn);
           case "project":
-            return getContents(tokens[1], tokens[2]);
+            return getContents(hubUrn, projectUrn, null, onSelectionChanged);
           case "folder":
-            return getContents(tokens[1], tokens[2], tokens[3]);
+            return getContents(hubUrn, projectUrn, itemUrn, onSelectionChanged);
+          case "item":
+              return getComponents(hubUrn, projectUrn, itemUrn, node.id);
+          case "component":
+              return getSubComponents(hubUrn, projectUrn, itemUrn, versionId);
           default:
             return [];
         }
@@ -108,58 +311,43 @@ export function initTreeControl(
     },
   });
 
-  tree.on("data.loaded", async function (event, node) {
-    do {
-      await wait(.1);
-    } while (document.getElementsByClassName("title icon icon-hub").length < 1)
+  tree.on("children.loaded", async function (node) {
+    console.log("children.loaded")
+    for (let child of node.children) {
+      if (!child.id.startsWith("item"))
+        continue;
 
-    for (let item of document.getElementsByClassName("title icon icon-hub")) {
-      item.innerHTML +=
-        '<span class="bi-link-45deg link-icon hidden" title="Hub has linked property collections"></span><span class="float-right bi-three-dots clickable"></span>';
-      item.getElementsByClassName("float-right")[0].onclick = (event) => {
-        onHubButtonClicked(event);
-      };
+      const [, hubUrn, projectUrn, itemUrn] = child.id.split("|");
+      addVersionDropdown(child.id, hubUrn, projectUrn, itemUrn, onSelectionChanged);  
     }
 
-    showLinkIconForHubsWithLinkedCollections();
-  });
+  })
 
   tree.on("node.click", function (event, node) {
+    if (!node.itree.state.selectable)
+      return;
+
+    node.select();
+
     event.preventTreeDefault();
-    const tokens = node.id.split("|");
-    if (tokens[0] === "version") {
-      for (
-        var projectNode = node;
-        !projectNode.id.startsWith("project");
-        projectNode = projectNode.itree.parent
-      ) {}
-      const tokens2 = projectNode.id.split("|");
-      onSelectionChanged(
-        node,
-        tokens[0],
-        tokens2[1],
-        tokens2[2],
-        tokens[1]
-      );
-    } else if (tokens[0] === "item") {
-      for (
-        var projectNode = node;
-        !projectNode.id.startsWith("project");
-        projectNode = projectNode.itree.parent
-      ) {}
-      const tokens2 = projectNode.id.split("|");
-      onSelectionChanged(
-        node,
-        tokens[0],
-        tokens2[1],
-        tokens2[2],
-        tokens[3]
-      );
-    } else if (tokens[0] === "hub") {
-      onSelectionChanged(node, tokens[0], tokens[1]);
+    const [type, hubUrn, projectUrn, itemUrn, itemId, versionId, tipVersionId] = node.id.split("|");
+    if (type === "item") {
+      const versionsList = document.querySelector(`select[data-uid="${node.id}"]`);
+      const isTipVersion = versionsList.options[0].value === versionsList.value;
+      const selectedVersion = versionsList.selectedOptions[0];
+      const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
+      console.log(versionsList.value);
+      onSelectionChanged(node, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
+    } else if (type === "component") {
+      const isTipVersion = (versionId === tipVersionId);
+      const lastModifiedOn = null;
+      onSelectionChanged(node, "component", hubUrn, itemId, versionId, isTipVersion, lastModifiedOn); 
     } else {
-      onSelectionChanged(node, tokens[0]);
+      onSelectionChanged(node, type);
     }
   });
-  return new InspireTreeDOM(tree, { target: selector });
+
+  _tree = new InspireTreeDOM(tree, { target: selector });
+
+  return _tree;
 }

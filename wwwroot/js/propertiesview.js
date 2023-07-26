@@ -1,36 +1,19 @@
 import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, wait } from "./utils.js";
-import { initTreeControl } from "./hubstree.js";
+import { initTreeControl, updateVersionsList } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
 let _tree;
-let _extendableItemId;
-let _extendableVersionId;
-let _extendableVersionType;
-let _hubId;
-let _projectId;
-let _itemUrn;
+let _itemId;
+let _versionId;
+let _itemType;
+let _hubUrn;
+let _isTipVersion;
 
 const _propertiesView = document.getElementById("propertiesView");
-const _versionList = document.getElementById("versionList");
 
 _propertiesView.onload = () => {
   if (!_tree)
     _tree = initTreeControl("#tree", onSelectionChanged, onHubButtonClicked);
-};
-
-_versionList.onchange = () => {
-  abortJSON();
-  clearGeneralProperties();
-  removeSubcomponentFromBreadcrumbs();
-
-  const versionUrn = _versionList.value;
-  const selectedVersion = _versionList.selectedOptions[0];
-  const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
-  document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
-
-  storeId("version", _projectId, versionUrn).then(() => {
-    showVersionProperties();
-  });
 };
 
 function clearGeneralProperties() {
@@ -44,7 +27,7 @@ async function showThumbnail() {
   try {
     while (true) {
       const response = await getJSON(
-        `/api/fusiondata/${_extendableVersionType}/${_extendableVersionId}/thumbnailUrl`,
+        `/api/fusiondata/${_itemType}/${_versionId}/thumbnailUrl`,
         "GET"
       );
 
@@ -66,39 +49,23 @@ async function showThumbnail() {
   }
 }
 
-async function storeId(type, projectId, fileItemOrVersionId) {
-  try {
-    const response = await getJSON(
-      `/api/fusiondata/${projectId}/${encodeURIComponent(
-        fileItemOrVersionId
-      )}/${type}id`,
-      "GET"
-    );
-
-    if (type === 'item') {
-      _extendableItemId = response.id;
-      console.log(`Selected item's ID: ${response.id}`);
-    } else {
-      _extendableVersionId = response.id;
-      _extendableVersionType = response.type;
-      console.log(`Selected version's ID: ${response.id}`);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 function getInputElements(tbody) {
   return tbody.querySelectorAll("input");
 }
 
 function isComponentLevelProperty(propertyBehavior) {
-  return (propertyBehavior === 'STANDARD' || propertyBehavior === 'TIMELESS');
+  return (['STANDARD', 'TIMELESS'].includes(propertyBehavior));
 }
 
 function getInputValues(input) {
-  if (input.type === 'checkbox') 
-    return [input.oldValue, (input.indeterminate) ? "" : input.checked];
+  // We can ignore radio buttons for "NO" - working through "YES" is enough 
+  if (input.id.endsWith("_NO"))
+    return [null, null];
+
+  if (input.type === 'radio') {
+    const inputNo = input.nextElementSibling.nextElementSibling;
+    return [input.oldValue, (!input.checked && !inputNo.checked) ? "" : input.checked];
+  }
   else if (input.type === 'number')
     return [input.oldValue, (input.value === "") ? "" : Number.parseFloat(input.value)]
   else
@@ -106,10 +73,15 @@ function getInputValues(input) {
 }
 
 function setInputValues(input, value) {
+  // We can ignore radio buttons for "NO" - working through "YES" is enough 
+  if (input.id.endsWith("_NO"))
+    return;
+
   input.oldValue = value;
-  if (input.type === 'checkbox') {
-    input.indeterminate = (value === "");
-    input.checked = value;
+  if (input.type === 'radio') {
+    input.checked = (value === true);
+    const inputNo = input.nextElementSibling.nextElementSibling;
+    inputNo.checked = (value === false);
   }
   else
     input.value = value;  
@@ -119,45 +91,104 @@ function updateView(isComponentLevel) {
   if (isComponentLevel)
     // Since a new version was generated we have to list all the available
     // versions again
-    listVersions();
+    updateVersionsList();
   else
     // Just update the properties
     showVersionProperties();
 }
 
-function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
+function getCheckboxInputHTML(definitionId, propertyBehavior) {
+  const idYes = definitionId + "_YES";
+  const idNo = definitionId + "_NO";
+  return `<input 
+      disabled
+      class="form-check-input" 
+      type="radio" 
+      name="${definitionId}" 
+      id="${idYes}" 
+      definitionId="${definitionId}" 
+      propertyBehavior="${propertyBehavior}" 
+    />
+    <label class="form-check-label" for="${idYes}">
+      Yes&nbsp;&nbsp;
+    </label>
+  
+    <input 
+      disabled
+      class="form-check-input" 
+      type="radio" 
+      name="${definitionId}" 
+      id="${idNo}" 
+    />
+    <label class="form-check-label" for="${idNo}">
+      No
+    </label>
+  `    
+}
+
+function getTextNumberInputHTML(inputType, definitionId, propertyBehavior) {
+  return `<input disabled class="border-0 bg-transparent" 
+    type="${inputType}" 
+    definitionId="${definitionId}" 
+    propertyBehavior="${propertyBehavior}" 
+  />`
+}
+
+function addRowToBody(tbody, definition, versionProperties) {
   let info = '';
+  const isComponentLevel = isComponentLevelProperty(definition.propertyBehavior);
+  const behaviors = {
+    'DYNAMIC': 'D',
+    'DYNAMIC_AT_VERSION': 'DV',
+    'TIMELESS': 'T',
+    'STANDARD': 'S'
+  }
+  const behaviorSign = `[${behaviors[definition.propertyBehavior]}]`
+  /*
   if (definition.propertyBehavior === 'TIMELESS')
     info = `<span class="bi bi-info-circle" title="Applied to the lineage and only one value exists at any given time for ALL versions/revisions" />`
   else if (definition.propertyBehavior === 'DYNAMIC_AT_VERSION')
     info = `<span class="bi bi-info-circle" title="Property value is only applied to this component version" />`
+    */
 
   const property = versionProperties.find(item => item.propertyDefinition.id === definition.id);
   const value = (property) ? property.value : '';
 
-  let inputType = "number";
-  if (definition.type === 'BOOLEAN')
-    inputType = "checkbox";
-  else if (definition.type === 'STRING')
-    inputType = "text";
+  let inputHTML = "";
+  if (definition.type === 'BOOLEAN') {
+    inputHTML = getCheckboxInputHTML(definition.id, definition.propertyBehavior);
+  }
+  else if (definition.type === 'STRING') {
+    inputHTML = getTextNumberInputHTML("text", definition.id, definition.propertyBehavior);
+  }
+  else {
+    inputHTML = getTextNumberInputHTML("number", definition.id, definition.propertyBehavior);
+  }
 
   const row = document.createElement("tr");
   row.innerHTML = `
-    <td style="padding-left: 25px;">${definition.name} ${info}</td>
-    <td class="prop-value"><input disabled class="border-0 bg-transparent" type="${inputType}" definitionId="${definition.id}" /></td>
+    <td style="padding-left: 25px;">${definition.name} ${info} ${behaviorSign}</td>
+    <td class="prop-value">
+     ${inputHTML}
+    </td>
     <td>${definition?.units?.name || ""}</td>
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
 
   const button = row.querySelector(".bi-eraser.clickable");
   button.onclick = async () => {
-    let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
-    await useLoadingSymbol(async () => {
-      return await Promise.allSettled([
-        getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
-      ])
-    }); 
-    
-    updateView(isComponentLevel);
+    let extendableId = isComponentLevel ? _itemId : _versionId;
+    const text = (isComponentLevel) ?
+      'Are you sure you want to save these changes? A new file version will be created with this property cleared. This action can’t be undone.' :
+      'Are you sure you want to save these changes? The property for this version will be cleared. This action can’t be undone. '
+    showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
+      await useLoadingSymbol(async () => {
+        return await Promise.allSettled([
+          getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
+        ])
+      }); 
+
+      updateView(isComponentLevel);
+    });
   }
 
   const input = row.querySelector("input");
@@ -166,16 +197,16 @@ function addRowToBody(tbody, definition, versionProperties, isComponentLevel) {
   tbody.appendChild(row); 
 }
 
-function addPropertiesToTable(table, collection, versionProperties, isComponentLevel, title) {
+function addPropertiesToTable(table, collection, versionProperties, collectionName) {
   // Component properties should only be editable when the latest
   // version is selected
-  const isPropertyEditable = isComponentLevel ? (_versionList.options[0].value === _versionList.value) : true;
+  const isPropertyEditable = _isTipVersion;
 
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
     <tr>
       <th class="name-column" scope="col">
-        ${title}
+        ${collectionName}
       </th>
       <th colspan="3">
         <span class="bi-pencil clickable ${!isPropertyEditable ? "hidden" : ""}" title="Edit property values"></span>
@@ -191,45 +222,63 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
     </tr>`
   const tbody = document.createElement("tbody");
 
-  const definitions = collection.propertyDefinitions.results.filter(item => isComponentLevel === isComponentLevelProperty(item.propertyBehavior))
+  const definitions = collection.propertyDefinitions.results;//.filter(item => isComponentLevel === isComponentLevelProperty(item.propertyBehavior))
   if (definitions.length < 1)
     return;
 
   for (let definition of definitions) {
-    addRowToBody(tbody, definition, versionProperties, isComponentLevel);
+    addRowToBody(tbody, definition, versionProperties);
   }
 
   const saveButton = thead.querySelector(".bi-floppy.clickable");
   saveButton.onclick = async () => {
-    showInfoDialog('question', 'Save changes?', 'Are you sure you want to save these changes? This action can’t be undone. ', 'Cancel', 'Save', async () => {
-      // Swap active buttons
-      for (const button of saveButton.parentElement.children)   
-        button.classList.toggle("hidden");
+    // Swap active buttons
+    for (const button of saveButton.parentElement.children)   
+      button.classList.toggle("hidden");
 
-      let properties = [];
-      for (const input of getInputElements(tbody)) {
-        const [oldValue, value] = getInputValues(input);
-        const definitionId = input.getAttribute("definitionId");
-        if (value !== oldValue) 
-          properties.push({
+    let componentProperties = [];
+    let versionProperties = [];
+    for (const input of getInputElements(tbody)) {
+      const [oldValue, value] = getInputValues(input);
+      const definitionId = input.getAttribute("definitionId");
+      const propertyBehavior = input.getAttribute("propertyBehavior");
+      if (value !== oldValue) {
+        if (isComponentLevelProperty(propertyBehavior)) {
+          componentProperties.push({
             propertyDefinitionId: definitionId,
             value
           })
-
-        input.toggleAttribute("disabled", true);
+        } else {
+          versionProperties.push({
+            propertyDefinitionId: definitionId,
+            value
+          })
+        }
       }
 
-      if (properties.length < 1)
-        return;
+      input.toggleAttribute("disabled", true);
+    }
 
-      let extendableId = isComponentLevel ? _extendableItemId : _extendableVersionId;
+    if (componentProperties.length < 1 && versionProperties.length < 1)
+      return;
+
+    const text = (componentProperties.length > 0) ?
+      'Are you sure you want to save these changes? A new file version will be created as a result. This action can’t be undone.' :
+      'Are you sure you want to save these changes? This action can’t be undone. '
+
+    showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
+      let promises = [];
+      if (componentProperties.length > 0)
+        promises.push(getJSON(`/api/fusiondata/${_itemId}/properties`, 'PUT', JSON.stringify({properties: componentProperties})));
+
+      if (versionProperties.length > 0)
+        promises.push(getJSON(`/api/fusiondata/${_versionId}/properties`, 'PUT', JSON.stringify({properties: versionProperties})));
+  
       await useLoadingSymbol(async () => {
-        return await Promise.allSettled([
-          getJSON(`/api/fusiondata/${extendableId}/properties`, 'PUT', JSON.stringify({properties})),
-        ])
+        return await Promise.allSettled(promises)
       }); 
       
-      updateView(isComponentLevel);
+      updateView(componentProperties.length > 0);
     })
   }
   
@@ -265,6 +314,7 @@ function addPropertiesToTable(table, collection, versionProperties, isComponentL
 function addCollectionTableToPane(propertiesPane, collection, versionProperties) {
   const table = document.createElement("table");
   table.classList.toggle("table", true);
+  /*
   table.innerHTML = `
     <thead>
       <tr>
@@ -273,9 +323,10 @@ function addCollectionTableToPane(propertiesPane, collection, versionProperties)
         </th>
       </tr>
     </thead>`;
+    */
 
-  addPropertiesToTable(table, collection, versionProperties, true, 'Component level properties');
-  addPropertiesToTable(table, collection, versionProperties, false, 'Component version properties');
+  addPropertiesToTable(table, collection, versionProperties, collection.name);
+  //addPropertiesToTable(table, collection, versionProperties);
 
   propertiesPane.appendChild(table);
 }
@@ -302,17 +353,19 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
       <td>${componentVersion.partNumber}</td>
       <td>${componentVersion.materialName}</td>`;
 
-    row.classList = "clickable";
+    //row.classList = "clickable";
     row.componentId = componentVersion.component.id;
     row.componentVersionId = componentVersion.id
 
+    /*
     row.onclick = () => {
       addSubcomponentToBreadcrumbs(row.children[0].textContent);
-      _extendableItemId = row.componentId;
-      _extendableVersionId = row.componentVersionId;
-      _extendableVersionType = 'component';
+      _itemId = row.componentId;
+      _versionId = row.componentVersionId;
+      _itemType = 'component';
       showVersionProperties();
     }
+    */
 
     tbody.appendChild(row);
   }
@@ -326,7 +379,7 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
     }
   }
 
-  iterate(componentVersions, _extendableVersionId, 10);
+  iterate(componentVersions, _versionId, 10);
 
   componentsPane.appendChild(table);  
 }
@@ -335,14 +388,14 @@ async function showVersionProperties() {
   showThumbnail();
 
   try {
-    console.log("requesting properties for", _extendableItemId, _extendableVersionId);
+    console.log("requesting properties for", _itemId, _versionId);
 
     const [generalProperties, versionProperties, hubCollections, occurrences] = await useLoadingSymbol(async () => {
       return await Promise.allSettled([
-        getJSON(`/api/fusiondata/${_extendableVersionId}/generalproperties`),
-        getJSON(`/api/fusiondata/${_extendableVersionId}/properties`),
-        getJSON(`/api/fusiondata/${_hubId}/collections`),
-        getJSON(`/api/fusiondata/${_extendableVersionId}/occurrences`)
+        getJSON(`/api/fusiondata/component/${_versionId}/generalproperties`),
+        getJSON(`/api/fusiondata/${_versionId}/properties`),
+        getJSON(`/api/fusiondata/${_hubUrn}/collections`),
+        getJSON(`/api/fusiondata/${_versionId}/alloccurrences`)
       ])
     });
 
@@ -474,21 +527,6 @@ function updateBreadcrumbs(node) {
   }
 }
 
-function addSubcomponentToBreadcrumbs(subcomponentName) {
-  const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
-  let breadcrumb = breadcrumbs.querySelector(".subcomponent");
-  if (!breadcrumb) {
-    breadcrumb = document.createElement("li");
-    breadcrumb.classList = "breadcrumb-item subcomponent";
-    breadcrumbs.appendChild(breadcrumb);
-  }
-
-  breadcrumb.innerHTML = `<a
-    class="link-body-emphasis fw-semibold text-decoration-none"
-    >${subcomponentName}</a
-  >`;
-}
-
 function removeSubcomponentFromBreadcrumbs() {
   const breadcrumbs = _propertiesView.querySelector(".breadcrumb");
   let breadcrumb = breadcrumbs.querySelector(".subcomponent");
@@ -497,31 +535,20 @@ function removeSubcomponentFromBreadcrumbs() {
   }
 }
 
-async function listVersions() {
-  await storeId('item', _projectId, _itemUrn);
-
-  _versionList.innerHTML = "";
-  const versions = await getJSON(
-    `/api/hubs/${_hubId}/projects/${_projectId}/contents/${_itemUrn}/versions`
-  );
-  const listItems = versions.map((version) => {
-    const lastModifiedOn = version.attributes.lastModifiedTime.split("T")[0];
-    return `<option value="${version.id}" lastModifiedOn="${lastModifiedOn}">v${version.attributes.versionNumber}</option>`;
-  });
-  _versionList.innerHTML = listItems.join();
-
-  _versionList.onchange();
-
-  document.getElementById("versionInfo").classList.toggle("hidden", false);
-}
-
 export async function onSelectionChanged(
   node,
   type,
-  hubId,
-  projectId,
-  fileItemVersionId
+  hubUrn,
+  itemId,
+  versionId,
+  isTipVersion,
+  lastModifiedOn
 ) {
+  console.log({lastModifiedOn, isTipVersion, versionId});
+
+  if (!versionId)
+    debugger;
+
   abortJSON();
 
   updateBreadcrumbs(node);
@@ -530,13 +557,24 @@ export async function onSelectionChanged(
 
   clearGeneralProperties();
 
-  if (type === "item") {
-    _itemUrn = fileItemVersionId;
-    _hubId = hubId;
-    _projectId = projectId;
-    listVersions();
+  if (type === "component") {
+    _hubUrn = hubUrn;
+    _itemId = itemId;
+    _versionId = versionId;
+    _itemType = type;
+    _isTipVersion = isTipVersion;
+
+
+    abortJSON();
+    clearGeneralProperties();
+    removeSubcomponentFromBreadcrumbs();
+    if (lastModifiedOn) {
+      document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
+      document.getElementById("versionInfo").classList.toggle("hidden", false);
+    }
+    showVersionProperties();
   } else {
-    _extendableItemId = null;
+    _itemId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
   }
 }
