@@ -178,37 +178,41 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
 
   const saveButton = thead.querySelector(".bi-floppy.clickable");
   saveButton.onclick = async () => {
-    showInfoDialog('question', 'Save changes?', 'Are you sure you want to save these changes? This action can’t be undone. ', 'Cancel', 'Save', async () => {
-      // Swap active buttons
-      for (const button of saveButton.parentElement.children)   
-        button.classList.toggle("hidden");
+    // Swap active buttons
+    for (const button of saveButton.parentElement.children)   
+      button.classList.toggle("hidden");
 
-      let componentProperties = [];
-      let versionProperties = [];
-      for (const input of getInputElements(tbody)) {
-        const [oldValue, value] = getInputValues(input);
-        const definitionId = input.getAttribute("definitionId");
-        const propertyBehavior = input.getAttribute("propertyBehavior");
-        if (value !== oldValue) {
-          if (isComponentLevelProperty(propertyBehavior)) {
-            componentProperties.push({
-              propertyDefinitionId: definitionId,
-              value
-            })
-          } else {
-            versionProperties.push({
-              propertyDefinitionId: definitionId,
-              value
-            })
-          }
+    let componentProperties = [];
+    let versionProperties = [];
+    for (const input of getInputElements(tbody)) {
+      const [oldValue, value] = getInputValues(input);
+      const definitionId = input.getAttribute("definitionId");
+      const propertyBehavior = input.getAttribute("propertyBehavior");
+      if (value !== oldValue) {
+        if (isComponentLevelProperty(propertyBehavior)) {
+          componentProperties.push({
+            propertyDefinitionId: definitionId,
+            value
+          })
+        } else {
+          versionProperties.push({
+            propertyDefinitionId: definitionId,
+            value
+          })
         }
-
-        input.toggleAttribute("disabled", true);
       }
 
-      if (componentProperties.length < 1 && versionProperties.length < 1)
-        return;
+      input.toggleAttribute("disabled", true);
+    }
 
+    if (componentProperties.length < 1 && versionProperties.length < 1)
+      return;
+
+    const text = (componentProperties.length > 0) ?
+      'Are you sure you want to save these changes? A new file version will be created as a result. This action can’t be undone. ' :
+      'Are you sure you want to save these changes? This action can’t be undone. '
+
+    showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
       let promises = [];
       if (componentProperties.length > 0)
         promises.push(getJSON(`/api/fusiondata/${_itemId}/properties`, 'PUT', JSON.stringify({properties: componentProperties})));
