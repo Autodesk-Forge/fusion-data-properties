@@ -177,13 +177,18 @@ function addRowToBody(tbody, definition, versionProperties) {
   const button = row.querySelector(".bi-eraser.clickable");
   button.onclick = async () => {
     let extendableId = isComponentLevel ? _itemId : _versionId;
-    await useLoadingSymbol(async () => {
-      return await Promise.allSettled([
-        getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
-      ])
-    }); 
-    
-    updateView(isComponentLevel);
+    const text = (isComponentLevel) ?
+      'Are you sure you want to save these changes? A new file version will be created with this property cleared. This action can’t be undone.' :
+      'Are you sure you want to save these changes? The property for this version will be cleared. This action can’t be undone. '
+    showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
+      await useLoadingSymbol(async () => {
+        return await Promise.allSettled([
+          getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
+        ])
+      }); 
+
+      updateView(isComponentLevel);
+    });
   }
 
   const input = row.querySelector("input");
@@ -258,7 +263,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
       return;
 
     const text = (componentProperties.length > 0) ?
-      'Are you sure you want to save these changes? A new file version will be created as a result. This action can’t be undone. ' :
+      'Are you sure you want to save these changes? A new file version will be created as a result. This action can’t be undone.' :
       'Are you sure you want to save these changes? This action can’t be undone. '
 
     showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
