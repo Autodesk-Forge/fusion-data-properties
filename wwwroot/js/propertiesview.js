@@ -58,8 +58,14 @@ function isComponentLevelProperty(propertyBehavior) {
 }
 
 function getInputValues(input) {
-  if (input.type === 'checkbox') 
-    return [input.oldValue, (input.indeterminate) ? "" : input.checked];
+  // We can ignore radio buttons for "NO" - working through "YES" is enough 
+  if (input.id.endsWith("_NO"))
+    return [null, null];
+
+  if (input.type === 'radio') {
+    const inputNo = input.nextElementSibling.nextElementSibling;
+    return [input.oldValue, (!input.checked && !inputNo.checked) ? "" : input.checked];
+  }
   else if (input.type === 'number')
     return [input.oldValue, (input.value === "") ? "" : Number.parseFloat(input.value)]
   else
@@ -67,10 +73,15 @@ function getInputValues(input) {
 }
 
 function setInputValues(input, value) {
+  // We can ignore radio buttons for "NO" - working through "YES" is enough 
+  if (input.id.endsWith("_NO"))
+    return;
+
   input.oldValue = value;
-  if (input.type === 'checkbox') {
-    input.indeterminate = (value === "");
-    input.checked = value;
+  if (input.type === 'radio') {
+    input.checked = (value === true);
+    const inputNo = input.nextElementSibling.nextElementSibling;
+    inputNo.checked = (value === false);
   }
   else
     input.value = value;  
@@ -84,6 +95,43 @@ function updateView(isComponentLevel) {
   else
     // Just update the properties
     showVersionProperties();
+}
+
+function getCheckboxInputHTML(definitionId, propertyBehavior) {
+  const idYes = definitionId + "_YES";
+  const idNo = definitionId + "_NO";
+  return `<input 
+      disabled
+      class="form-check-input" 
+      type="radio" 
+      name="${definitionId}" 
+      id="${idYes}" 
+      definitionId="${definitionId}" 
+      propertyBehavior="${propertyBehavior}" 
+    />
+    <label class="form-check-label" for="${idYes}">
+      Yes&nbsp;&nbsp;
+    </label>
+  
+    <input 
+      disabled
+      class="form-check-input" 
+      type="radio" 
+      name="${definitionId}" 
+      id="${idNo}" 
+    />
+    <label class="form-check-label" for="${idNo}">
+      No
+    </label>
+  `    
+}
+
+function getTextNumberInputHTML(inputType, definitionId, propertyBehavior) {
+  return `<input disabled class="border-0 bg-transparent" 
+    type="${inputType}" 
+    definitionId="${definitionId}" 
+    propertyBehavior="${propertyBehavior}" 
+  />`
 }
 
 function addRowToBody(tbody, definition, versionProperties) {
@@ -106,21 +154,22 @@ function addRowToBody(tbody, definition, versionProperties) {
   const property = versionProperties.find(item => item.propertyDefinition.id === definition.id);
   const value = (property) ? property.value : '';
 
-  let inputType = "number";
-  if (definition.type === 'BOOLEAN')
-    inputType = "checkbox";
-  else if (definition.type === 'STRING')
-    inputType = "text";
+  let inputHTML = "";
+  if (definition.type === 'BOOLEAN') {
+    inputHTML = getCheckboxInputHTML(definition.id, definition.propertyBehavior);
+  }
+  else if (definition.type === 'STRING') {
+    inputHTML = getTextNumberInputHTML("text", definition.id, definition.propertyBehavior);
+  }
+  else {
+    inputHTML = getTextNumberInputHTML("number", definition.id, definition.propertyBehavior);
+  }
 
   const row = document.createElement("tr");
   row.innerHTML = `
     <td style="padding-left: 25px;">${definition.name} ${info} ${behaviorSign}</td>
     <td class="prop-value">
-      <input disabled class="border-0 bg-transparent" 
-        type="${inputType}" 
-        definitionId="${definition.id}" 
-        propertyBehavior="${definition.propertyBehavior}" 
-      />
+     ${inputHTML}
     </td>
     <td>${definition?.units?.name || ""}</td>
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
