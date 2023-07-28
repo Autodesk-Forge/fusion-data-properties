@@ -55,6 +55,10 @@ tbody>tr:nth-child(odd) {
   height: 100%;
 }
 
+.full-width {
+  width: 100%;
+}
+
 .float-right {
   float: right;
 }
@@ -303,4 +307,12 @@ tbody>tr:nth-child(odd) {
 
 .dropdown-toggle::after {
   color: white;
+}
+
+.p-6 {
+  padding: 2rem;
+}
+
+.pt-6 {
+  padding-top: 2rem;
 }

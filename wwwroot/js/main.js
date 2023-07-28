@@ -20,7 +20,7 @@ try {
   const callbackUrl = document.getElementById("callbackUrl");
   callbackUrl.src = callbackUrl.textContent = credentials.callbackUrl;
   const myAppsUrl = document.getElementById("myAppsUrl");
-  myAppsUrl.href = myAppsUrl.textContent = `${credentials.apsUrl}/myapps/`;
+  myAppsUrl.href = `${credentials.apsUrl}/myapps/`;
   const accountsUrl = credentials.accountsUrl;
 
   if (!credentials.hasCredentials) {
