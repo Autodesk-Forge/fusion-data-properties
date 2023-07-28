@@ -546,9 +546,6 @@ export async function onSelectionChanged(
 ) {
   console.log({lastModifiedOn, isTipVersion, versionId});
 
-  if (!versionId)
-    debugger;
-
   abortJSON();
 
   updateBreadcrumbs(node);

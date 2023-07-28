@@ -33,8 +33,9 @@ document.getElementById("createDefinition").onclick = document.getElementById(
       });
 
       showDefinitionsTable(collectionId, collectionName);
-    } catch {
-      alert("Could not add new property");
+    } catch (error) {
+      //alert("Could not add new property");
+      showInfoDialog("error", null, error, null, "OK");
     }
   });
 };
@@ -65,8 +66,9 @@ function onEdit(event) {
       });
 
       showDefinitionsTable(collectionId, collectionName);
-    } catch {
-      alert("Could not add new property");
+    } catch (error) {
+      //alert("Could not add new property");
+      showInfoDialog("error", null, error, null, "OK");
     }
   }, currentValues);
 }

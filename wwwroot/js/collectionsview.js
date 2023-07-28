@@ -1,4 +1,4 @@
-import { getJSON, showView, useLoadingSymbol } from "./utils.js";
+import { getJSON, showInfoDialog, showView, useLoadingSymbol } from "./utils.js";
 import { showDefinitionsTable } from "./definitionsview.js";
 import { showCollectionDialog } from "./collectiondialog.js";
 
@@ -26,7 +26,8 @@ document.getElementById("createCollection").onclick = document.getElementById(
       showCollectionsTable();
     } catch (error) {
       console.log(error);
-      alert("Could not create collection");
+      showInfoDialog("error", null, error, null, "OK");
+      //alert(error);
     }
   });
 };
