@@ -18,4 +18,6 @@ export async function showCollectionDialog(callback, values) {
 
   const dialogButton = document.getElementById("collectionDialogButton");
   dialogButton.click();
+
+  document.getElementById("collectionName").focus();
 }

@@ -51,4 +51,6 @@ export async function showDefinitionDialog(callback, values) {
 
   const dialogButton = document.getElementById("definitionDialogButton");
   dialogButton.click();
+
+  document.getElementById("definitionName").focus()
 }
