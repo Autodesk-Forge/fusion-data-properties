@@ -31,10 +31,18 @@ class App {
     if (response.data.errors) {
       let formatted = JSON.stringify(response.data.errors, null, 2);
       console.log(`API error:\n${formatted}`);
-      throw response.data.errors;
+
+      throw this.getErrorMessage(response.data.errors);
     }
 
     return response;
+  }
+
+  getErrorMessage(errors) {
+    const error = errors[0]
+    const message = error.message.split("message=")[1]
+
+    return message;
   }
 
   async getComponentVersionThumbnailUrl(componentVersionId) {  
