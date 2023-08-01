@@ -1,4 +1,4 @@
-import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, wait } from "./utils.js";
+import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, wait, isSafariFirefox } from "./utils.js";
 import { initTreeControl, updateVersionsList } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
@@ -62,11 +62,14 @@ function getInputValues(input) {
   if (input.id.endsWith("_NO"))
     return [null, null];
 
+  const propType = input.getAttribute("propType");
   if (input.type === 'radio') {
     const inputNo = input.nextElementSibling.nextElementSibling;
     return [input.oldValue, (!input.checked && !inputNo.checked) ? "" : input.checked];
   }
-  else if (input.type === 'number')
+  else if (propType === 'int')
+    return [input.oldValue, (input.value === "") ? "" : Number.parseInt(input.value)]
+  else if (propType === 'float')
     return [input.oldValue, (input.value === "") ? "" : Number.parseFloat(input.value)]
   else
     return [input.oldValue, input.value];
@@ -104,6 +107,7 @@ function getCheckboxInputHTML(definitionId, propertyBehavior) {
       disabled
       class="form-check-input" 
       type="radio" 
+      propType="boolean"
       name="${definitionId}" 
       id="${idYes}" 
       definitionId="${definitionId}" 
@@ -126,13 +130,46 @@ function getCheckboxInputHTML(definitionId, propertyBehavior) {
   `    
 }
 
-function getTextNumberInputHTML(inputType, definitionId, propertyBehavior) {
+function handleOnInput(input) {
+  if (input.type !== 'number')
+    return;
+
+  if (isSafariFirefox)
+    input.type = "text";  
+
+  input.onkeydown = (event) => {
+    if (event.key === "." && (input.getAttribute("propType") !== 'float' || input.value.includes("."))) {
+      event.preventDefault();
+      return;
+    }
+
+    if (!isSafariFirefox)
+      return;
+
+    const keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "Backspace"];
+    if (!keys.includes(event.key))
+      event.preventDefault();
+  }  
+}
+
+function getTextInputHTML(definitionId, propertyBehavior) {
   return `<input disabled class="border-0 bg-transparent" 
-    type="${inputType}" 
+    type="text" 
+    propType="string"
     definitionId="${definitionId}" 
     propertyBehavior="${propertyBehavior}" 
   />`
 }
+
+function getNumberInputHTML(inputType, definitionId, propertyBehavior) {
+  return `<input disabled class="border-0 bg-transparent" 
+    type="number"
+    propType="${inputType}" 
+    definitionId="${definitionId}" 
+    propertyBehavior="${propertyBehavior}" 
+  />`
+}
+
 
 function addRowToBody(tbody, definition, versionProperties) {
   let info = '';
@@ -159,10 +196,12 @@ function addRowToBody(tbody, definition, versionProperties) {
     inputHTML = getCheckboxInputHTML(definition.id, definition.propertyBehavior);
   }
   else if (definition.type === 'STRING') {
-    inputHTML = getTextNumberInputHTML("text", definition.id, definition.propertyBehavior);
+    inputHTML = getTextInputHTML(definition.id, definition.propertyBehavior);
   }
-  else {
-    inputHTML = getTextNumberInputHTML("number", definition.id, definition.propertyBehavior);
+  else if (definition.type === 'INTEGER') {
+    inputHTML = getNumberInputHTML("int", definition.id, definition.propertyBehavior);
+  } else {
+    inputHTML = getNumberInputHTML("float", definition.id, definition.propertyBehavior);
   }
 
   const row = document.createElement("tr");
@@ -193,6 +232,7 @@ function addRowToBody(tbody, definition, versionProperties) {
 
   const input = row.querySelector("input");
   setInputValues(input, value);
+  handleOnInput(input);
 
   tbody.appendChild(row); 
 }

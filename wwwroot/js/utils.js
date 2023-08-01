@@ -1,6 +1,12 @@
 let _controllers = new Set();
 let _useLoadingSymbolCounter = 0;
 
+// Brave has both Safari and Chrome, so if Chrome is there we don't check for others
+export let isSafariFirefox = 
+  navigator.userAgent.match(/chrome/i) ? 
+    false : 
+    navigator.userAgent.match(/firefox|fxios|safari/i) !== "";
+
 export function wait(seconds) {
   return new Promise((resolve, reject) => {
     setTimeout(resolve, 1000 * seconds);
