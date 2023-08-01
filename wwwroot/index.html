@@ -51,13 +51,13 @@
           <div id="avatar" class="dropdown text-end float-right">
             <a
               href="#"
-              class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+              class="d-block link-body-emphasis text-decoration-none"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               <img
                 id="avatarImage"
-                src="/images/login.svg"
+                src="/images/profile.svg"
                 alt="mdo"
                 width="32"
                 height="32"
@@ -107,42 +107,44 @@
 
     <div id="credentialsView" class="view hidden">
       <div class="container pt-3">
-        <div class="center p-3">
-          <h3>Welcome to the Property Definition Manager</h3>
-        </div>
         <div class="pt-3 w-50 mx-auto">
-          <p>Please provide your APS app's credentials to use with this demo</p>
-          <p>Make sure that on <a id="myAppsUrl" href="https://aps.autodesk.com/myapps/">https://aps.autodesk.com/myapps/</a> in your app's settings the <b>Callback URL</b> is set exactly to this:</p>
+          <div class="center p-6">
+            <h5>Welcome to the Property Definition Manager<br /> demo application</h5>
+          </div>
+          <p>To ensure seamless integration, make sure the <b>Callback URL</b> in your <a id="myAppsUrl" href="https://aps.autodesk.com/myapps/">app settings</a> in the <b>Autodesk Platform Services</b> developer portal is as follows:</p>
           <p><a id="callbackUrl" href="http://localhost:3000/api/auth/callback-test">http://localhost:3000/api/auth/callback-test</a></p>
           <form action="/api/auth/credentials" method="post">
-            <div class="modal-content">
+            <div class="modal-content pt-3 pb-3">
               <label for="clientId" class="form-label"
-                >Client ID</label
-              >
-              <div class="input-group">
-                <input
-                  type="text"
-                  name="clientId"
-                  class="form-control"
-                  id="clientId"
-                  required
-                />
+                  >Client ID</label
+                >
+              <input
+                type="text"
+                name="clientId"
+                class="form-control"
+                id="clientId"
+                required
+              />
+              <div class="form-text">
+                Provided when creating your app in the APS dev portal.
               </div>
+             
               <label for="clientSecret" class="form-label pt-3"
                 >Client Secret</label
               >
-              <div class="input-group">
-                <input
-                  type="password"
-                  name="clientSecret"
-                  class="form-control"
-                  id="clientSecret"
-                  required
-                />
+              <input
+                type="password"
+                name="clientSecret"
+                class="form-control"
+                id="clientSecret"
+                required
+              />
+              <div class="form-text">
+                Provided when creating your app in the APS dev portal.
               </div>
             </div>
-            <div class="modal-footer pt-3">
-              <input id="storeCredentials" type="submit" value="Store Credentials" class="btn btn-primary" />
+            <div class="modal-footer pt-6">
+              <input id="storeCredentials" type="submit" value="NEXT" class="btn btn-primary full-width" />
             </div>
           </form>
         </div>
@@ -297,13 +299,6 @@
                       <span class="bi bi-house-door-fill"></span>
                       <span class="visually-hidden">Home</span>
                     </a>
-                  </li>
-                  <li class="breadcrumb-item">
-                    <a
-                      class="link-body-emphasis fw-semibold text-decoration-none"
-                      href="#"
-                      >Library</a
-                    >
                   </li>
                 </ol>
               </nav>
