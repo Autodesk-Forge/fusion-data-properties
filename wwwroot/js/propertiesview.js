@@ -464,15 +464,15 @@ async function showVersionProperties() {
         "managePropertiesTable"
       );
       managePropertiesTable.children[0].children[1].textContent =
-        values.itemNumber;
+        values.manage.itemNumber;
       managePropertiesTable.children[1].children[1].textContent =
-        values.lifecycle;
+        values.manage.lifecycle;
       managePropertiesTable.children[2].children[1].textContent =
-        values.revision;
+        values.manage.revision;
       managePropertiesTable.children[3].children[1].textContent =
-        values.changeOrder;
+        values.manage.changeOrder;
       managePropertiesTable.children[4].children[1].textContent =
-        values.changeOrderURN;
+        values.manage.changeOrderURN;
 
       const physicalPropertiesTable = document.getElementById(
         "physicalPropertiesTable"
