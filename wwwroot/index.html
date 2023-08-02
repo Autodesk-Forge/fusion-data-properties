@@ -51,7 +51,7 @@
           <div id="avatar" class="dropdown text-end float-right">
             <a
               href="#"
-              class="d-block link-body-emphasis text-decoration-none"
+              class="link-body-emphasis text-decoration-none"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
@@ -63,29 +63,35 @@
                 height="32"
                 class="rounded-circle"
               />
+              <span id="signInText" class="p-1 align-middle text-small text-light">
+                Sign in
+              </span>
             </a>
 
             <ul class="dropdown-menu text-small">
               <li id="userName" class="dropdown-item">Not logged in</li>
+              <li><a id="signIn" class="dropdown-item" href="#">Sign in</a></li>
               <li><hr class="dropdown-divider" /></li>
               <li>
                 <a id="menuitemCredentialsView" class="dropdown-item" href="#"
                   >Credentials</a
                 >
               </li>
+              <li><hr class="dropdown-divider" /></li>
               <li>
                 <a id="menuitemCollectionsView" class="dropdown-item disabled" href="#"
                   >Manage property definitions</a
                 >
               </li>
+              <li><hr class="dropdown-divider" /></li>
               <li>
                 <a id="menuitemPropertiesView" class="dropdown-item disabled" href="#"
                   >Hubs browser</a
                 >
               </li>
-              <li><hr class="dropdown-divider" /></li>
+              <li><hr id="signOutDivider" class="dropdown-divider" /></li>
               <li>
-                <a id="menuitemLogin" class="dropdown-item disabled" href="#">Log out</a>
+                <a id="signOut" class="dropdown-item" href="#">Sign out</a>
               </li>
             </ul>
           </div>
