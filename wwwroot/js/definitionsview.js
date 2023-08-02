@@ -91,7 +91,7 @@ function addRow(definitionsTable, definition) {
       <td>${toYesOrNo(definition.readOnly)}</td>
       <td>
         <span href="" class="bi bi-pencil clickable" title="Edit property">&nbsp;</span>
-        <span href="" class="bi bi-archive clickable" title="Archive property">&nbsp;</span>
+        ${false ? '<span href="" class="bi bi-archive clickable" title="Archive property">&nbsp;</span>' : ''}
       </td>
     </tr>`;
 
