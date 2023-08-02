@@ -63,12 +63,13 @@ function addRow(collectionsTable, collection) {
             <li>
               <a class="dropdown-item" href="#">Add properties</a>
             </li>
+            ${false ? `
             <li><hr class="dropdown-divider" /></li>
             <li>
               <a class="dropdown-item" href="#"
                 >Edit collection details</a
               >
-            </li>
+            </li>` : ''}
           </ul>
         </div>
       </td>
