@@ -4,7 +4,8 @@ import {
   useLoadingSymbol,
   toYesOrNo,
   toNonEmpty,
-  formatString
+  formatString,
+  wait
 } from "./utils.js";
 import { showDefinitionDialog } from "./definitiondialog.js";
 
@@ -31,6 +32,8 @@ document.getElementById("createDefinition").onclick = document.getElementById(
           })
         );
       });
+
+      wait(1);
 
       showDefinitionsTable(collectionId, collectionName);
     } catch (error) {
