@@ -171,7 +171,7 @@ function getNumberInputHTML(inputType, definitionId, propertyBehavior) {
 }
 
 
-function addRowToBody(tbody, definition, versionProperties) {
+function addRowToBody(tbody, definition, versionProperties, isEditable) {
   let info = '';
   const isComponentLevel = isComponentLevelProperty(definition.propertyBehavior);
   const behaviors = {
@@ -214,6 +214,7 @@ function addRowToBody(tbody, definition, versionProperties) {
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
 
   const button = row.querySelector(".bi-eraser.clickable");
+  button.classList.toggle("hidden", !isEditable);
   button.onclick = async () => {
     let extendableId = isComponentLevel ? _itemId : _versionId;
     const text = (isComponentLevel) ?
@@ -267,7 +268,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
     return;
 
   for (let definition of definitions) {
-    addRowToBody(tbody, definition, versionProperties);
+    addRowToBody(tbody, definition, versionProperties, isPropertyEditable);
   }
 
   const saveButton = thead.querySelector(".bi-floppy.clickable");
