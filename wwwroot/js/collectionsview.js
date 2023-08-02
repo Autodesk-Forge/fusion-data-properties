@@ -8,7 +8,9 @@ document.getElementById("collectionsView").onload = () => {
 
 document.getElementById("createCollection").onclick = document.getElementById(
   "newCollection"
-).onclick = (event) => {
+).onclick = () => callShowCollectionDialog(null, false);
+
+function callShowCollectionDialog(inputValues, isEditing) {
   showCollectionDialog(async (values) => {
     console.log(values);
 
@@ -28,11 +30,12 @@ document.getElementById("createCollection").onclick = document.getElementById(
       showCollectionsTable();
     } catch (error) {
       console.log(error);
-      showInfoDialog("error", null, error, null, "OK");
-      //alert(error);
+      showInfoDialog("error", null, error, null, "OK", () => {
+        callShowCollectionDialog(values, isEditing);
+      });
     }
-  });
-};
+  }, inputValues, isEditing);  
+}
 
 function onTableRowClick(event) {
   console.log("onTableRowClick");

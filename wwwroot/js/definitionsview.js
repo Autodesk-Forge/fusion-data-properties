@@ -5,13 +5,16 @@ import {
   toYesOrNo,
   toNonEmpty,
   formatString,
+  showInfoDialog,
   wait
 } from "./utils.js";
 import { showDefinitionDialog } from "./definitiondialog.js";
 
 document.getElementById("createDefinition").onclick = document.getElementById(
   "newDefinition"
-).onclick = (event) => {
+).onclick = () => callShowDefinitionDialog(null, false);
+
+function callShowDefinitionDialog(inputValues, isEditing) {
   showDefinitionDialog(async (values) => {
     console.log(values);
 
@@ -37,43 +40,20 @@ document.getElementById("createDefinition").onclick = document.getElementById(
 
       showDefinitionsTable(collectionId, collectionName);
     } catch (error) {
-      //alert("Could not add new property");
-      showInfoDialog("error", null, error, null, "OK");
+      showInfoDialog("error", null, error, null, "OK", () => {
+        callShowDefinitionDialog(values, isEditing)
+      });
     }
-  });
-};
+  }, inputValues, isEditing);
+}
 
 function onEdit(event) {
   console.log("onEdit");
   event.preventDefault();
 
   const currentValues = event.target.parentElement.parentElement.definition;
-  const collectionId = definitionsTable.getAttribute("collectionId");
-  const collectionName = definitionsTable.getAttribute("collectionName");
 
-  showDefinitionDialog(async (values) => {
-    console.log(values);
-
-    try {
-      const definition = await useLoadingSymbol(async () => {
-        const res = await getJSON(
-          `/api/fusiondata/definitions/${currentValues.id}`,
-          "PUT",
-          JSON.stringify({
-            definitionDescription: values.description,
-            isHidden: values.isHidden,
-          })
-        );
-
-        return res;
-      });
-
-      showDefinitionsTable(collectionId, collectionName);
-    } catch (error) {
-      //alert("Could not add new property");
-      showInfoDialog("error", null, error, null, "OK");
-    }
-  }, currentValues);
+  callShowDefinitionDialog(currentValues, true);
 }
 
 function onArchive(event) {

@@ -15,10 +15,8 @@ document.getElementById("definitionDialogOk").onclick = (event) => {
   });
 };
 
-export async function showDefinitionDialog(callback, values) {
+export async function showDefinitionDialog(callback, values, isEditing) {
   _callback = callback;
-
-  const isEditing = values !== undefined;
 
   // You can only edit 'description' and 'isHidden'
   disableElements(
