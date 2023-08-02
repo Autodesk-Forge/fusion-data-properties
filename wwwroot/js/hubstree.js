@@ -1,4 +1,4 @@
-import { wait } from "./utils.js";
+import { wait, useLoadingSymbol } from "./utils.js";
 
 let _tree = null;
 
@@ -184,7 +184,10 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
 
     // Reload if it already has children
     if (itemNode.hasChildren())
-      await itemNode.reload();
+      await useLoadingSymbol(async () => {
+        return await itemNode.reload();
+      });
+      
 
     // Have we changed the version on the selected node or its "item" parent?
     if (!selectedNode)
