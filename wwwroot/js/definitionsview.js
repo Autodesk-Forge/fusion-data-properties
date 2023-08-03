@@ -62,6 +62,8 @@ function onArchive(event) {
 }
 
 function addRow(definitionsTable, definition) {
+  const showArchive = false;
+
   let row = definitionsTable.insertRow();
   row.definition = definition;
   row.innerHTML += `<tr>
@@ -74,13 +76,14 @@ function addRow(definitionsTable, definition) {
       <td>${toYesOrNo(definition.readOnly)}</td>
       <td>
         <span href="" class="bi bi-pencil clickable" title="Edit property">&nbsp;</span>
-        ${false ? '<span href="" class="bi bi-archive clickable" title="Archive property">&nbsp;</span>' : ''}
+        ${showArchive ? '<span href="" class="bi bi-archive clickable" title="Archive property">&nbsp;</span>' : ''}
       </td>
     </tr>`;
 
   let [edit, archive] = row.getElementsByTagName("span");
   edit.onclick = onEdit;
-  archive.onclick = onArchive;
+  if (showArchive)
+    archive.onclick = onArchive;
 }
 
 export async function showDefinitionsTable(collectionId, collectionName) {
