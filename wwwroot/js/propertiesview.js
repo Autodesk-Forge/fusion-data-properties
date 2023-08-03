@@ -1,4 +1,4 @@
-import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, wait, isSafariFirefox } from "./utils.js";
+import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, formatString, wait, isSafariFirefox } from "./utils.js";
 import { initTreeControl, updateVersionsList } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
 
@@ -207,6 +207,7 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
   const row = document.createElement("tr");
   row.innerHTML = `
     <td style="padding-left: 25px;">${definition.name} ${info} ${behaviorSign}</td>
+    <td>${formatString(definition.type)}</td>
     <td class="prop-value">
      ${inputHTML}
     </td>
@@ -249,7 +250,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
       <th class="name-column" scope="col">
         ${collectionName}
       </th>
-      <th colspan="3">
+      <th colspan="4">
         <span class="bi-pencil clickable ${!isPropertyEditable ? "hidden" : ""}" title="Edit property values"></span>
         <span class="bi-x-circle clickable hidden" title="Cancel changes"></span>
         <span class="bi-floppy clickable hidden" title="Save changes"><img src="images/save.svg" width="16px" height="16px" /></span>
@@ -257,6 +258,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
     </tr>
     <tr style="border-block-color: transparent;">
       <th class="name-column" scope="col"></th>
+      <th>Type</th>
       <th>Value</th>
       <th>Units</th>
       <th>Action</th>
