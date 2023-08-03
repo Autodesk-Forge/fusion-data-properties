@@ -45,7 +45,7 @@ class App {
     if (message)
       return message; 
 
-    message = error.message.split(" : ")[1]  
+    message = error.message;
 
     return message;
   }

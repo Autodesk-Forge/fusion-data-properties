@@ -317,11 +317,20 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
       if (versionProperties.length > 0)
         promises.push(getJSON(`/api/fusiondata/${_versionId}/properties`, 'PUT', JSON.stringify({properties: versionProperties})));
   
-      await useLoadingSymbol(async () => {
+      const results = await useLoadingSymbol(async () => {
         return await Promise.allSettled(promises)
-      }); 
+      });
       
-      updateView(componentProperties.length > 0);
+      if (results[0]?.reason || results[1]?.reason) {
+        const reason = results[0]?.reason ? results[0]?.reason : results[1]?.reason;
+        showInfoDialog("error", null, reason, null, "OK", () => {
+          // If the component level request failed we just need to update the current version
+          // no need to look for a new version, i.e. updateView/isComponentLevel=false
+          updateView(componentProperties.length > 0 && !results[0]?.reason);
+        })
+      } else {
+        updateView(componentProperties.length > 0);
+      }
     })
   }
   
