@@ -239,10 +239,10 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
   tbody.appendChild(row); 
 }
 
-function addPropertiesToTable(table, collection, versionProperties, collectionName) {
+function addPropertiesToTable(table, collection, versionProperties, collectionName, isMyCollection) {
   // Component properties should only be editable when the latest
   // version is selected
-  const isPropertyEditable = _isTipVersion;
+  const isPropertyEditable = _isTipVersion && isMyCollection;
 
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
@@ -363,7 +363,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
   table.appendChild(tbody);
 }
 
-function addCollectionTableToPane(propertiesPane, collection, versionProperties) {
+function addCollectionTableToPane(propertiesPane, collection, versionProperties, isMyCollection) {
   if (collection.propertyDefinitions.results.length < 1)
     return;
 
@@ -380,7 +380,7 @@ function addCollectionTableToPane(propertiesPane, collection, versionProperties)
     </thead>`;
     */
 
-  addPropertiesToTable(table, collection, versionProperties, collection.name);
+  addPropertiesToTable(table, collection, versionProperties, collection.name, isMyCollection);
   //addPropertiesToTable(table, collection, versionProperties);
 
   propertiesPane.appendChild(table);
@@ -445,19 +445,21 @@ async function showVersionProperties() {
   try {
     console.log("requesting properties for", _itemId, _versionId);
 
-    const [generalProperties, versionProperties, hubCollections, occurrences] = await useLoadingSymbol(async () => {
+    const [generalProperties, versionProperties, hubCollections, myCollections, occurrences] = await useLoadingSymbol(async () => {
       return await Promise.allSettled([
         getJSON(`/api/fusiondata/component/${_versionId}/generalproperties`),
         getJSON(`/api/fusiondata/${_versionId}/properties`),
         getJSON(`/api/fusiondata/${_hubUrn}/collections`),
+        getJSON(`/api/fusiondata/collections`),
         getJSON(`/api/fusiondata/${_versionId}/alloccurrences`)
       ])
     });
 
-    console.log(hubCollections.value);
-    console.log(versionProperties.value);
-    console.log(generalProperties.value);
-    console.log(occurrences.value);
+    console.log("hubCollections", hubCollections.value);
+    console.log("myCollections", myCollections.value);
+    console.log("versionProperties", versionProperties.value);
+    console.log("generalProperties", generalProperties.value);
+    console.log("occurrences", occurrences.value);
  
     // Overview tab
 
@@ -531,7 +533,9 @@ async function showVersionProperties() {
       const propertiesPane = document.getElementById("propertiesPane");
       propertiesPane.innerHTML = '';
       for (let collection of hubCollections.value) {
-        addCollectionTableToPane(propertiesPane, collection, versionProperties.value);
+        // '!!' turns the find result into boolean
+        const isMyCollection = !!myCollections.value.find(item => item.id === collection.id);
+        addCollectionTableToPane(propertiesPane, collection, versionProperties.value, isMyCollection);
       }
     }
   } catch (error) {
