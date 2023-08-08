@@ -364,6 +364,9 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
 }
 
 function addCollectionTableToPane(propertiesPane, collection, versionProperties) {
+  if (collection.propertyDefinitions.results.length < 1)
+    return;
+
   const table = document.createElement("table");
   table.classList.toggle("table", true);
   /*
