@@ -37,20 +37,10 @@ function callShowCollectionDialog(inputValues, isEditing) {
   }, inputValues, isEditing);  
 }
 
-function onTableRowClick(event) {
-  console.log("onTableRowClick");
-
-  const collectionId = event.currentTarget.getAttribute("collectionId");
-  const collectionName = event.currentTarget.text;
-  showDefinitionsTable(collectionId, collectionName);
-
-  event.preventDefault();
-}
-
 function addRow(collectionsTable, collection) {
   let row = collectionsTable.insertRow();
   row.innerHTML += `<tr>
-      <td><a href="${collection.name}" collectionId="${collection.id}">${collection.name}</a></td>
+      <td><a class="collection-link" href="${collection.name}" collectionId="${collection.id}">${collection.name}</a></td>
       <td>
         <div class="dropdown">
           <a
@@ -66,7 +56,7 @@ function addRow(collectionsTable, collection) {
           </a>
           <ul class="dropdown-menu text-small">
             <li>
-              <a class="dropdown-item" href="#">Add Property Definition</a>
+              <a class="dropdown-item add-property" href="#">Add Property Definition</a>
             </li>
             ${false ? `
             <li><hr class="dropdown-divider" /></li>
@@ -80,8 +70,25 @@ function addRow(collectionsTable, collection) {
       </td>
     </tr>`;
 
-  let link = row.getElementsByTagName("a")[0];
-  link.onclick = onTableRowClick;
+  let link = row.querySelector(".collection-link");
+  link.onclick = (event) => {
+    console.log("onTableRowClick");
+
+    const collectionId = link.getAttribute("collectionId");
+    const collectionName = link.text;
+    showDefinitionsTable(collectionId, collectionName);
+  
+    event.preventDefault();
+  }
+
+  let addProperty = row.querySelector(".add-property");
+  addProperty.onclick = () => {
+    console.log("onAddProperty");
+
+    const collectionId = link.getAttribute("collectionId");
+    const collectionName = link.text;
+    showDefinitionsTable(collectionId, collectionName, true);
+  };
 }
 
 export async function showCollectionsTable() {

@@ -86,7 +86,7 @@ function addRow(definitionsTable, definition) {
     archive.onclick = onArchive;
 }
 
-export async function showDefinitionsTable(collectionId, collectionName) {
+export async function showDefinitionsTable(collectionId, collectionName, showDialog) {
   const definitionsTable = document.getElementById("definitionsTable");
   definitionsTable.setAttribute("collectionId", collectionId);
   definitionsTable.setAttribute("collectionName", collectionName);
@@ -103,6 +103,11 @@ export async function showDefinitionsTable(collectionId, collectionName) {
       showView("emptyDefinitionsView", ` ${collectionName} Property Definitions`, () => {
         showView("collectionsView");
       });
+
+      if (showDialog) {
+        callShowDefinitionDialog(null, false);
+      }
+      
       return;
     }
 
@@ -113,6 +118,10 @@ export async function showDefinitionsTable(collectionId, collectionName) {
     definitionsTable.innerHTML = "";
     for (let definition of definitions) {
       addRow(definitionsTable, definition);
+    }
+
+    if (showDialog) {
+      callShowDefinitionDialog(null, false);
     }
   } catch {}
 }
