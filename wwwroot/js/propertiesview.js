@@ -511,9 +511,14 @@ async function showVersionProperties() {
         formatNumber(props.area?.value);
       physicalPropertiesTable.children[3].children[2].textContent =
         props.area?.propertyDefinition?.units?.name || "";
-      physicalPropertiesTable.children[4].children[1].textContent = `${formatNumber(props.boundingBox?.width?.value)} x ${formatNumber(props.boundingBox?.length?.value)} x ${formatNumber(props.boundingBox?.height?.value)}`;
+      physicalPropertiesTable.children[4].children[1].textContent = 
+        props.boundingBox?.width?.value ?
+        `${formatNumber(props.boundingBox?.width?.value)} x ${formatNumber(props.boundingBox?.length?.value)} x ${formatNumber(props.boundingBox?.height?.value)}`
+        : '';
       physicalPropertiesTable.children[4].children[2].textContent =
-        props.boundingBox?.width?.propertyDefinition?.units.name + " x " + props.boundingBox?.length?.propertyDefinition?.units.name + " x " + props.boundingBox?.height?.propertyDefinition?.units.name;
+      props.boundingBox?.width?.propertyDefinition?.units.name ?
+        props.boundingBox?.width?.propertyDefinition?.units.name + " x " + props.boundingBox?.length?.propertyDefinition?.units.name + " x " + props.boundingBox?.height?.propertyDefinition?.units.name
+        : '';
     }
 
     // Components
