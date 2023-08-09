@@ -23,22 +23,39 @@ function callShowDefinitionDialog(inputValues, isEditing) {
 
     try {
       const definition = await useLoadingSymbol(async () => {
-        return await getJSON(
-          `/api/fusiondata/collections/${collectionId}/definitions`,
-          "POST",
-          JSON.stringify({
-            definitionName: values.name,
-            definitionType: values.type,
-            definitionDescription: values.description,
-            isHidden: values.isHidden,
-            propertyBehavior: values.propertyBehavior,
-          })
-        );
+        if (isEditing)
+          return await getJSON(
+            `/api/fusiondata/definitions/${inputValues.id}`,
+            "PUT",
+            JSON.stringify({
+              definitionDescription: values.description,
+              isHidden: values.isHidden,
+            })
+          );
+        else
+          return await getJSON(
+            `/api/fusiondata/collections/${collectionId}/definitions`,
+            "POST",
+            JSON.stringify({
+              definitionName: values.name,
+              definitionType: values.type,
+              definitionDescription: values.description,
+              isHidden: values.isHidden,
+              propertyBehavior: values.propertyBehavior,
+            })
+          );
       });
 
-      wait(1);
+      //wait(1);
 
-      showDefinitionsTable(collectionId, collectionName);
+      //showDefinitionsTable(collectionId, collectionName);
+      if (isEditing) {
+        const definitionsTable = document.getElementById("definitionsTable");
+        updateRow(definitionsTable, inputValues.id, values)
+      } else {
+        const definitionsTable = document.getElementById("definitionsTable");
+        addRow(definitionsTable, values)
+      }
     } catch (error) {
       showInfoDialog("error", null, error, null, "OK", () => {
         callShowDefinitionDialog(values, isEditing)
@@ -66,24 +83,34 @@ function addRow(definitionsTable, definition) {
 
   let row = definitionsTable.insertRow();
   row.definition = definition;
-  row.innerHTML += `<tr>
-      <td definitionId="${definition.id}">${definition.name}</td>
-      <td>${formatString(definition.type)}</td>
-      <td>${toNonEmpty(definition.units?.name)}</td>
-      <td>${formatString(toNonEmpty(definition.propertyBehavior))}</td>
-      <td>${definition.description}</td>
-      <td>${toYesOrNo(definition.isHidden)}</td>
-      <td>${toYesOrNo(definition.readOnly)}</td>
-      <td>
-        <span href="" class="bi bi-pencil clickable" title="Edit property">&nbsp;</span>
-        ${showArchive ? '<span href="" class="bi bi-archive clickable" title="Archive property">&nbsp;</span>' : ''}
-      </td>
-    </tr>`;
+  row.setAttribute("definitionId", definition.id);
+  row.innerHTML += `
+    <td class="definition-name">${definition.name}</td>
+    <td class="definition-type">${formatString(definition.type)}</td>
+    <td class="definition-units">${toNonEmpty(definition.units?.name)}</td>
+    <td class="definition-behavior">${formatString(toNonEmpty(definition.propertyBehavior))}</td>
+    <td class="definition-description">${definition.description}</td>
+    <td class="definition-hidden">${toYesOrNo(definition.isHidden)}</td>
+    <td class="definition-readonly">${toYesOrNo(definition.readOnly)}</td>
+    <td>
+      <span href="" class="bi bi-pencil clickable" title="Edit property">&nbsp;</span>
+      ${showArchive ? '<span href="" class="bi bi-archive clickable" title="Archive property">&nbsp;</span>' : ''}
+    </td>`;
 
   let [edit, archive] = row.getElementsByTagName("span");
   edit.onclick = onEdit;
   if (showArchive)
     archive.onclick = onArchive;
+}
+
+function updateRow(definitionsTable, definitionId, definition) {
+  const row = definitionsTable.querySelector(`tr[definitionId="${definitionId}"]`);
+  const description = row.querySelector(".definition-description");
+  description.textContent = definition.description;
+  row.definition.description = definition.description;
+  const isHidden = row.querySelector(".definition-hidden");
+  isHidden.textContent = toYesOrNo(definition.isHidden);
+  row.definition.isHidden = definition.isHidden;
 }
 
 export async function showDefinitionsTable(collectionId, collectionName, showDialog) {
@@ -107,7 +134,7 @@ export async function showDefinitionsTable(collectionId, collectionName, showDia
       if (showDialog) {
         callShowDefinitionDialog(null, false);
       }
-      
+
       return;
     }
 
