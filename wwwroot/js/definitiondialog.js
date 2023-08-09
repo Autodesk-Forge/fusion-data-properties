@@ -31,11 +31,11 @@ export async function showDefinitionDialog(callback, values, isEditing) {
   );
 
   document.getElementById("definitionDialogTitle").textContent = isEditing
-    ? "Edit property"
-    : "Add property";
+    ? "Edit Property Definition"
+    : "New Property Definition";
   document.getElementById("definitionDialogOk").textContent = isEditing
-    ? "Save changes"
-    : "Add property to collection";
+    ? "Save Changes"
+    : "Add Property Definition";
   document.getElementById("definitionName").value = values?.name || "";
   document.getElementById("definitionType").value = values?.type || "STRING";
   document.getElementById("definitionDescription").value =
