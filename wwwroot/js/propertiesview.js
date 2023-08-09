@@ -180,7 +180,7 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
     'TIMELESS': 'T',
     'STANDARD': 'S'
   }
-  const behaviorSign = `[${behaviors[definition.propertyBehavior]}]`
+  const behaviorSign = '';//`[${behaviors[definition.propertyBehavior]}]`
   /*
   if (definition.propertyBehavior === 'TIMELESS')
     info = `<span class="bi bi-info-circle" title="Applied to the lineage and only one value exists at any given time for ALL versions/revisions" />`
