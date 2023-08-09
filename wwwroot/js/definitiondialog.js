@@ -6,6 +6,7 @@ document.getElementById("definitionDialogOk").onclick = (event) => {
   if (!_callback) return;
 
   _callback({
+    id: document.getElementById("definitionDialog").definitionId,
     name: document.getElementById("definitionName").value,
     description: document.getElementById("definitionDescription").value,
     type: document.getElementById("definitionType").value,
@@ -30,6 +31,7 @@ export async function showDefinitionDialog(callback, values, isEditing) {
     isEditing
   );
 
+  document.getElementById("definitionDialog").definitionId = values?.id;
   document.getElementById("definitionDialogTitle").textContent = isEditing
     ? "Edit Property Definition"
     : "New Property Definition";

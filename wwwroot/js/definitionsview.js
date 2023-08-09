@@ -51,9 +51,11 @@ function callShowDefinitionDialog(inputValues, isEditing) {
       //showDefinitionsTable(collectionId, collectionName);
       if (isEditing) {
         const definitionsTable = document.getElementById("definitionsTable");
-        updateRow(definitionsTable, inputValues.id, values)
+        values.id = inputValues.id;
+        updateRow(definitionsTable, values)
       } else {
         const definitionsTable = document.getElementById("definitionsTable");
+        values.id = definition.id;
         addRow(definitionsTable, values)
       }
     } catch (error) {
@@ -103,8 +105,8 @@ function addRow(definitionsTable, definition) {
     archive.onclick = onArchive;
 }
 
-function updateRow(definitionsTable, definitionId, definition) {
-  const row = definitionsTable.querySelector(`tr[definitionId="${definitionId}"]`);
+function updateRow(definitionsTable, definition) {
+  const row = definitionsTable.querySelector(`tr[definitionId="${definition.id}"]`);
   const description = row.querySelector(".definition-description");
   description.textContent = definition.description;
   row.definition.description = definition.description;
