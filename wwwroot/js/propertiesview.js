@@ -322,26 +322,32 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
       'Are you sure you want to save these changes? This action can’t be undone. '
 
     showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
-      let promises = [];
-      if (componentProperties.length > 0)
-        promises.push(getJSON(`/api/fusiondata/${_itemId}/properties`, 'PUT', JSON.stringify({properties: componentProperties})));
+      // We need to set the version properties first, so that e.g. a DYNAMIC property's
+      // new value can propagate into the next version if a STANDARD property was also modified
+      let versionResults;
+      let componentResults;
 
-      if (versionProperties.length > 0)
-        promises.push(getJSON(`/api/fusiondata/${_versionId}/properties`, 'PUT', JSON.stringify({properties: versionProperties})));
-  
-      const results = await useLoadingSymbol(async () => {
-        return await Promise.allSettled(promises)
-      });
-      
-      if (results[0]?.reason || results[1]?.reason) {
-        const reason = results[0]?.reason ? results[0]?.reason : results[1]?.reason;
-        showInfoDialog("error", null, reason, null, "OK", () => {
+      try {
+        if (versionProperties.length > 0) {
+          versionResults = await useLoadingSymbol(async () => {
+            return await getJSON(`/api/fusiondata/${_versionId}/properties`, 'PUT', JSON.stringify({properties: versionProperties}))
+          });
+        }
+
+        if (componentProperties.length > 0) {
+          componentResults = await useLoadingSymbol(async () => {
+            return await getJSON(`/api/fusiondata/${_itemId}/properties`, 'PUT', JSON.stringify({properties: componentProperties}))
+          });
+        }
+
+        updateView(componentProperties.length > 0);
+      } catch (error) {
+        console.log(error);
+        showInfoDialog("error", null, error, null, "OK", () => {
           // If the component level request failed we just need to update the current version
           // no need to look for a new version, i.e. updateView/isComponentLevel=false
-          updateView(componentProperties.length > 0 && !results[0]?.reason);
+          updateView(componentProperties.length > 0 && !componentResults);
         })
-      } else {
-        updateView(componentProperties.length > 0);
       }
     })
   }
