@@ -46,7 +46,8 @@ async function showThumbnail() {
         if (response.status !== 'SUCCESS')
           throw "Could not generate thumbnail";
   
-        thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.largeImageUrl)}`;
+        //thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.largeImageUrl)}`;
+        thumbnail.src = response.largeImageUrl;
 
         break;
       }
