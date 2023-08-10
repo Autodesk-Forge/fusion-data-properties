@@ -254,7 +254,8 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
 function addPropertiesToTable(table, collection, versionProperties, collectionName, isMyCollection) {
   // Component properties should only be editable when the latest
   // version is selected
-  const isPropertyEditable = _isTipVersion && isMyCollection;
+  //const isPropertyEditable = _isTipVersion && isMyCollection;
+  const isPropertyEditable = isMyCollection;
 
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
