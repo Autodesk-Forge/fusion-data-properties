@@ -34,7 +34,7 @@ export async function showDefinitionDialog(callback, values, isEditing) {
   document.getElementById("definitionDialog").definitionId = values?.id;
   document.getElementById("definitionDialogTitle").textContent = isEditing
     ? "Edit Property Definition"
-    : "New Property Definition";
+    : "Add Property Definition";
   document.getElementById("definitionDialogOk").textContent = isEditing
     ? "Save Changes"
     : "Add Property Definition";
