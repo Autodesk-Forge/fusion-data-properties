@@ -255,6 +255,30 @@ export async function showLinkIconForHubsWithLinkedCollections() {
     }
 }
 
+function addLinkButton(item, onHubButtonClicked) {
+  item.innerHTML +=
+    '<span class="bi-link-45deg link-icon hidden" title="Hub has linked property collections"></span><span class="float-right bi-three-dots clickable" title="Link collections to the hub"></span>';
+  item.querySelector(".float-right").onclick = (event) => {
+    // prevent "node.click" from firing
+    event.stopPropagation();
+
+    onHubButtonClicked(event);
+  };
+}
+
+function addRefreshButton(node) {
+  const item = document.querySelector(`a[data-uid="${node.id}"]`);
+
+  item.innerHTML +=
+    '<span class="float-right bi-arrow-repeat clickable" title="Refresh folder contents"></span>';
+  item.querySelector(".float-right").onclick = (event) => {
+    // prevent "node.click" from firing
+    event.stopPropagation();
+
+    node.reload();
+  };
+}
+
 export function initTreeControl(
   selector,
   onSelectionChanged,
@@ -268,11 +292,7 @@ export function initTreeControl(
 
     if (hubNodes.length > 1) {
       for (let item of hubNodes) {
-        item.innerHTML +=
-          '<span class="bi-link-45deg link-icon hidden" title="Hub has linked property collections"></span><span class="float-right bi-three-dots clickable"></span>';
-        item.getElementsByClassName("float-right")[0].onclick = (event) => {
-          onHubButtonClicked(event);
-        };
+        addLinkButton(item, onHubButtonClicked);
       }
   
       showLinkIconForHubsWithLinkedCollections();
@@ -286,8 +306,6 @@ export function initTreeControl(
     childList: true, 
     subtree: true
   })
-
-
 
   // See http://inspire-tree.com
   const tree = new InspireTree({
@@ -317,6 +335,11 @@ export function initTreeControl(
   tree.on("children.loaded", async function (node) {
     console.log("children.loaded")
     for (let child of node.children) {
+      if (child.id.startsWith("folder")) {
+        addRefreshButton(child);
+        continue;
+      }
+
       if (!child.id.startsWith("item"))
         continue;
 
