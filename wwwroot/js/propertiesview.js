@@ -20,6 +20,17 @@ function clearGeneralProperties() {
   for (let item of document.getElementsByClassName("prop-value")) {
     item.textContent = "";
   }
+
+  for (let item of document.getElementsByClassName("prop-unit")) {
+    item.textContent = "";
+  }
+}
+
+function clearPanes(names) {
+  for (let name of names) {
+    const pane = document.getElementById(name);
+    pane.innerHTML = '';
+  }
 }
 
 async function showThumbnail() {
@@ -417,6 +428,8 @@ function addComponentsTableToPane(componentsPane, componentVersions) {
 }
 
 async function showVersionProperties() {
+  clearPanes(["propertiesPane", "componentsPane"]);
+
   showThumbnail();
 
   try {
@@ -501,8 +514,6 @@ async function showVersionProperties() {
     // Components
 
     if (occurrences.value) {
-      const componentsPane = document.getElementById("componentsPane");
-      componentsPane.innerHTML = '';
       addComponentsTableToPane(componentsPane, occurrences.value);
     }
 
@@ -594,6 +605,7 @@ export async function onSelectionChanged(
   document.getElementById("versionInfo").classList.toggle("hidden", true);
 
   clearGeneralProperties();
+  clearPanes(["propertiesPane", "componentsPane"]);
 
   if (type === "component") {
     _hubUrn = hubUrn;
@@ -602,9 +614,7 @@ export async function onSelectionChanged(
     _itemType = type;
     _isTipVersion = isTipVersion;
 
-
     abortJSON();
-    clearGeneralProperties();
     removeSubcomponentFromBreadcrumbs();
     if (lastModifiedOn) {
       document.getElementById("lastModifiedOn").textContent = lastModifiedOn;
