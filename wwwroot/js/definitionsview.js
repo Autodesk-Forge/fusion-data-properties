@@ -10,11 +10,11 @@ import {
 } from "./utils.js";
 import { showDefinitionDialog } from "./definitiondialog.js";
 
-document.getElementById("createDefinition").onclick = document.getElementById(
-  "newDefinition"
-).onclick = () => callShowDefinitionDialog(null, false);
+document.getElementById("createDefinition").onclick = () => callShowDefinitionDialog(null, false, true);
 
-function callShowDefinitionDialog(inputValues, isEditing) {
+document.getElementById("newDefinition").onclick = () => callShowDefinitionDialog(null, false);
+
+function callShowDefinitionDialog(inputValues, isEditing, isCollectionEmpty) {
   showDefinitionDialog(async (values) => {
     console.log(values);
 
@@ -46,9 +46,12 @@ function callShowDefinitionDialog(inputValues, isEditing) {
           );
       });
 
-      //wait(1);
+      if (isCollectionEmpty) {
+        wait(2);
+        showDefinitionsTable(collectionId, collectionName);
+        return;
+      }
 
-      //showDefinitionsTable(collectionId, collectionName);
       if (isEditing) {
         const definitionsTable = document.getElementById("definitionsTable");
         values.id = inputValues.id;
@@ -60,7 +63,7 @@ function callShowDefinitionDialog(inputValues, isEditing) {
       }
     } catch (error) {
       showInfoDialog("error", null, error, null, "OK", () => {
-        callShowDefinitionDialog(values, isEditing)
+        callShowDefinitionDialog(values, isEditing, isCollectionEmpty)
       });
     }
   }, inputValues, isEditing);
@@ -72,7 +75,7 @@ function onEdit(event) {
 
   const currentValues = event.target.parentElement.parentElement.definition;
 
-  callShowDefinitionDialog(currentValues, true);
+  callShowDefinitionDialog(currentValues, true, false);
 }
 
 function onArchive(event) {
@@ -134,7 +137,7 @@ export async function showDefinitionsTable(collectionId, collectionName, showDia
       });
 
       if (showDialog) {
-        callShowDefinitionDialog(null, false);
+        callShowDefinitionDialog(null, false, true);
       }
 
       return;
@@ -150,7 +153,7 @@ export async function showDefinitionsTable(collectionId, collectionName, showDia
     }
 
     if (showDialog) {
-      callShowDefinitionDialog(null, false);
+      callShowDefinitionDialog(null, false, false);
     }
   } catch {}
 }
