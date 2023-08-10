@@ -247,7 +247,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
   const thead = document.createElement("thead");
   thead.innerHTML = ` 
     <tr>
-      <th class="name-column" scope="col">
+      <th class="name-column pt-3" scope="col">
         ${collectionName}
       </th>
       <th colspan="4">
@@ -361,29 +361,6 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
   
   table.appendChild(thead);
   table.appendChild(tbody);
-}
-
-function addCollectionTableToPane(propertiesPane, collection, versionProperties, isMyCollection) {
-  if (collection.propertyDefinitions.results.length < 1)
-    return;
-
-  const table = document.createElement("table");
-  table.classList.toggle("table", true);
-  /*
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th class="name-column" scope="col" colspan="4" style="font-size: 20px; font-weight: bolder;">
-          ${collection.name}
-        </th>
-      </tr>
-    </thead>`;
-    */
-
-  addPropertiesToTable(table, collection, versionProperties, collection.name, isMyCollection);
-  //addPropertiesToTable(table, collection, versionProperties);
-
-  propertiesPane.appendChild(table);
 }
 
 function addComponentsTableToPane(componentsPane, componentVersions) {
@@ -537,11 +514,14 @@ async function showVersionProperties() {
     if (hubCollections.value) {
       const propertiesPane = document.getElementById("propertiesPane");
       propertiesPane.innerHTML = '';
+      const table = document.createElement("table"); 
+      table.classList = "table";
       for (let collection of hubCollections.value) {
         // '!!' turns the find result into boolean
         const isMyCollection = !!myCollections.value.find(item => item.id === collection.id);
-        addCollectionTableToPane(propertiesPane, collection, versionProperties.value, isMyCollection);
+        addPropertiesToTable(table, collection, versionProperties.value, collection.name, isMyCollection)
       }
+      propertiesPane.appendChild(table);
     }
   } catch (error) {
     console.log(error);
