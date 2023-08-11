@@ -48,9 +48,11 @@ export async function showHubCollectionsDialog(hubId) {
 
   collectionsDialogEmpty.classList.toggle("hidden", true);
 
-  for (let collection of linkedCollections.value) {
-    const linkIcon = `<span class="bi-link-45deg float-right"></span>`;
-    collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}${linkIcon}</li>`;
+  if (linkedCollections.value) {
+    for (let collection of linkedCollections.value) {
+      const linkIcon = `<span class="bi-link-45deg float-right"></span>`;
+      collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}${linkIcon}</li>`;
+    }
   }
 
   for (let collection of collections.value) {
