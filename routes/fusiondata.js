@@ -10,7 +10,8 @@ router.use(authRefreshMiddleware);
 
 router.get('/collections', async function (req, res, next) {
   try {
-    let token = await get2LO(req);
+    // Allow this even for 3rd parties (enableAdminRights=true) so they can link collections
+    let token = await get2LO(req, true);
     let fd = new fusionData(token);
     const response = await fd.getCollections();
     res.json(response);

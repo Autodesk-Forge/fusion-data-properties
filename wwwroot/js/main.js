@@ -28,24 +28,34 @@ try {
   const myAppsUrl = document.getElementById("myAppsUrl");
   myAppsUrl.href = `${credentials.apsUrl}/myapps/`;
   const accountsUrl = credentials.accountsUrl;
-
-  if (!credentials.hasCredentials) {
+  
+  if (!credentials.providedCredentials) {
     showView("credentialsView");
     throw "No credentials were provided"
   }
-  
-  if (!credentials.isValid) {
+
+  if (!credentials.hasValidCredentials) {
     showView("credentialsView");
-    showInfoDialog('error', "Invalid Credentials", "Please verify that the provided credentials are correct", null, "Close");
+    if (credentials.isAppOwner) 
+      showInfoDialog('error', "Invalid Credentials", "Please verify that the provided credentials are correct", null, "Close");
+    else
+      showInfoDialog('error', "Invalid Credentials", "Please verify the APS app owner enabled access using the provided client id", null, "Close");
+
     throw "Credentials are not valid"
   }
 
-  _menuitemCollectionsView.classList.toggle('disabled', false);
-  showView("collectionsView");
+  if (credentials.isAppOwner) { 
+    _menuitemCollectionsView.classList.toggle('disabled', false);
+    showView("collectionsView");
+  }
 
   const resp = await fetch("/api/auth/profile");
   if (resp.ok) {
     _menuitemPropertiesView.classList.toggle('disabled', false);
+
+    if (!credentials.isAppOwner) { 
+      showView("propertiesView");
+    }
 
     const user = await resp.json();
     _userName.textContent = user.name;
