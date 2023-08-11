@@ -62,7 +62,8 @@ try {
       iframe.style.visibility = "hidden";
       iframe.src = `${accountsUrl}/Authentication/LogOut`;
       document.body.appendChild(iframe);
-      iframe.onload = () => {
+      iframe.onload = async () => {
+        await new Promise(resolve => setTimeout(() => resolve(), 2000));
         window.location.replace("/api/auth/logout");
         document.body.removeChild(iframe);
       };
