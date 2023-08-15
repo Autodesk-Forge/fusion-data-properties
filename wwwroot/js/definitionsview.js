@@ -47,19 +47,16 @@ function callShowDefinitionDialog(inputValues, isEditing, isCollectionEmpty) {
       });
 
       if (isCollectionEmpty) {
-        wait(2);
-        showDefinitionsTable(collectionId, collectionName);
+        showDefinitionsTable(collectionId, collectionName, false, [definition]);
         return;
       }
 
       if (isEditing) {
         const definitionsTable = document.getElementById("definitionsTable");
-        values.id = inputValues.id;
-        updateRow(definitionsTable, values)
+        updateRow(definitionsTable, definition)
       } else {
         const definitionsTable = document.getElementById("definitionsTable");
-        values.id = definition.id;
-        addRow(definitionsTable, values)
+        addRow(definitionsTable, definition)
       }
     } catch (error) {
       showInfoDialog("error", null, error, null, "OK", () => {
@@ -118,18 +115,19 @@ function updateRow(definitionsTable, definition) {
   row.definition.isHidden = definition.isHidden;
 }
 
-export async function showDefinitionsTable(collectionId, collectionName, showDialog) {
+export async function showDefinitionsTable(collectionId, collectionName, showDialog = false, definitions = null) {
   const definitionsTable = document.getElementById("definitionsTable");
   definitionsTable.setAttribute("collectionId", collectionId);
   definitionsTable.setAttribute("collectionName", collectionName);
 
   try {
-    let definitions = await useLoadingSymbol(async () => {
-      return await getJSON(
-        `/api/fusiondata/collections/${collectionId}/definitions`,
-        "GET"
-      );
-    });
+    if (!definitions) 
+      definitions = await useLoadingSymbol(async () => {
+        return await getJSON(
+          `/api/fusiondata/collections/${collectionId}/definitions`,
+          "GET"
+        );
+      });
 
     if (definitions.length < 1) {
       showView("emptyDefinitionsView", ` ${collectionName} Property Definitions`, () => {

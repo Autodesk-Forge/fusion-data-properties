@@ -409,10 +409,14 @@ class App {
               id
               name
               type
-              isHidden
+              units {
+                id
+                name
+              }
               isArchived
-              description
+              isHidden
               readOnly
+              description
               propertyBehavior
             }
           }
@@ -440,14 +444,15 @@ class App {
             id
             name
             type
+            units {
+              id
+              name
+            }
             isArchived
             isHidden
             readOnly
             description
             propertyBehavior
-            units {
-              name
-            }
           }
         }
       }`,
@@ -469,8 +474,17 @@ class App {
           ) {
             propertyDefinition {
               id
-              description
+              name
+              type
+              units {
+                id
+                name
+              }
+              isArchived
               isHidden
+              readOnly
+              description
+              propertyBehavior
             }
           }
         }
@@ -482,7 +496,7 @@ class App {
       }
     );
     
-    return response.data.data.mfg.updatePropertyDefinition;
+    return response.data.data.mfg.updatePropertyDefinition.propertyDefinition;
   }
 
   async getGeneralProperties(versionId) {  
