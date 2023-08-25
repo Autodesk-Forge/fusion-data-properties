@@ -38,7 +38,9 @@ router.post('/credentials', urlencodedParser, async function (req, res) {
         // Only register valid client id/client secret pairs
         registerClientSecret(req.body.clientId, req.body.clientSecret);
       }
-    } catch { }
+    } catch (err) { 
+      console.log(err);
+    }
   }
 
   console.log(req.session.clientId + " / " + req.session.clientSecret);

@@ -1,4 +1,4 @@
-const { AuthClientThreeLegged, UserProfileApi, ApiClient, AuthClientTwoLegged } = require('forge-apis');
+const { AuthClientThreeLeggedV2, UserProfileApi, ApiClient, AuthClientTwoLeggedV2 } = require('forge-apis');
 const { APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES, BASE_URL } = require('../../config.js');
 
 const _clientSecrets = {};
@@ -20,7 +20,7 @@ function unregisterClientSecret(clientSecret) {
 function internalAuthClient(req) {
   const clientSecret = req.session.clientSecret ? req.session.clientSecret : _clientSecrets[req.session.clientId];
 
-  const client = new AuthClientThreeLegged(req.session.clientId, clientSecret, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
+  const client = new AuthClientThreeLeggedV2(req.session.clientId, clientSecret, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }
@@ -28,7 +28,7 @@ function internalAuthClient(req) {
 function publicAuthClient(req) {
   const clientSecret = req.session.clientSecret ? req.session.clientSecret : _clientSecrets[req.session.clientId];
 
-  const client = new AuthClientThreeLegged(req.session.clientId, clientSecret, APS_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
+  const client = new AuthClientThreeLeggedV2(req.session.clientId, clientSecret, APS_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }
@@ -38,7 +38,7 @@ function internal2LOClient(req, enableAdminRights) {
     req.session.clientSecret ? req.session.clientSecret : 
     enableAdminRights ? _clientSecrets[req.session.clientId] : '';
 
-  const client = new AuthClientTwoLegged(req.session.clientId, clientSecret, INTERNAL_TOKEN_SCOPES);
+  const client = new AuthClientTwoLeggedV2(req.session.clientId, clientSecret, INTERNAL_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }
