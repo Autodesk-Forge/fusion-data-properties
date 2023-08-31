@@ -265,7 +265,7 @@ class App {
     let cursor = null;
     do {
       let response = await this.sendQuery(
-        `query GetPropertyDefinitionCollectionsByHuubId ($hubId: ID!) {
+        `query GetPropertyDefinitionCollectionsByHubId ($hubId: ID!) {
           mfg {
             propertyDefinitionCollectionsByHubId (hubId: $hubId${cursor ? `, pagination : { cursor: "${cursor}" }` : `${isMinimal ? ', pagination : { limit: 1 }' : ''}` }) {
               pagination {
