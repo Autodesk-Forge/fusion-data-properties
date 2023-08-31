@@ -235,21 +235,36 @@ export async function updateVersionsList() {
   addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelectionChanged);
 } 
 
+function showLinkIconForHubWithLinkedCollections(hub) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hubUrn = hub.getAttribute('data-uid').split('|')[1];
+      const collections = await getJSON(`/api/fusiondata/${hubUrn}/collections?minimal=true`);
+
+      const link = hub.querySelector(`span.link-icon`);
+      if (collections.length < 1) {
+        link.classList.toggle("hidden", true);
+        resolve();
+        return
+      }
+
+      link.classList.toggle("hidden", false);
+      resolve();
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  })
+}
+
 export async function showLinkIconForHubsWithLinkedCollections() {
     try {
       const hubs = document.querySelectorAll(`a.icon-hub`);
+      let promises = [];
       for (let hub of hubs) {
-        const hubUrn = hub.getAttribute('data-uid').split('|')[1];
-        const collections = await getJSON(`/api/fusiondata/${hubUrn}/collections?minimal=true`);
-
-        const link = hub.querySelector(`span.link-icon`);
-        if (collections.length < 1) {
-          link.classList.toggle("hidden", true);
-          continue;
-        }
-  
-        link.classList.toggle("hidden", false);
+        promises.push(showLinkIconForHubWithLinkedCollections(hub));
       }
+      Promise.allSettled(promises);
     } catch (error) {
       console.log(error);
     }
