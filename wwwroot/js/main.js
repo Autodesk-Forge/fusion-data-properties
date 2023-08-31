@@ -70,13 +70,13 @@ try {
       // Log the user out (see https://aps.autodesk.com/blog/log-out-forge)
       const iframe = document.createElement("iframe");
       iframe.style.visibility = "hidden";
-      iframe.src = `${accountsUrl}/Authentication/LogOut`;
       document.body.appendChild(iframe);
       iframe.onload = async () => {
         await new Promise(resolve => setTimeout(() => resolve(), 2000));
         window.location.replace("/api/auth/logout");
         document.body.removeChild(iframe);
       };
+      iframe.src = `${accountsUrl}/Authentication/LogOut`;
     };
   } else {
     throw "Could not get profile / 3-legged tokenn is not valid"
