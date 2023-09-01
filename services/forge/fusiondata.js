@@ -28,7 +28,7 @@ class App {
       }
     })
 
-    if (response.data.errors) {
+    if (response.data.errors && !query.includes('GetPropertyDefinitionCollectionsByHubId')) {
       let formatted = JSON.stringify(response.data.errors, null, 2);
       console.log(`API error:\n${formatted}`);
 
