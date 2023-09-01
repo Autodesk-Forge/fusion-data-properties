@@ -80,6 +80,7 @@ async function fetchDataForItemNode(item, hubUrn, projectUrn) {
       false, //true // keep it hidden until the version dropdown is added
       {
         itemId: itemJson.id,
+        type: itemJson.type,
         versions: versionsJson
       }
     ));

@@ -213,6 +213,11 @@ class App {
                 id
               }
             }
+            ... on MFGDrawingItem {
+              drawing {
+                id
+              }
+            }
           }
         }
       }`,
@@ -222,10 +227,11 @@ class App {
       }
     )
 
-    let item = response.data.data.nav.item;
-    let id = item.rootComponent.id;
+    const item = response.data.data.nav.item;
+    const id = item.rootComponent ? item.rootComponent.id : item.drawing.id;
+    const type = item.rootComponent ? 'component' : 'drawing';
 
-    return { id };
+    return { id, type };
   }
 
   async getCollections() { 
