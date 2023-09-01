@@ -505,7 +505,7 @@ class App {
     return response.data.data.mfg.updatePropertyDefinition.propertyDefinition;
   }
 
-  async getGeneralProperties(versionId) {  
+  async getGeneralPropertiesForComponentVersion(versionId) {  
     let response = await this.sendQuery(
       `query GetProperties($componentVersionId: ID!) {
         mfg {
@@ -596,11 +596,40 @@ class App {
     return response.data.data.mfg.componentVersion;
   }
 
-  async getPropertiesForExtendable(extendableId) {  
+  async getGeneralPropertiesForDrawingVersion(versionId) {  
     let response = await this.sendQuery(
-      `query GetAllProperties($extendableId: ID!) {
+      `query GetProperties($drawingVersionId: ID!) {
         mfg {
-          componentVersion(componentVersionId: $extendableId) {
+          drawingVersion(drawingVersionId: $drawingVersionId) {
+            lastModifiedOn
+
+            partNumber
+            name
+            partDescription
+
+            manage {
+              itemNumber
+              lifeCycle
+              revision
+              changeOrder
+              changeOrderURN
+            }
+          }
+        }
+      }`,
+      {
+        drawingVersionId: versionId
+      }
+    )
+
+    return response.data.data.mfg.drawingVersion;
+  }
+
+  async getPropertiesForComponentVersion(componentVersionId) {  
+    let response = await this.sendQuery(
+      `query GetAllProperties($componentVersionId: ID!) {
+        mfg {
+          componentVersion(componentVersionId: $componentVersionId) {
             customProperties {
               results {
                 value
@@ -621,11 +650,43 @@ class App {
         }
       }`,
       {
-        extendableId
+        componentVersionId
       }
     )
 
     return response.data.data.mfg.componentVersion.customProperties.results;
+  }
+
+  async getPropertiesForDrawingVersion(drawingVersionId) {  
+    let response = await this.sendQuery(
+      `query GetAllProperties($drawingVersionId: ID!) {
+        mfg {
+          drawingVersion(drawingVersionId: $drawingVersionId) {
+            customProperties {
+              results {
+                value
+                propertyDefinition {
+                  id
+                  name
+                  type
+                  isHidden
+                  description
+                  propertyBehavior
+                  units {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`,
+      {
+        drawingVersionId
+      }
+    )
+
+    return response.data.data.mfg.drawingVersion.customProperties.results;
   }
 
   async setProperties(extendableId, properties) {  

@@ -106,9 +106,20 @@ router.put('/definitions/:definition_id', async function (req, res) {
 router.get('/component/:version_id/generalproperties', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const props = await fd.getGeneralProperties(req.params.version_id);
+    const properties = await fd.getGeneralPropertiesForComponentVersion(req.params.version_id);
       
-    res.json(props);
+    res.json(properties);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/drawing/:version_id/generalproperties', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const properties = await fd.getGeneralPropertiesForDrawingVersion(req.params.version_id);
+      
+    res.json(properties);
   } catch (err) {
     res.status(400).json(err);
   }
@@ -158,11 +169,21 @@ router.get('/:version_id/alloccurrences', async function (req, res) {
 
 // Extendable functions related to properties 
 
-router.get('/:extendable_id/properties', async function (req, res) {
+router.get('/component/:id/properties', async function (req, res) {
   try {
     let fd = new fusionData(req.internalOAuthToken.access_token);
-    const occurrences = await fd.getPropertiesForExtendable(req.params.extendable_id);
-    res.json(occurrences);
+    const properties = await fd.getPropertiesForComponentVersion(req.params.id);
+    res.json(properties);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.get('/drawing/:id/properties', async function (req, res) {
+  try {
+    let fd = new fusionData(req.internalOAuthToken.access_token);
+    const properties = await fd.getPropertiesForDrawingVersion(req.params.id);
+    res.json(properties);
   } catch (err) {
     res.status(400).json(err);
   }

@@ -48,8 +48,9 @@ async function showThumbnail() {
         if (response.status !== 'SUCCESS')
           throw "Could not generate thumbnail";
   
-        //thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.largeImageUrl)}`;
-        thumbnail.src = response.largeImageUrl;
+        // still needed for drawings 
+        thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.largeImageUrl)}`;
+        //thumbnail.src = response.largeImageUrl;
 
         break;
       }
@@ -238,7 +239,7 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
     showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
       await useLoadingSymbol(async () => {
         return await Promise.allSettled([
-          getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
+          getJSON(`/api/fusiondata/${_itemType}/${extendableId}/properties/${definition.id}`, 'DELETE'),
         ])
       }); 
 
@@ -280,8 +281,8 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
     </tr>`
   const tbody = document.createElement("tbody");
 
-  const definitions = collection.propertyDefinitions.results;//.filter(item => isComponentLevel === isComponentLevelProperty(item.propertyBehavior))
-  if (definitions.length < 1)
+  const definitions = collection.propertyDefinitions?.results;//.filter(item => isComponentLevel === isComponentLevelProperty(item.propertyBehavior))
+  if (!definitions || definitions.length < 1)
     return;
 
   for (let definition of definitions) {
@@ -447,8 +448,8 @@ async function showVersionProperties() {
 
     const [generalProperties, versionProperties, hubCollections, myCollections, occurrences] = await useLoadingSymbol(async () => {
       return await Promise.allSettled([
-        getJSON(`/api/fusiondata/component/${_versionId}/generalproperties`),
-        getJSON(`/api/fusiondata/${_versionId}/properties`),
+        getJSON(`/api/fusiondata/${_itemType}/${_versionId}/generalproperties`),
+        getJSON(`/api/fusiondata/${_itemType}/${_versionId}/properties`),
         getJSON(`/api/fusiondata/${_hubUrn}/collections`),
         getJSON(`/api/fusiondata/collections`),
         getJSON(`/api/fusiondata/${_versionId}/alloccurrences`)
@@ -496,28 +497,28 @@ async function showVersionProperties() {
       );
       const props = values.physicalProperties;
       physicalPropertiesTable.children[0].children[1].textContent =
-        formatNumber(props.mass?.value);
+        formatNumber(props?.mass?.value);
       physicalPropertiesTable.children[0].children[2].textContent =
-        props.mass?.propertyDefinition?.units?.name || "";
+        props?.mass?.propertyDefinition?.units?.name || "";
       physicalPropertiesTable.children[1].children[1].textContent =
-        formatNumber(props.volume?.value);
+        formatNumber(props?.volume?.value);
       physicalPropertiesTable.children[1].children[2].textContent =
-        props.volume?.propertyDefinition?.units?.name || "";
+        props?.volume?.propertyDefinition?.units?.name || "";
       physicalPropertiesTable.children[2].children[1].textContent =
-        formatNumber(props.density?.value);
+        formatNumber(props?.density?.value);
       physicalPropertiesTable.children[2].children[2].textContent =
-        props.density?.propertyDefinition?.units?.name || "";
+        props?.density?.propertyDefinition?.units?.name || "";
       physicalPropertiesTable.children[3].children[1].textContent =
-        formatNumber(props.area?.value);
+        formatNumber(props?.area?.value);
       physicalPropertiesTable.children[3].children[2].textContent =
-        props.area?.propertyDefinition?.units?.name || "";
+        props?.area?.propertyDefinition?.units?.name || "";
       physicalPropertiesTable.children[4].children[1].textContent = 
-        props.boundingBox?.width?.value ?
-        `${formatNumber(props.boundingBox?.width?.value)} x ${formatNumber(props.boundingBox?.length?.value)} x ${formatNumber(props.boundingBox?.height?.value)}`
+        props?.boundingBox?.width?.value ?
+        `${formatNumber(props?.boundingBox?.width?.value)} x ${formatNumber(props?.boundingBox?.length?.value)} x ${formatNumber(props?.boundingBox?.height?.value)}`
         : '';
       physicalPropertiesTable.children[4].children[2].textContent =
-      props.boundingBox?.width?.propertyDefinition?.units.name ?
-        props.boundingBox?.width?.propertyDefinition?.units.name + " x " + props.boundingBox?.length?.propertyDefinition?.units.name + " x " + props.boundingBox?.height?.propertyDefinition?.units.name
+        props?.boundingBox?.width?.propertyDefinition?.units.name ?
+        props?.boundingBox?.width?.propertyDefinition?.units.name + " x " + props?.boundingBox?.length?.propertyDefinition?.units.name + " x " + props?.boundingBox?.height?.propertyDefinition?.units.name
         : '';
     }
 
@@ -617,7 +618,7 @@ export async function onSelectionChanged(
   clearGeneralProperties();
   clearPanes(["propertiesPane", "componentsPane"]);
 
-  if (type === "component") {
+  if (type === "component" || type === "drawing") {
     _hubUrn = hubUrn;
     _itemId = itemId;
     _versionId = versionId;

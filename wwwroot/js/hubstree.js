@@ -205,7 +205,7 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
       // Notify properties page 
       const isTipVersion = (selectedVersion.versionId === selectedVersion.tipVersionId);  //versionsList.options[0].value === versionsList.value;
       const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
-      onSelectionChanged(selectedNode, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
+      onSelectionChanged(selectedNode, selectedNode.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
     }
   }
 
@@ -379,7 +379,7 @@ export function initTreeControl(
       const selectedVersion = versionsList.selectedOptions[0];
       const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
       console.log(versionsList.value);
-      onSelectionChanged(node, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
+      onSelectionChanged(node, node.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
     } else if (type === "component") {
       const isTipVersion = (versionId === tipVersionId);
       const lastModifiedOn = null;
