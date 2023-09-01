@@ -36,6 +36,8 @@ function clearPanes(names) {
 async function showThumbnail() {
   const thumbnail = document.getElementById("thumbnail");
   try {
+    thumbnail.src = "/images/loading.webp";
+
     while (true) {
       const response = await getJSON(
         `/api/fusiondata/${_itemType}/${_versionId}/thumbnailUrl`,
