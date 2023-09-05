@@ -109,5 +109,7 @@ export async function showCollectionsTable() {
     for (let collection of collections) {
       addRow(collectionsTable, collection);
     }
-  } catch {}
+  } catch (error) {
+    showInfoDialog("error", null, error, null, "OK");
+  }
 }

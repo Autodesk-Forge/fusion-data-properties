@@ -153,5 +153,7 @@ export async function showDefinitionsTable(collectionId, collectionName, showDia
     if (showDialog) {
       callShowDefinitionDialog(null, false, false);
     }
-  } catch {}
+  } catch (error) {
+    showInfoDialog("error", null, error, null, "OK");
+  }
 }

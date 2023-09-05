@@ -73,6 +73,9 @@ export async function useLoadingSymbol(func) {
   element.classList.toggle("hidden", false);
   try {
     return await func();
+  } catch (err) {
+    console.log("useLoadingSymbol -> catch")
+    throw err;
   } finally {
     console.log("useLoadingSymbol -> finally")
     _useLoadingSymbolCounter--;
