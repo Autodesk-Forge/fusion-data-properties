@@ -239,7 +239,7 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
     showInfoDialog('question', 'Save changes?', text, 'Cancel', 'Save', async () => {
       await useLoadingSymbol(async () => {
         return await Promise.allSettled([
-          getJSON(`/api/fusiondata/${_itemType}/${extendableId}/properties/${definition.id}`, 'DELETE'),
+          getJSON(`/api/fusiondata/${extendableId}/properties/${definition.id}`, 'DELETE'),
         ])
       }); 
 
