@@ -1,4 +1,4 @@
-import { wait } from "./utils.js";
+import { wait, useLoadingSymbol } from "./utils.js";
 
 let _tree = null;
 
@@ -80,6 +80,7 @@ async function fetchDataForItemNode(item, hubUrn, projectUrn) {
       false, //true // keep it hidden until the version dropdown is added
       {
         itemId: itemJson.id,
+        type: itemJson.type,
         versions: versionsJson
       }
     ));
@@ -184,7 +185,10 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
 
     // Reload if it already has children
     if (itemNode.hasChildren())
-      await itemNode.reload();
+      await useLoadingSymbol(async () => {
+        return await itemNode.reload();
+      });
+      
 
     // Have we changed the version on the selected node or its "item" parent?
     if (!selectedNode)
@@ -201,7 +205,7 @@ async function addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelect
       // Notify properties page 
       const isTipVersion = (selectedVersion.versionId === selectedVersion.tipVersionId);  //versionsList.options[0].value === versionsList.value;
       const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
-      onSelectionChanged(selectedNode, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
+      onSelectionChanged(selectedNode, selectedNode.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
     }
   }
 
@@ -232,24 +236,63 @@ export async function updateVersionsList() {
   addVersionDropdown(dataUid, hubUrn, projectUrn, itemUrn, onSelectionChanged);
 } 
 
+function showLinkIconForHubWithLinkedCollections(hub) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hubUrn = hub.getAttribute('data-uid').split('|')[1];
+      const collections = await getJSON(`/api/fusiondata/${hubUrn}/collections?minimal=true`);
+
+      const link = hub.querySelector(`span.link-icon`);
+      if (collections.length < 1) {
+        link.classList.toggle("hidden", true);
+        resolve();
+        return
+      }
+
+      link.classList.toggle("hidden", false);
+      resolve();
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  })
+}
+
 export async function showLinkIconForHubsWithLinkedCollections() {
     try {
       const hubs = document.querySelectorAll(`a.icon-hub`);
+      let promises = [];
       for (let hub of hubs) {
-        const hubUrn = hub.getAttribute('data-uid').split('|')[1];
-        const collections = await getJSON(`/api/fusiondata/${hubUrn}/collections?minimal=true`);
-
-        const link = hub.querySelector(`span.link-icon`);
-        if (collections.length < 1) {
-          link.classList.toggle("hidden", true);
-          continue;
-        }
-  
-        link.classList.toggle("hidden", false);
+        promises.push(showLinkIconForHubWithLinkedCollections(hub));
       }
+      Promise.allSettled(promises);
     } catch (error) {
       console.log(error);
     }
+}
+
+function addLinkButton(item, onHubButtonClicked) {
+  item.innerHTML +=
+    '<span class="bi-link-45deg link-icon hidden" title="Hub has linked property collections"></span><span class="float-right bi-three-dots clickable" title="Link collections to the hub"></span>';
+  item.querySelector(".float-right").onclick = (event) => {
+    // prevent "node.click" from firing
+    event.stopPropagation();
+
+    onHubButtonClicked(event);
+  };
+}
+
+function addRefreshButton(node) {
+  const item = document.querySelector(`a[data-uid="${node.id}"]`);
+
+  item.innerHTML +=
+    '<span class="float-right bi-arrow-repeat clickable" title="Refresh folder contents"></span>';
+  item.querySelector(".float-right").onclick = (event) => {
+    // prevent "node.click" from firing
+    event.stopPropagation();
+
+    node.reload();
+  };
 }
 
 export function initTreeControl(
@@ -265,11 +308,7 @@ export function initTreeControl(
 
     if (hubNodes.length > 1) {
       for (let item of hubNodes) {
-        item.innerHTML +=
-          '<span class="bi-link-45deg link-icon hidden" title="Hub has linked property collections"></span><span class="float-right bi-three-dots clickable"></span>';
-        item.getElementsByClassName("float-right")[0].onclick = (event) => {
-          onHubButtonClicked(event);
-        };
+        addLinkButton(item, onHubButtonClicked);
       }
   
       showLinkIconForHubsWithLinkedCollections();
@@ -283,8 +322,6 @@ export function initTreeControl(
     childList: true, 
     subtree: true
   })
-
-
 
   // See http://inspire-tree.com
   const tree = new InspireTree({
@@ -314,6 +351,11 @@ export function initTreeControl(
   tree.on("children.loaded", async function (node) {
     console.log("children.loaded")
     for (let child of node.children) {
+      if (child.id.startsWith("folder")) {
+        addRefreshButton(child);
+        continue;
+      }
+
       if (!child.id.startsWith("item"))
         continue;
 
@@ -337,7 +379,7 @@ export function initTreeControl(
       const selectedVersion = versionsList.selectedOptions[0];
       const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
       console.log(versionsList.value);
-      onSelectionChanged(node, "component", hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
+      onSelectionChanged(node, node.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
     } else if (type === "component") {
       const isTipVersion = (versionId === tipVersionId);
       const lastModifiedOn = null;

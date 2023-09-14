@@ -8,6 +8,7 @@ html {
 
 thead {
   border-bottom: black;
+  height: 3rem;
 }
 
 th {
@@ -212,6 +213,7 @@ tbody>tr:nth-child(odd) {
 }
 
 .version-list {
+  width: -moz-fit-content;
   width: fit-content;
   display: inline-block;
   border: none;
@@ -232,6 +234,11 @@ tbody>tr:nth-child(odd) {
 }
 
 /* Inspire Tree */
+
+/* mitigate style coming from Viewer css */
+.leaf.selected {
+  border-left: none;
+}
 
 .inspire-tree .icon-expand:before {
   background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22currentColor%22%20class%3D%22bi%20bi-chevron-right%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%2F%3E%0A%3C%2Fsvg%3E);

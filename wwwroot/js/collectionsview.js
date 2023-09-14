@@ -1,4 +1,4 @@
-import { getJSON, showInfoDialog, showView, useLoadingSymbol } from "./utils.js";
+import { getJSON, showInfoDialog, showView, useLoadingSymbol, wait } from "./utils.js";
 import { showDefinitionsTable } from "./definitionsview.js";
 import { showCollectionDialog } from "./collectiondialog.js";
 
@@ -8,7 +8,9 @@ document.getElementById("collectionsView").onload = () => {
 
 document.getElementById("createCollection").onclick = document.getElementById(
   "newCollection"
-).onclick = (event) => {
+).onclick = () => callShowCollectionDialog(null, false);
+
+function callShowCollectionDialog(inputValues, isEditing) {
   showCollectionDialog(async (values) => {
     console.log(values);
 
@@ -23,29 +25,22 @@ document.getElementById("createCollection").onclick = document.getElementById(
         );
       });
 
+      wait(1);
+
       showCollectionsTable();
     } catch (error) {
       console.log(error);
-      showInfoDialog("error", null, error, null, "OK");
-      //alert(error);
+      showInfoDialog("error", null, error, null, "OK", () => {
+        callShowCollectionDialog(values, isEditing);
+      });
     }
-  });
-};
-
-function onTableRowClick(event) {
-  console.log("onTableRowClick");
-
-  const collectionId = event.currentTarget.getAttribute("collectionId");
-  const collectionName = event.currentTarget.text;
-  showDefinitionsTable(collectionId, collectionName);
-
-  event.preventDefault();
+  }, inputValues, isEditing);  
 }
 
 function addRow(collectionsTable, collection) {
   let row = collectionsTable.insertRow();
   row.innerHTML += `<tr>
-      <td><a href="${collection.name}" collectionId="${collection.id}">${collection.name}</a></td>
+      <td><a class="collection-link" href="${collection.name}" collectionId="${collection.id}">${collection.name}</a></td>
       <td>
         <div class="dropdown">
           <a
@@ -61,21 +56,39 @@ function addRow(collectionsTable, collection) {
           </a>
           <ul class="dropdown-menu text-small">
             <li>
-              <a class="dropdown-item" href="#">Add properties</a>
+              <a class="dropdown-item add-property" href="#">Add Property Definition</a>
             </li>
+            ${false ? `
             <li><hr class="dropdown-divider" /></li>
             <li>
               <a class="dropdown-item" href="#"
                 >Edit collection details</a
               >
-            </li>
+            </li>` : ''}
           </ul>
         </div>
       </td>
     </tr>`;
 
-  let link = row.getElementsByTagName("a")[0];
-  link.onclick = onTableRowClick;
+  let link = row.querySelector(".collection-link");
+  link.onclick = (event) => {
+    console.log("onTableRowClick");
+
+    const collectionId = link.getAttribute("collectionId");
+    const collectionName = link.text;
+    showDefinitionsTable(collectionId, collectionName);
+  
+    event.preventDefault();
+  }
+
+  let addProperty = row.querySelector(".add-property");
+  addProperty.onclick = () => {
+    console.log("onAddProperty");
+
+    const collectionId = link.getAttribute("collectionId");
+    const collectionName = link.text;
+    showDefinitionsTable(collectionId, collectionName, true);
+  };
 }
 
 export async function showCollectionsTable() {
@@ -96,5 +109,7 @@ export async function showCollectionsTable() {
     for (let collection of collections) {
       addRow(collectionsTable, collection);
     }
-  } catch {}
+  } catch (error) {
+    showInfoDialog("error", null, error, null, "OK");
+  }
 }

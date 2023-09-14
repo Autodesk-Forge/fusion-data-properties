@@ -48,10 +48,18 @@ export async function showHubCollectionsDialog(hubId) {
 
   collectionsDialogEmpty.classList.toggle("hidden", true);
 
+  if (linkedCollections.value) {
+    for (let collection of linkedCollections.value) {
+      const linkIcon = `<span class="bi-link-45deg float-right"></span>`;
+      collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}${linkIcon}</li>`;
+    }
+  }
+
   for (let collection of collections.value) {
-    const linkIcon = isLinked(collection.id)
-      ? `<span class="bi-link-45deg float-right clickable"></span>`
-      : `<span class="bi-link-45deg float-right clickable dimmed"></span>`;
+    if (isLinked(collection.id))
+      continue;
+
+    const linkIcon = `<span class="bi-link-45deg float-right clickable dimmed"></span>`;
     collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}${linkIcon}</li>`;
   }
 
@@ -72,6 +80,7 @@ export async function showHubCollectionsDialog(hubId) {
             );
           });
           item.classList.toggle("dimmed", false);
+          item.classList.toggle("clickable", false);
 
           // Update links in tree control
           showInfoDialog('success', '', 'Collection successfully linked to hub.', '', 'Continue', () => {

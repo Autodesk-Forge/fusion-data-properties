@@ -6,6 +6,7 @@ document.getElementById("definitionDialogOk").onclick = (event) => {
   if (!_callback) return;
 
   _callback({
+    id: document.getElementById("definitionDialog").definitionId,
     name: document.getElementById("definitionName").value,
     description: document.getElementById("definitionDescription").value,
     type: document.getElementById("definitionType").value,
@@ -15,10 +16,8 @@ document.getElementById("definitionDialogOk").onclick = (event) => {
   });
 };
 
-export async function showDefinitionDialog(callback, values) {
+export async function showDefinitionDialog(callback, values, isEditing) {
   _callback = callback;
-
-  const isEditing = values !== undefined;
 
   // You can only edit 'description' and 'isHidden'
   disableElements(
@@ -32,12 +31,13 @@ export async function showDefinitionDialog(callback, values) {
     isEditing
   );
 
+  document.getElementById("definitionDialog").definitionId = values?.id;
   document.getElementById("definitionDialogTitle").textContent = isEditing
-    ? "Edit property"
-    : "Add property";
+    ? "Edit Property Definition"
+    : "Add Property Definition";
   document.getElementById("definitionDialogOk").textContent = isEditing
-    ? "Save changes"
-    : "Add property to collection";
+    ? "Save Changes"
+    : "Add Property Definition";
   document.getElementById("definitionName").value = values?.name || "";
   document.getElementById("definitionType").value = values?.type || "STRING";
   document.getElementById("definitionDescription").value =

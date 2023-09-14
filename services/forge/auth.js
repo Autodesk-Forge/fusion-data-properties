@@ -1,26 +1,50 @@
-const { AuthClientThreeLegged, UserProfileApi, ApiClient, AuthClientTwoLegged } = require('forge-apis');
+const { AuthClientThreeLeggedV2, UserProfileApi, ApiClient, AuthClientTwoLeggedV2 } = require('forge-apis');
 const { APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES, BASE_URL } = require('../../config.js');
 
+const _clientSecrets = {};
+
+function registerClientSecret(clientId, clientSecret) {
+  _clientSecrets[clientId] = clientSecret;
+}
+
+function unregisterClientSecret(clientSecret) {
+  const item = Object.entries(_clientSecrets).find(
+    (item) => item[1] === clientSecret
+  );
+  if (item) {
+    delete _clientSecrets[item[0]];
+  }
+}
+
+
 function internalAuthClient(req) {
-  const client = new AuthClientThreeLegged(req.session.clientId, req.session.clientSecret, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
+  const clientSecret = req.session.clientSecret ? req.session.clientSecret : _clientSecrets[req.session.clientId];
+
+  const client = new AuthClientThreeLeggedV2(req.session.clientId, clientSecret, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }
 
 function publicAuthClient(req) {
-  const client = new AuthClientThreeLegged(req.session.clientId, req.session.clientSecret, APS_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
+  const clientSecret = req.session.clientSecret ? req.session.clientSecret : _clientSecrets[req.session.clientId];
+
+  const client = new AuthClientThreeLeggedV2(req.session.clientId, clientSecret, APS_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }
 
-function internal2LOClient(req) {
-  const client = new AuthClientTwoLegged(req.session.clientId, req.session.clientSecret, INTERNAL_TOKEN_SCOPES);
+function internal2LOClient(req, enableAdminRights) {
+  const clientSecret = 
+    req.session.clientSecret ? req.session.clientSecret : 
+    enableAdminRights ? _clientSecrets[req.session.clientId] : '';
+
+  const client = new AuthClientTwoLeggedV2(req.session.clientId, clientSecret, INTERNAL_TOKEN_SCOPES);
   client.basePath = BASE_URL;
   return client;
 }
 
-async function get2LO(req) {
-  let str = await internal2LOClient(req).authenticate();
+async function get2LO(req, enableAdminRights) {
+  let str = await internal2LOClient(req, enableAdminRights).authenticate();
   return str.access_token;
 }
 
@@ -40,13 +64,14 @@ async function authCallbackMiddleware(req, res, next) {
 }
 
 async function authRefreshMiddleware(req, res, next) {
-    const { refresh_token, expires_at, clientId, clientSecret } = req.session;
+    const { refresh_token, expires_at, clientId, clientSecret, isAppOwner } = req.session;
 
-    if (!clientId || !clientSecret) {
+    if (!clientId || (!clientSecret && !_clientSecrets[clientId])) {
       res.status(401).end();
       return;
     }
 
+    // Only admins (people who know the client secret) can access these endpoints
     if (req.url.startsWith("/collections") || req.url.startsWith("/definitions")) {
       // these only require 2-legged authentication
       next();
@@ -93,6 +118,8 @@ async function getUserProfile(req, token) {
 }
 
 module.exports = {
+    registerClientSecret,
+    unregisterClientSecret,
     get2LO,
     internalAuthClient,
     getAuthorizationUrl,

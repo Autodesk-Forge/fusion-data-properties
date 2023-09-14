@@ -9,7 +9,7 @@ document.getElementById("collectionDialogOk").onclick = (event) => {
   });
 };
 
-export async function showCollectionDialog(callback, values) {
+export async function showCollectionDialog(callback, values, isEditing) {
   _callback = callback;
 
   document.getElementById("collectionName").value = values?.name || "";
