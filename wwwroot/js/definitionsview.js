@@ -41,6 +41,7 @@ function callShowDefinitionDialog(inputValues, isEditing, isCollectionEmpty) {
               definitionType: values.type,
               definitionDescription: values.description,
               isHidden: values.isHidden,
+              shouldCopy: values.shouldCopy,
               propertyBehavior: values.propertyBehavior,
             })
           );
@@ -75,13 +76,28 @@ function onEdit(event) {
   callShowDefinitionDialog(currentValues, true, false);
 }
 
-function onArchive(event) {
+async function onArchive(event) {
   console.log("onArchive");
   event.preventDefault();
+
+  const currentValues = event.target.parentElement.parentElement.definition;
+
+  showInfoDialog('question', "", "Are you sure you want to archive this property? This process can't be undone.", 'Cancel', 'Archive property', async () => {
+    try {
+      await useLoadingSymbol(async () => {
+        return await getJSON(
+          `/api/fusiondata/definitions/${currentValues.id}`,
+          "DELETE"
+        );
+      });
+    } catch (error) {
+      showInfoDialog("error", null, error, null, "OK", () => {});
+    }
+  })
 }
 
 function addRow(definitionsTable, definition) {
-  const showArchive = false;
+  const showArchive = true;
 
   let row = definitionsTable.insertRow();
   row.definition = definition;

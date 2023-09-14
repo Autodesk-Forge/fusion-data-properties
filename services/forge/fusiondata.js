@@ -381,6 +381,7 @@ class App {
                 }
                 isArchived
                 isHidden
+                shouldCopy
                 readOnly
                 description
                 propertyBehavior
@@ -403,13 +404,13 @@ class App {
   }
 
 
-  async createDefinition(collectionId, name, type, description, isHidden, propertyBehavior) { 
+  async createDefinition(collectionId, name, type, description, isHidden, shouldCopy, propertyBehavior) { 
 
     let response = await this.sendQuery(
-      `mutation CreatePropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $propertyBehavior: PropertyBehavior!) {
+      `mutation CreatePropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $shouldCopy: Boolean!,$propertyBehavior: PropertyBehavior!) {
         mfg {
           createPropertyDefinition(
-            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, propertyBehavior: $propertyBehavior}
+            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, shouldCopy: $shouldCopy,propertyBehavior: $propertyBehavior}
           ) {
             propertyDefinition {
               id
@@ -421,6 +422,7 @@ class App {
               }
               isArchived
               isHidden
+              shouldCopy
               readOnly
               description
               propertyBehavior
@@ -434,6 +436,7 @@ class App {
         propertyType: type,
         description: description,
         isHidden: isHidden,
+        shouldCopy: shouldCopy,
         propertyBehavior: propertyBehavior
       }
     );
@@ -456,6 +459,7 @@ class App {
             }
             isArchived
             isHidden
+            shouldCopy
             readOnly
             description
             propertyBehavior
@@ -488,6 +492,7 @@ class App {
               }
               isArchived
               isHidden
+              shouldCopy
               readOnly
               description
               propertyBehavior
@@ -503,6 +508,40 @@ class App {
     );
     
     return response.data.data.mfg.updatePropertyDefinition.propertyDefinition;
+  }
+
+  async archiveDefinition(definitionId) { 
+
+    let response = await this.sendQuery(
+      `mutation UpdatePropertyDefinition($propertyDefinitionId: ID!) {
+        mfg {
+          archivePropertyDefinition(
+            input: {propertyDefinitionId: $propertyDefinitionId}
+          ) {
+            propertyDefinition {
+              id
+              name
+              type
+              units {
+                id
+                name
+              }
+              isArchived
+              isHidden
+              shouldCopy
+              readOnly
+              description
+              propertyBehavior
+            }
+          }
+        }
+      }`,
+      {
+        propertyDefinitionId: definitionId
+      }
+    );
+    
+    return response.data.data.mfg.archivePropertyDefinition.propertyDefinition;
   }
 
   async getGeneralPropertiesForComponentVersion(versionId) {  
@@ -638,6 +677,7 @@ class App {
                   name
                   type
                   isHidden
+                  shouldCopy
                   description
                   propertyBehavior
                   units {
@@ -670,6 +710,7 @@ class App {
                   name
                   type
                   isHidden
+                  shouldCopy
                   description
                   propertyBehavior
                   units {

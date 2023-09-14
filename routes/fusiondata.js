@@ -72,7 +72,7 @@ router.post('/collections/:collection_id/definitions', async function (req, res)
     let fd = new fusionData(await get2LO(req));//req.internalOAuthToken.access_token);
     const response = await fd.createDefinition(
       req.params.collection_id, req.body.definitionName, req.body.definitionType,
-      req.body.definitionDescription, req.body.isHidden, req.body.propertyBehavior 
+      req.body.definitionDescription, req.body.isHidden, req.body.shouldCopy, req.body.propertyBehavior 
     );
     res.json(response);
   } catch (err) {
@@ -95,6 +95,16 @@ router.put('/definitions/:definition_id', async function (req, res) {
   try {
     let fd = new fusionData(await get2LO(req));//req.internalOAuthToken.access_token);
     const response = await fd.updateDefinition(req.params.definition_id, req.body.definitionDescription, req.body.isHidden);
+    res.json(response);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.delete('/definitions/:definition_id', async function (req, res) {
+  try {
+    let fd = new fusionData(await get2LO(req));//req.internalOAuthToken.access_token);
+    const response = await fd.archiveDefinition(req.params.definition_id);
     res.json(response);
   } catch (err) {
     res.status(400).json(err);
