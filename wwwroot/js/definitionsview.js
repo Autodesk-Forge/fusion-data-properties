@@ -90,6 +90,17 @@ async function onArchive(event) {
           "DELETE"
         );
       });
+
+      const definitionsTable = document.getElementById("definitionsTable");
+      const numOfRows = definitionsTable.rows.length;
+      if (numOfRows < 2) {
+        const collectionId = definitionsTable.getAttribute("collectionId");
+        const collectionName = definitionsTable.getAttribute("collectionName");
+        showDefinitionsTable(collectionId, collectionName, false, []);
+        return;
+      } else {
+        removeRow(definitionsTable, currentValues);
+      }
     } catch (error) {
       showInfoDialog("error", null, error, null, "OK", () => {});
     }
@@ -129,6 +140,11 @@ function updateRow(definitionsTable, definition) {
   const isHidden = row.querySelector(".definition-hidden");
   isHidden.textContent = toYesOrNo(definition.isHidden);
   row.definition.isHidden = definition.isHidden;
+}
+
+function removeRow(definitionsTable, definition) {
+  const row = definitionsTable.querySelector(`tr[definitionId="${definition.id}"]`);
+  row.remove();
 }
 
 export async function showDefinitionsTable(collectionId, collectionName, showDialog = false, definitions = null) {
