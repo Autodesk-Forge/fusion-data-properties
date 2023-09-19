@@ -72,7 +72,7 @@ router.post('/collections/:collection_id/definitions', async function (req, res)
     let fd = new fusionData(await get2LO(req));//req.internalOAuthToken.access_token);
     const response = await fd.createDefinition(
       req.params.collection_id, req.body.definitionName, req.body.definitionType,
-      req.body.definitionDescription, req.body.isHidden, req.body.shouldCopy, req.body.propertyBehavior 
+      req.body.definitionDescription, req.body.isHidden, req.body.shouldCopy, req.body.readOnly, req.body.propertyBehavior 
     );
     res.json(response);
   } catch (err) {

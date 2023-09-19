@@ -42,6 +42,7 @@ function callShowDefinitionDialog(inputValues, isEditing, isCollectionEmpty) {
               definitionDescription: values.description,
               isHidden: values.isHidden,
               shouldCopy: values.shouldCopy,
+              readOnly: values.readOnly,
               propertyBehavior: values.propertyBehavior,
             })
           );
