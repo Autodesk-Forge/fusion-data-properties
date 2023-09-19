@@ -403,13 +403,13 @@ class App {
   }
 
 
-  async createDefinition(collectionId, name, type, description, isHidden, propertyBehavior) { 
+  async createDefinition(collectionId, name, type, description, isHidden, readOnly, propertyBehavior) { 
 
     let response = await this.sendQuery(
-      `mutation CreatePropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $propertyBehavior: PropertyBehavior!) {
+      `mutation CreatePropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $readOnly: Boolean!, $propertyBehavior: PropertyBehavior!) {
         mfg {
           createPropertyDefinition(
-            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, propertyBehavior: $propertyBehavior}
+            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, readOnly: $readOnly, propertyBehavior: $propertyBehavior}
           ) {
             propertyDefinition {
               id
@@ -434,6 +434,7 @@ class App {
         propertyType: type,
         description: description,
         isHidden: isHidden,
+        readOnly: readOnly,
         propertyBehavior: propertyBehavior
       }
     );
