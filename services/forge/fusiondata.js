@@ -249,6 +249,7 @@ class App {
               results {
                 id
                 name
+                description
               }
             }
           }
@@ -281,6 +282,7 @@ class App {
               results {
                 id
                 name
+                description
                 propertyDefinitions {
                   results {
                     id
@@ -333,28 +335,53 @@ class App {
     return response.data.data.mfg.linkPropertyDefinitionCollection.hub.id;  
   }
 
-  async createCollection(name, isPublic) { 
-
+  async createCollection(name, collectionDescription) { 
       let response = await this.sendQuery(
-        `mutation CreatePropertyDefinitionCollection($propertyDefinitionCollectionName: String!) {
+        `mutation CreatePropertyDefinitionCollection($name: String!, $description: String!) {
           mfg {
             createPropertyDefinitionCollection(
-              input: {name: $propertyDefinitionCollectionName}
+              input: {name: $name, description: $description}
             ) {
               propertyDefinitionCollection {
                 id
                 name
+                description
               }
             }
           }
         }`,
         {
-          propertyDefinitionCollectionName: name
+          name: name,
+          description: collectionDescription
         }
       );
       
 
     return response.data.data.mfg.createPropertyDefinitionCollection.propertyDefinitionCollection;
+  }
+
+  async updateCollection(collectionId, collectionDescription) { 
+    let response = await this.sendQuery(
+      `mutation UpdatePropertyDefinitionCollection($propertyDefinitionCollectionId: String!, $description: String!) {
+        mfg {
+          updatePropertyDefinitionCollection(
+            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, description: $description}
+          ) {
+            propertyDefinitionCollection {
+              id
+              name
+              description
+            }
+          }
+        }
+      }`,
+      {
+        propertyDefinitionCollectionId: collectionId,
+        description: collectionDescription
+      }
+    );
+
+    return response.data.data.mfg.updatePropertyDefinitionCollection.propertyDefinitionCollection;
   }
 
   async getDefinitions(collectionId) { 

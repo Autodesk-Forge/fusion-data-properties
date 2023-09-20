@@ -16,13 +16,21 @@ function callShowCollectionDialog(inputValues, isEditing) {
 
     try {
       const collectionName = values.name;
-      //const collectionDescription = values.description;
+      const collectionDescription = values.description;
       const collection = await useLoadingSymbol(async () => {
-        return await getJSON(
-          `/api/fusiondata/collections`,
-          "POST",
-          JSON.stringify({ collectionName })
-        );
+        if (isEditing) {
+          return await getJSON(
+            `/api/fusiondata/collections/${inputValues.id}`,
+            "PUT",
+            JSON.stringify({ collectionDescription })
+          );
+        } else {
+          return await getJSON(
+            `/api/fusiondata/collections`,
+            "POST",
+            JSON.stringify({ collectionName, collectionDescription })
+          );
+        }
       });
 
       wait(1);
@@ -41,6 +49,7 @@ function addRow(collectionsTable, collection) {
   let row = collectionsTable.insertRow();
   row.innerHTML += `<tr>
       <td><a class="collection-link" href="${collection.name}" collectionId="${collection.id}">${collection.name}</a></td>
+      <td>${collection.description}</td>
       <td>
         <div class="dropdown">
           <a
@@ -58,13 +67,10 @@ function addRow(collectionsTable, collection) {
             <li>
               <a class="dropdown-item add-property" href="#">Add Property Definition</a>
             </li>
-            ${false ? `
             <li><hr class="dropdown-divider" /></li>
             <li>
-              <a class="dropdown-item" href="#"
-                >Edit collection details</a
-              >
-            </li>` : ''}
+              <a class="dropdown-item edit-collection" href="#">Edit Collection</a>
+            </li>
           </ul>
         </div>
       </td>
@@ -88,6 +94,13 @@ function addRow(collectionsTable, collection) {
     const collectionId = link.getAttribute("collectionId");
     const collectionName = link.text;
     showDefinitionsTable(collectionId, collectionName, true);
+  };
+
+  let editCollection = row.querySelector(".edit-collection");
+  editCollection.onclick = () => {
+    console.log("onEditCollection");
+
+    callShowCollectionDialog(collection, true);
   };
 }
 

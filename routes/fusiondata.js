@@ -23,7 +23,17 @@ router.get('/collections', async function (req, res, next) {
 router.post('/collections', async function (req, res, next) {
   try {
     let fd = new fusionData(await get2LO(req));
-    const response = await fd.createCollection(req.body.collectionName, true);
+    const response = await fd.createCollection(req.body.collectionName, req.body.collectionDescription);
+    res.json(response);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.put('/collections/:collection_id', async function (req, res, next) {
+  try {
+    let fd = new fusionData(await get2LO(req));
+    const response = await fd.updateCollection(req.params.collection_id, req.body.collectionDescription);
     res.json(response);
   } catch (err) {
     res.status(400).json(err);
