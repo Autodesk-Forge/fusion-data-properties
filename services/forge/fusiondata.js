@@ -362,7 +362,7 @@ class App {
 
   async updateCollection(collectionId, collectionDescription) { 
     let response = await this.sendQuery(
-      `mutation UpdatePropertyDefinitionCollection($propertyDefinitionCollectionId: String!, $description: String!) {
+      `mutation UpdatePropertyDefinitionCollection($propertyDefinitionCollectionId: ID!, $description: String!) {
         mfg {
           updatePropertyDefinitionCollection(
             input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, description: $description}
