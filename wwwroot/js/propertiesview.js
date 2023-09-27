@@ -185,8 +185,9 @@ function getNumberInputHTML(inputType, definitionId, propertyBehavior) {
   />`
 }
 
-
 function addRowToBody(tbody, definition, versionProperties, isEditable) {
+  isEditable &&= definition.isArchived === false;
+
   let info = '';
   const isComponentLevel = isComponentLevelProperty(definition.propertyBehavior);
   const behaviors = {
@@ -248,6 +249,7 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
   }
 
   const input = row.querySelector("input");
+  input.isArchived = definition.isArchived;
   setInputValues(input, value);
   handleOnInput(input);
 
@@ -366,7 +368,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
       button.classList.toggle("hidden");
 
     for (const input of getInputElements(tbody)) {
-      input.toggleAttribute("disabled", false);
+      input.toggleAttribute("disabled", input.isArchived);
     }
   }
 
