@@ -249,6 +249,7 @@ class App {
               results {
                 id
                 name
+                description
               }
             }
           }
@@ -281,6 +282,7 @@ class App {
               results {
                 id
                 name
+                description
                 propertyDefinitions {
                   results {
                     id
@@ -333,28 +335,53 @@ class App {
     return response.data.data.mfg.linkPropertyDefinitionCollection.hub.id;  
   }
 
-  async createCollection(name, isPublic) { 
-
+  async createCollection(name, collectionDescription) { 
       let response = await this.sendQuery(
-        `mutation CreatePropertyDefinitionCollection($propertyDefinitionCollectionName: String!) {
+        `mutation CreatePropertyDefinitionCollection($name: String!, $description: String!) {
           mfg {
             createPropertyDefinitionCollection(
-              input: {name: $propertyDefinitionCollectionName}
+              input: {name: $name, description: $description}
             ) {
               propertyDefinitionCollection {
                 id
                 name
+                description
               }
             }
           }
         }`,
         {
-          propertyDefinitionCollectionName: name
+          name: name,
+          description: collectionDescription
         }
       );
       
 
     return response.data.data.mfg.createPropertyDefinitionCollection.propertyDefinitionCollection;
+  }
+
+  async updateCollection(collectionId, collectionDescription) { 
+    let response = await this.sendQuery(
+      `mutation UpdatePropertyDefinitionCollection($propertyDefinitionCollectionId: ID!, $description: String!) {
+        mfg {
+          updatePropertyDefinitionCollection(
+            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, description: $description}
+          ) {
+            propertyDefinitionCollection {
+              id
+              name
+              description
+            }
+          }
+        }
+      }`,
+      {
+        propertyDefinitionCollectionId: collectionId,
+        description: collectionDescription
+      }
+    );
+
+    return response.data.data.mfg.updatePropertyDefinitionCollection.propertyDefinitionCollection;
   }
 
   async getDefinitions(collectionId) { 
@@ -381,6 +408,7 @@ class App {
                 }
                 isArchived
                 isHidden
+                shouldCopy
                 readOnly
                 description
                 propertyBehavior
@@ -402,14 +430,13 @@ class App {
     return res;
   }
 
-
-  async createDefinition(collectionId, name, type, description, isHidden, readOnly, propertyBehavior) { 
+  async createDefinition(collectionId, name, type, description, isHidden, shouldCopy, readOnly, propertyBehavior) { 
 
     let response = await this.sendQuery(
-      `mutation CreatePropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $readOnly: Boolean!, $propertyBehavior: PropertyBehavior!) {
+      `mutation CreatePropertyDefinition($propertyDefinitionCollectionId: ID!, $propertyDefinitionName: String!, $propertyType: PropertyTypes!, $description: String!, $isHidden: Boolean!, $shouldCopy: Boolean!, $readOnly: Boolean!, $propertyBehavior: PropertyBehavior!) {
         mfg {
           createPropertyDefinition(
-            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, readOnly: $readOnly, propertyBehavior: $propertyBehavior}
+            input: {propertyDefinitionCollectionId: $propertyDefinitionCollectionId, name: $propertyDefinitionName, type: $propertyType, description: $description, isHidden: $isHidden, shouldCopy: $shouldCopy, readOnly: $readOnly, propertyBehavior: $propertyBehavior}
           ) {
             propertyDefinition {
               id
@@ -421,6 +448,7 @@ class App {
               }
               isArchived
               isHidden
+              shouldCopy
               readOnly
               description
               propertyBehavior
@@ -435,6 +463,8 @@ class App {
         description: description,
         isHidden: isHidden,
         readOnly: readOnly,
+        shouldCopy: shouldCopy,
+
         propertyBehavior: propertyBehavior
       }
     );
@@ -457,6 +487,7 @@ class App {
             }
             isArchived
             isHidden
+            shouldCopy
             readOnly
             description
             propertyBehavior
@@ -489,6 +520,7 @@ class App {
               }
               isArchived
               isHidden
+              shouldCopy
               readOnly
               description
               propertyBehavior
@@ -504,6 +536,40 @@ class App {
     );
     
     return response.data.data.mfg.updatePropertyDefinition.propertyDefinition;
+  }
+
+  async archiveDefinition(definitionId) { 
+
+    let response = await this.sendQuery(
+      `mutation UpdatePropertyDefinition($propertyDefinitionId: ID!) {
+        mfg {
+          archivePropertyDefinition(
+            input: {propertyDefinitionId: $propertyDefinitionId}
+          ) {
+            propertyDefinition {
+              id
+              name
+              type
+              units {
+                id
+                name
+              }
+              isArchived
+              isHidden
+              shouldCopy
+              readOnly
+              description
+              propertyBehavior
+            }
+          }
+        }
+      }`,
+      {
+        propertyDefinitionId: definitionId
+      }
+    );
+    
+    return response.data.data.mfg.archivePropertyDefinition.propertyDefinition;
   }
 
   async getGeneralPropertiesForComponentVersion(versionId) {  
@@ -639,6 +705,7 @@ class App {
                   name
                   type
                   isHidden
+                  shouldCopy
                   description
                   propertyBehavior
                   units {
@@ -671,6 +738,7 @@ class App {
                   name
                   type
                   isHidden
+                  shouldCopy
                   description
                   propertyBehavior
                   units {

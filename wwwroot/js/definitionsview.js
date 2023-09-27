@@ -41,6 +41,7 @@ function callShowDefinitionDialog(inputValues, isEditing, isCollectionEmpty) {
               definitionType: values.type,
               definitionDescription: values.description,
               isHidden: values.isHidden,
+              shouldCopy: values.shouldCopy,
               readOnly: values.readOnly,
               propertyBehavior: values.propertyBehavior,
             })
@@ -76,13 +77,39 @@ function onEdit(event) {
   callShowDefinitionDialog(currentValues, true, false);
 }
 
-function onArchive(event) {
+async function onArchive(event) {
   console.log("onArchive");
   event.preventDefault();
+
+  const currentValues = event.target.parentElement.parentElement.definition;
+
+  showInfoDialog('question', "", "Are you sure you want to archive this property? This process can't be undone.", 'Cancel', 'Archive property', async () => {
+    try {
+      await useLoadingSymbol(async () => {
+        return await getJSON(
+          `/api/fusiondata/definitions/${currentValues.id}`,
+          "DELETE"
+        );
+      });
+
+      const definitionsTable = document.getElementById("definitionsTable");
+      const numOfRows = definitionsTable.rows.length;
+      if (numOfRows < 2) {
+        const collectionId = definitionsTable.getAttribute("collectionId");
+        const collectionName = definitionsTable.getAttribute("collectionName");
+        showDefinitionsTable(collectionId, collectionName, false, []);
+        return;
+      } else {
+        removeRow(definitionsTable, currentValues);
+      }
+    } catch (error) {
+      showInfoDialog("error", null, error, null, "OK", () => {});
+    }
+  })
 }
 
 function addRow(definitionsTable, definition) {
-  const showArchive = false;
+  const showArchive = true;
 
   let row = definitionsTable.insertRow();
   row.definition = definition;
@@ -114,6 +141,11 @@ function updateRow(definitionsTable, definition) {
   const isHidden = row.querySelector(".definition-hidden");
   isHidden.textContent = toYesOrNo(definition.isHidden);
   row.definition.isHidden = definition.isHidden;
+}
+
+function removeRow(definitionsTable, definition) {
+  const row = definitionsTable.querySelector(`tr[definitionId="${definition.id}"]`);
+  row.remove();
 }
 
 export async function showDefinitionsTable(collectionId, collectionName, showDialog = false, definitions = null) {
