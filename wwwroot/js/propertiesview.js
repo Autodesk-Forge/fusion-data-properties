@@ -230,9 +230,9 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
     <td>${definition?.units?.name || ""}</td>
     <td><span class="bi bi-eraser clickable" title="Delete property value"></td>`;
 
-  const button = row.querySelector(".bi-eraser.clickable");
-  button.classList.toggle("hidden", !isEditable);
-  button.onclick = async () => {
+  const eraser = row.querySelector(".bi-eraser.clickable");
+  eraser.classList.toggle("hidden", !isEditable);
+  eraser.onclick = async () => {
     let extendableId = isComponentLevel ? _itemId : _versionId;
     const text = (isComponentLevel) ?
       'Are you sure you want to save these changes? A new file version will be created with this property cleared. This action can’t be undone.' :
