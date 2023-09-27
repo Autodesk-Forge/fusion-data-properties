@@ -430,7 +430,6 @@ class App {
     return res;
   }
 
-
   async createDefinition(collectionId, name, type, description, isHidden, shouldCopy, readOnly, propertyBehavior) { 
 
     let response = await this.sendQuery(
@@ -465,6 +464,7 @@ class App {
         isHidden: isHidden,
         readOnly: readOnly,
         shouldCopy: shouldCopy,
+
         propertyBehavior: propertyBehavior
       }
     );
