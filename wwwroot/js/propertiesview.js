@@ -297,6 +297,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
 
     let componentProperties = [];
     let versionProperties = [];
+    let standardPropertiesCount = 0;
     for (const input of getInputElements(tbody)) {
       const [oldValue, value] = getInputValues(input);
       const definitionId = input.getAttribute("definitionId");
@@ -307,6 +308,8 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
             propertyDefinitionId: definitionId,
             value
           })
+          if (propertyBehavior === 'STANDARD')
+            standardPropertiesCount++;
         } else {
           versionProperties.push({
             propertyDefinitionId: definitionId,
@@ -321,7 +324,7 @@ function addPropertiesToTable(table, collection, versionProperties, collectionNa
     if (componentProperties.length < 1 && versionProperties.length < 1)
       return;
 
-    const text = (componentProperties.length > 0) ?
+    const text = (standardPropertiesCount > 0) ?
       'Are you sure you want to save these changes? A new file version will be created as a result. This action can’t be undone.' :
       'Are you sure you want to save these changes? This action can’t be undone. '
 
