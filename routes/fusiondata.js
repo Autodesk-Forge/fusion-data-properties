@@ -65,6 +65,19 @@ router.post('/:hub_id/collections', async function (req, res, next) {
   }
 });
 
+router.delete('/:hub_id/collections/:collection_id', async function (req, res, next) {
+  try {
+    let hubId = req.params.hub_id;
+    let collectionId = req.params.collection_id;
+    let token = req.internalOAuthToken.access_token;
+    let fd = new fusionData(token);
+    const response = await fd.unlinkCollectionFromHub(hubId, collectionId);
+    res.json(response);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
 // Definition functions
 
 router.get('/collections/:collection_id/definitions', async function (req, res, next) {

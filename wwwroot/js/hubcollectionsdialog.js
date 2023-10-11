@@ -50,7 +50,7 @@ export async function showHubCollectionsDialog(hubId) {
 
   if (linkedCollections.value) {
     for (let collection of linkedCollections.value) {
-      const linkIcon = `<span class="bi-link-45deg float-right"></span>`;
+      const linkIcon = `<span class="bi-link-45deg float-right clickable"></span>`;
       collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}${linkIcon}</li>`;
     }
   }
@@ -65,29 +65,40 @@ export async function showHubCollectionsDialog(hubId) {
 
   for (let item of collectionsList.getElementsByClassName("bi-link-45deg")) {
     item.onclick = async (event) => {
-      if (!item.classList.contains("dimmed")) return;
-
       const collectionId =
         event.target.parentElement.getAttribute("collectionId");
 
-      showInfoDialog('question', '', 'By selecting “Proceed” below, you will link the selected collection to your hub. ', 'Cancel', 'Proceed', async () => {
+      const isLinked = !item.classList.contains("dimmed");
+      const text = isLinked ?
+        'By selecting “Proceed” below, you will unlink the selected collection from your hub. ' :
+        'By selecting “Proceed” below, you will link the selected collection to your hub. ';
+
+      showInfoDialog('question', '', text, 'Cancel', 'Proceed', async () => {
         try {
           let result = await useLoadingSymbol(async () => {
-            return getJSON(
-              `/api/fusiondata/${hubId}/collections`,
-              "POST",
-              JSON.stringify({ collectionId })
-            );
+            if (isLinked)
+              return getJSON(
+                `/api/fusiondata/${hubId}/collections/${collectionId}`,
+                "DELETE"
+              )
+            else
+              return getJSON(
+                `/api/fusiondata/${hubId}/collections`,
+                "POST",
+                JSON.stringify({ collectionId })
+              );
           });
-          item.classList.toggle("dimmed", false);
-          item.classList.toggle("clickable", false);
+          item.classList.toggle("dimmed", isLinked);
 
           // Update links in tree control
-          showInfoDialog('success', '', 'Collection successfully linked to hub.', '', 'Continue', () => {
+          const text2 = isLinked ?
+            'Collection successfully unlinked from hub.' :
+            'Collection successfully linked to hub.';
+          showInfoDialog('success', '', text2, '', 'Continue', () => {
             showLinkIconForHubsWithLinkedCollections();
           })
         } catch (error) {
-          showInfoDialog('error', 'Operation not allowed', 'Only hub administrators are allowed to link collections to a hub.', '', 'OK')
+          showInfoDialog('error', 'Operation not allowed', 'Only hub administrators are allowed to link/unlink collections to/from a hub.', '', 'OK')
           console.log(error);
         }
       }) 

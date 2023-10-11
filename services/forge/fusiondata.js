@@ -335,6 +335,27 @@ class App {
     return response.data.data.mfg.linkPropertyDefinitionCollection.hub.id;  
   }
 
+  async unlinkCollectionFromHub(hubId, collectionId) { 
+    let response = await this.sendQuery(
+      `mutation UnlinkPropertyDefinitionCollectionToHub ($propertyDefinitionCollectionId: ID!, $targetHubId: ID!) {
+        mfg {
+          unlinkPropertyDefinitionCollection (input: { propertyDefinitionCollectionId: $propertyDefinitionCollectionId, targetHubId: $targetHubId }) {
+            hub {
+              id
+              name
+            }
+          }
+        }
+      }`,
+      {
+        targetHubId: hubId,
+        propertyDefinitionCollectionId: collectionId
+      }
+    )
+      
+    return response.data.data.mfg.unlinkPropertyDefinitionCollection.hub.id;  
+  }
+
   async createCollection(name, collectionDescription) { 
       let response = await this.sendQuery(
         `mutation CreatePropertyDefinitionCollection($name: String!, $description: String!) {
