@@ -46,11 +46,23 @@ export async function showHubCollectionsDialog(hubId) {
     return !!result;
   };
 
+  const isOwned = (collectionId) => {
+    if (!collections.value)
+      return false;
+
+    const result = collections.value.find(
+      (item) => item.id === collectionId
+    );
+
+    return !!result;
+  };
+
   collectionsDialogEmpty.classList.toggle("hidden", true);
 
   if (linkedCollections.value) {
     for (let collection of linkedCollections.value) {
-      const linkIcon = `<span class="bi-link-45deg float-right clickable"></span>`;
+      const owned = isOwned(collection.id);
+      const linkIcon = `<span class="bi-link-45deg float-right ${owned ? "clickable" : ""}"></span>`;
       collectionsList.innerHTML += `<li class="list-group-item" collectionId="${collection.id}">${collection.name}${linkIcon}</li>`;
     }
   }
@@ -64,6 +76,9 @@ export async function showHubCollectionsDialog(hubId) {
   }
 
   for (let item of collectionsList.getElementsByClassName("bi-link-45deg")) {
+    if (!isOwned(item.parentElement.getAttribute("collectionId")))
+      continue;
+    
     item.onclick = async (event) => {
       const collectionId =
         event.target.parentElement.getAttribute("collectionId");
