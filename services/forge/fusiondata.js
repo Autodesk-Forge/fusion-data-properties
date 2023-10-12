@@ -58,7 +58,7 @@ class App {
             id
             thumbnail {
               status
-              largeImageUrl
+              url
             }
           }
         }
@@ -81,7 +81,7 @@ class App {
             id
             thumbnail {
               status
-              largeImageUrl
+              url
             }
           }
         }
@@ -118,7 +118,7 @@ class App {
                 id
                 thumbnail {
                   status
-                  largeImageUrl
+                  url
                 }
               }
             }
@@ -127,7 +127,7 @@ class App {
                 id
                 thumbnail {
                   status
-                  largeImageUrl
+                  url
                 }
               }
             }
@@ -146,7 +146,7 @@ class App {
 
     let resp = await axios({
       method: 'GET',
-      url: thumbnail.largeImageUrl,
+      url: thumbnail.url,
       headers: this.getRequestHeaders(),
       responseType: 'arraybuffer',
       responseEncoding: 'binary'

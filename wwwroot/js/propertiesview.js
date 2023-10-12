@@ -49,8 +49,8 @@ async function showThumbnail() {
           throw "Could not generate thumbnail";
   
         // still needed for drawings 
-        thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.largeImageUrl)}`;
-        //thumbnail.src = response.largeImageUrl;
+        thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.url)}`;
+        //thumbnail.src = response.url;
 
         break;
       }
