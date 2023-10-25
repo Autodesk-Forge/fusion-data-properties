@@ -18,15 +18,21 @@ class App {
   }
 
   async sendQuery(query, variables) {
-    let response = await axios({
-      method: 'POST',
-      url: `${this.graphAPI}`,
-      headers: this.getRequestHeaders(),
-      data: { 
-        query,
-        variables
-      }
-    })
+    let response = null;
+
+    try {
+      response = await axios({
+        method: 'POST',
+        url: `${this.graphAPI}`,
+        headers: this.getRequestHeaders(),
+        data: { 
+          query,
+          variables
+        }
+      })
+    } catch (err) {
+      response = err.response;
+    }
 
     if (response.data.errors && !query.includes('GetPropertyDefinitionCollectionsByHubId')) {
       let formatted = JSON.stringify(response.data.errors, null, 2);
@@ -34,7 +40,7 @@ class App {
 
       throw this.getErrorMessage(response.data.errors);
     }
-
+    
     return response;
   }
 
