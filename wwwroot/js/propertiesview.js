@@ -546,7 +546,8 @@ async function showVersionProperties() {
       table.classList = "table";
       for (let collection of hubCollections.value) {
         // '!!' turns the find result into boolean
-        const isMyCollection = !!myCollections.value.find(item => item.id === collection.id);
+		// If clientId has no collections, then myCollections.value is undefined
+        const isMyCollection = !!myCollections.value?.find(item => item.id === collection.id);
         addPropertiesToTable(table, collection, versionProperties.value, collection.name, isMyCollection)
       }
       propertiesPane.appendChild(table);
@@ -612,7 +613,8 @@ export async function onSelectionChanged(
   versionId,
   isTipVersion,
   lastModifiedOn,
-  versionUrn
+  versionUrn,
+  componentName,
 ) {
   console.log({lastModifiedOn, isTipVersion, versionId});
 
@@ -639,9 +641,12 @@ export async function onSelectionChanged(
       document.getElementById("versionInfo").classList.toggle("hidden", false);
     }
     showVersionProperties();
-	showInViewer(versionUrn);
   } else {
     _itemId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
+  }
+
+  if (versionUrn) {
+	showInViewer(versionUrn, componentName);
   }
 }

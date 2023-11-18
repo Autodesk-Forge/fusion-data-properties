@@ -378,12 +378,14 @@ export function initTreeControl(
       const isTipVersion = versionsList.options[0].value === versionsList.value;
       const selectedVersion = versionsList.selectedOptions[0];
       const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
-      console.log(versionsList.value);
-      onSelectionChanged(node, node.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn, versionsList.value); 
+	  const versionUrn = versionsList.value;
+      console.log(versionUrn);
+      onSelectionChanged(node, node.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn, versionUrn); 
     } else if (type === "component") {
       const isTipVersion = (versionId === tipVersionId);
       const lastModifiedOn = null;
-      onSelectionChanged(node, "component", hubUrn, itemId, versionId, isTipVersion, lastModifiedOn); 
+	  const versionUrn = getVersionUrn(node);
+      onSelectionChanged(node, "component", hubUrn, itemId, versionId, isTipVersion, lastModifiedOn, versionUrn, node.text); 
     } else {
       onSelectionChanged(node, type);
     }
@@ -392,4 +394,17 @@ export function initTreeControl(
   _tree = new InspireTreeDOM(tree, { target: selector });
 
   return _tree;
+}
+
+function getVersionUrn(node) {
+	while (node) {
+		if (node.id.startsWith("item")) {
+			break;
+		}
+		node = node.itree.parent;
+	}
+
+	const versionsList = document.querySelector(`select[data-uid="${node.id}"]`);
+
+  	return versionsList.value;
 }
