@@ -379,7 +379,7 @@ export function initTreeControl(
       const selectedVersion = versionsList.selectedOptions[0];
       const lastModifiedOn = selectedVersion.getAttribute("lastModifiedOn");
       console.log(versionsList.value);
-      onSelectionChanged(node, node.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn); 
+      onSelectionChanged(node, node.type, hubUrn, versionsList.itemId, selectedVersion.versionId, isTipVersion, lastModifiedOn, versionsList.value); 
     } else if (type === "component") {
       const isTipVersion = (versionId === tipVersionId);
       const lastModifiedOn = null;

@@ -1,6 +1,7 @@
 import { getJSON, abortJSON, useLoadingSymbol, showInfoDialog, formatNumber, formatString, wait, isSafariFirefox } from "./utils.js";
 import { initTreeControl, updateVersionsList } from "./hubstree.js";
 import { showHubCollectionsDialog } from "./hubcollectionsdialog.js";
+import { showInViewer } from "./viewer.js";
 
 let _tree;
 let _itemId;
@@ -610,7 +611,8 @@ export async function onSelectionChanged(
   itemId,
   versionId,
   isTipVersion,
-  lastModifiedOn
+  lastModifiedOn,
+  versionUrn
 ) {
   console.log({lastModifiedOn, isTipVersion, versionId});
 
@@ -637,6 +639,7 @@ export async function onSelectionChanged(
       document.getElementById("versionInfo").classList.toggle("hidden", false);
     }
     showVersionProperties();
+	showInViewer(versionUrn);
   } else {
     _itemId = null;
     document.getElementById("thumbnail").src = "/images/box-200x200.png";
