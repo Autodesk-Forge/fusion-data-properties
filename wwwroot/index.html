@@ -295,7 +295,7 @@
             <div id="tree"></div>
           </div>
         </div>
-        <div class="col-sm-8 full-height" style="overflow: auto;">
+        <div class="col-sm-8 full-height d-flex flex-column overflow-auto">
           <header class="p-1">
             <div class="container pl-ml-0">
               <nav aria-label="breadcrumb">
@@ -348,9 +348,21 @@
               >
                 Custom Properties
               </button>
+			  <button
+                class="nav-link"
+                id="viewerTab"
+                data-bs-toggle="tab"
+                data-bs-target="#viewerPane"
+                type="button"
+                role="tab"
+                aria-controls="viewerPane"
+                aria-selected="false"
+              >
+                Viewer
+              </button>
             </div>
           </nav>
-          <div class="row">
+          <div class="row flex-fill">
             <div class="col-sm-3">
               <div id="preview">
                 <div id="info">
@@ -474,11 +486,19 @@
                 >
                 </div>
                 <div
-                class="tab-pane"
-                id="componentsPane"
-                role="tabpanel"
-                aria-labelledby="componentsTab"
+					class="tab-pane"
+					id="componentsPane"
+					role="tabpanel"
+					aria-labelledby="componentsTab"
                 >
+                </div>
+				<div
+					class="tab-pane"
+					id="viewerPane"
+					role="tabpanel"
+					aria-labelledby="viewerTab"
+                >
+					<div id="viewer"></div>
                 </div>
               </div>
             </div>
