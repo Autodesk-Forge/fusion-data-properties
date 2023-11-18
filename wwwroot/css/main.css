@@ -136,12 +136,6 @@ tbody>tr:nth-child(odd) {
   text-decoration: none;
 }
 
-#viewer {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
 #preview {
   /*width: 60%;*/
   right: 0;
