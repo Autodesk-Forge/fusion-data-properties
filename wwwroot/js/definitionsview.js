@@ -38,7 +38,7 @@ function callShowDefinitionDialog(inputValues, isEditing, isCollectionEmpty) {
             "POST",
             JSON.stringify({
               definitionName: values.name,
-              definitionType: values.type,
+              definitionType: values.specification,
               definitionDescription: values.description,
               isHidden: values.isHidden,
               shouldCopy: values.shouldCopy,
@@ -116,7 +116,7 @@ function addRow(definitionsTable, definition) {
   row.setAttribute("definitionId", definition.id);
   row.innerHTML += `
     <td class="definition-name">${definition.name}</td>
-    <td class="definition-type">${formatString(definition.type)}</td>
+    <td class="definition-type">${formatString(definition.specification)}</td>
     <td class="definition-units">${toNonEmpty(definition.units?.name)}</td>
     <td class="definition-behavior">${formatString(toNonEmpty(definition.propertyBehavior))}</td>
     <td class="definition-description">${definition.description}</td>
