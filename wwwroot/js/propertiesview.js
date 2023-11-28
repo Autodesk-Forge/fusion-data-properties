@@ -49,8 +49,8 @@ async function showThumbnail() {
           throw "Could not generate thumbnail";
   
         // still needed for drawings 
-        thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.largeImageUrl)}`;
-        //thumbnail.src = response.largeImageUrl;
+        thumbnail.src = `/api/fusiondata/thumbnail/${encodeURIComponent(response.url)}`;
+        //thumbnail.src = response.url;
 
         break;
       }
@@ -208,13 +208,13 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
   const value = (property) ? property.value : '';
 
   let inputHTML = "";
-  if (definition.type === 'BOOLEAN') {
+  if (definition.specification === 'BOOLEAN') {
     inputHTML = getCheckboxInputHTML(definition.id, definition.propertyBehavior);
   }
-  else if (definition.type === 'STRING') {
+  else if (definition.specification === 'STRING') {
     inputHTML = getTextInputHTML(definition.id, definition.propertyBehavior);
   }
-  else if (definition.type === 'INTEGER') {
+  else if (definition.specification === 'INTEGER') {
     inputHTML = getNumberInputHTML("int", definition.id, definition.propertyBehavior);
   } else {
     inputHTML = getNumberInputHTML("float", definition.id, definition.propertyBehavior);
@@ -223,7 +223,7 @@ function addRowToBody(tbody, definition, versionProperties, isEditable) {
   const row = document.createElement("tr");
   row.innerHTML = `
     <td style="padding-left: 25px;">${definition.name} ${info} ${behaviorSign}</td>
-    <td>${formatString(definition.type)}</td>
+    <td>${formatString(definition.specification)}</td>
     <td class="prop-value">
      ${inputHTML}
     </td>

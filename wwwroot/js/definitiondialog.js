@@ -9,7 +9,7 @@ document.getElementById("definitionDialogOk").onclick = (event) => {
     id: document.getElementById("definitionDialog").definitionId,
     name: document.getElementById("definitionName").value,
     description: document.getElementById("definitionDescription").value,
-    type: document.getElementById("definitionType").value,
+    specification: document.getElementById("definitionType").value,
     propertyBehavior: document.getElementById("definitionBehaviour").value,
     readOnly: document.getElementById("definitionReadonlyYes").checked,
     isHidden: document.getElementById("definitionHiddenYes").checked,
@@ -42,7 +42,7 @@ export async function showDefinitionDialog(callback, values, isEditing) {
     ? "Save Changes"
     : "Add Property Definition";
   document.getElementById("definitionName").value = values?.name || "";
-  document.getElementById("definitionType").value = values?.type || "STRING";
+  document.getElementById("definitionType").value = values?.specification || "STRING";
   document.getElementById("definitionDescription").value =
     values?.description || "";
   document.getElementById("definitionBehaviour").value =
